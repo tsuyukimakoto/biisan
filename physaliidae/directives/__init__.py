@@ -75,13 +75,15 @@ aff::
   <img src="http://images-jp.amazon.com/images/P/{asin}.09.SZZZZZZZ.jpg">
   </section>
   <section class="eight columns">
-  <a href="http://www.amazon.co.jp/gp/product/{asin}?tag={tag}">
+  <a href="http://www.amazon.{tld}/gp/product/{asin}?tag={tag}">
     <h4>{title}</h4>
     <img
      src="http://ecx.images-amazon.com/images/G/09/buttons/buy-from-tan.gif" />
   </a>
   </section>
-</div>'''.format(asin=_asin, title=_title, tag=settings.directive.aff.tag)
+</div>'''.format(asin=_asin, title=_title,
+                 tld=settings.directive.aff.tld,
+                 tag=settings.directive.aff.tag)
         return [nodes.raw('', text, format='html')]
 
 directives.register_directive("aff", AffDirective)
