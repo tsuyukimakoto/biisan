@@ -3,14 +3,14 @@ import codecs
 from glob import glob
 import xml.etree.ElementTree as ET
 from docutils.core import publish_parts
-import physaliidae.directives
+import biisan.directives
 
 version_info = (0, 1, 0)
 __version__ = ".".join([str(v) for v in version_info])
 
 x = None
 
-os.environ['GLUE_PLATE_BASE_MODULE'] = 'physaliidae.physaliidae_settings'
+os.environ['GLUE_PLATE_BASE_MODULE'] = 'biisan.biisan_settings'
 
 
 def unmarshal_entry(pth):

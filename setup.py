@@ -7,14 +7,14 @@ Static blog site generator.
 '''
 from distutils.core import setup
 
-from physaliidae import __version__
+from biisan import __version__
 
-setup(name='physaliidae',
+setup(name='biisan',
       version=__version__,
       description='Static site generator.',
       author='makoto tsuyuki',
       author_email='mtsuyuki@gmail.com',
-      url='https://github.com/tsuyukimakoto/physaliidae',
+      url='https://github.com/tsuyukimakoto/biisan',
       scripts=['scripts/katsuebo'],
       long_description=__doc__,
       classifiers=['Development Status :: 3 - Alpha',
@@ -29,6 +29,6 @@ setup(name='physaliidae',
                    'Programming Language :: Python :: 3.6',
                    'Topic :: Documentation',
                    ],
-      packages=['physaliidae', 'physaliidae.directives', ],
-      package_data={'physaliidae': ['templates/*', ]},
+      packages=['biisan', 'biisan.directives', ],
+      package_data={'biisan': ['templates/*', ]},
       )
