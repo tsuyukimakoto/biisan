@@ -1,7 +1,9 @@
 import os
 from email.utils import formatdate
-import physaliidae_settings as settings
 
+from glueplate import config
+
+from pprint import pprint
 
 class Entry(object):
     def __init__(self, slug, published_from, title, body):
@@ -19,7 +21,7 @@ class Entry(object):
     def directory(self):
         if not hasattr(self, '_directory'):
             self._directory = os.path.join(
-                '{0}'.format(settings.dir.output),
+                '{0}'.format(config.settings.dir.output),
                 'blog',
                 '{0:04d}'.format(self.published_from.year),
                 '{0:02d}'.format(self.published_from.month),
@@ -31,7 +33,7 @@ class Entry(object):
     @property
     def archive_directory(self):
         return os.path.join(
-            '{0}'.format(settings.dir.output),
+            '{0}'.format(config.settings.dir.output),
             'archive',
             '{0:04d}'.format(self.published_from.year),
             '{0}'.format(self.published_from.month)
@@ -60,7 +62,7 @@ class Entry(object):
 
 def archive_directory(year_month):
     return os.path.join(
-        '{0}'.format(settings.dir.output),
+        '{0}'.format(config.settings.dir.output),
         'archive', year_month)
 
 

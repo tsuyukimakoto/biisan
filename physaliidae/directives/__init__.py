@@ -3,8 +3,6 @@ from cgi import escape
 from docutils import nodes
 from docutils.parsers.rst import directives, Directive
 
-import physaliidae_settings as settings
-
 
 class PrismDirective(Directive):
     """
