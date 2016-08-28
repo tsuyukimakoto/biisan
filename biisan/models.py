@@ -17,8 +17,8 @@ class Entry(object):
         return self._timestamp <= other._timestamp
 
     def __repr__(self):
-        return '{0}: {1} at {2}'.format(self.slug, self.title,
-                                        self.__date)
+        return '{0}: {1} at {2}, {3} comments'.format(
+            self.slug, self.title, self.__date, len(self.comments))
 
     @property
     def date(self):
@@ -81,8 +81,11 @@ def archive_directory(year_month):
 
 
 class Comment(object):
-    def __init__(self, *args):
-        self.commentator, self.url, self.body, self.create_date = args
+    def __init__(self):
+        self.commentator = ''
+        self.url = ''
+        self.body = []
+        self.create_date = None
 
 
 def next_entry(entry_list, i):

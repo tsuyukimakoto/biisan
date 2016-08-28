@@ -2,6 +2,8 @@
 from datetime import datetime
 import logging
 
+from biisan.models import Comment
+
 logger = logging.getLogger(__name__)
 
 
@@ -12,7 +14,10 @@ def process_field_name(elm, registry, entry):
 def process_field_body(elm, registry, entry):
     res = []
     for x in elm.getchildren():
-        res.append(x.text)
+        if 'field_list' == x.tag:
+            print(x.tag)
+        else:
+            res.append(x.text)
     return res
 
 
@@ -23,6 +28,30 @@ def process_title(elm, registry, entry):
 def process_document(elm, registry, entry):
     for _elm in elm.getchildren():
         registry.process(_elm, entry)
+
+def _process_comment(elm, registry, entry):
+    _field_list = elm.getchildren()[0]
+    commentator = ''
+    url = ''
+    body = []
+    create_date = None
+    for _field in _field_list:
+        if 'commentator' == _field[0].text:
+            commentator = _field[1][0].text
+        elif 'url' == _field[0].text:
+            url = _field[1].text
+        elif 'body' == _field[0].text:
+            body = [x.text for x in _field[1]]
+        elif 'create_date' == _field[0].text:
+            create_date = datetime.strptime(
+                _field[1][0].text, '%Y-%m-%d %H:%M'
+            )
+    c = Comment()
+    c.commentator = commentator
+    c.url = url
+    c.body = body
+    c.create_date = create_date
+    entry.comments.append(c)
 
 
 def process_docinfo(elm, registry, entry):
@@ -36,10 +65,14 @@ def process_docinfo(elm, registry, entry):
                 elif field_name == 'author':
                     entry.author = process_field_body(
                         _elm[1], registry, entry)[0]
+                elif field_name == 'comment':
+                    _process_comment(_elm[1], registry, entry)
         elif 'date' == _elm.tag:
             entry.date = datetime.strptime(
                 _elm.text, '%Y-%m-%d %H:%M'
             )
+        elif 'author' == _elm.tag:
+            entry.author = _elm.text
 
 
 class FunctionRegistry(dict):
@@ -76,7 +109,7 @@ class FunctionRegistry(dict):
             logger.debug('---------------')
             logger.debug(getattr(self, _processor_name).__name__)
             logger.debug(getattr(self, _processor_name).__code__.co_varnames)
-            getattr(self, _processor_name)(elm, self, entry)
+            return getattr(self, _processor_name)(elm, self, entry)
         else:
             logger.debug(
                 'processor {0} is not defined and element ignored.'.format(
