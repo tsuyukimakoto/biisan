@@ -5,20 +5,31 @@ from glueplate import config
 
 
 class Entry(object):
-    def __init__(self, slug, title, author, date):
-        self.slug = slug
-        self.title = title
-        self.date = date
-        self.author = author
+    def __init__(self):
+        self.slug = ''
+        self.title = ''
+        self.__date = None
+        self.author = ''
         self.comments = []
-        self._timestamp = self.date.timestamp()
+        self._timestamp = None
 
     def __lt__(self, other):
         return self._timestamp <= other._timestamp
 
     def __repr__(self):
         return '{0}: {1} at {2}'.format(self.slug, self.title,
-                                        self.date)
+                                        self.__date)
+
+    @property
+    def date(self):
+        if self.__date is None:
+            raise ValueError('date must not be None.')
+        return self.__date
+
+    @date.setter
+    def date(self, date):
+        self.__date = date
+        self._timestamp = self.__date.timestamp()
 
     @property
     def directory(self):
@@ -26,9 +37,9 @@ class Entry(object):
             self._directory = os.path.join(
                 '{0}'.format(config.settings.dir.output),
                 'blog',
-                '{0:04d}'.format(self.date.year),
-                '{0:02d}'.format(self.date.month),
-                '{0:02d}'.format(self.date.day),
+                '{0:04d}'.format(self.__date.year),
+                '{0:02d}'.format(self.__date.month),
+                '{0:02d}'.format(self.__date.day),
                 self.slug
             )
         return self._directory
@@ -38,29 +49,29 @@ class Entry(object):
         return os.path.join(
             '{0}'.format(config.settings.dir.output),
             'archive',
-            '{0:04d}'.format(self.date.year),
-            '{0}'.format(self.date.month)
+            '{0:04d}'.format(self.__date.year),
+            '{0}'.format(self.__date.month)
         )
 
     @property
     def url(self):
         return '/{0:04d}/{1:02d}/{2:02d}/{3}/{4}'.format(
-            self.date.year,
-            self.date.month,
-            self.date.day,
+            self.__date.year,
+            self.__date.month,
+            self.__date.day,
             self.slug,
             '')
 
     @property
     def publishd_date(self):
         return '{0:04d}-{1:02d}-{2:02d}/'.format(
-            self.date.year,
-            self.date.month,
-            self.date.day)
+            self.__date.year,
+            self.__date.month,
+            self.__date.day)
 
     @property
     def publish_date_rfc2822(self):
-        return formatdate(float(self.date.strftime('%s')))
+        return formatdate(float(self.__date.strftime('%s')))
 
 
 def archive_directory(year_month):

@@ -1,9 +1,12 @@
 from cgi import escape
+import logging
 
 from docutils import nodes
 from docutils.parsers.rst import directives, Directive
 
 from glueplate import config
+
+logger = logging.getLogger(__name__)
 
 
 class PrismDirective(Directive):

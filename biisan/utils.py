@@ -7,3 +7,5 @@ def get_klass(pth):
     class_name = pth[sep_index + 1:]
     mod = import_module(module_name)
     return getattr(mod, class_name)
+
+get_function = get_klass
