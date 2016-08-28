@@ -1,7 +1,12 @@
 from cgi import escape
+import logging
 
 from docutils import nodes
 from docutils.parsers.rst import directives, Directive
+
+from glueplate import config
+
+logger = logging.getLogger(__name__)
 
 
 class PrismDirective(Directive):
@@ -10,6 +15,7 @@ prism::
   :language: bash
     """
 
+    directive_tag = 'prism'
     has_content = True
     option_spec = {'language': directives.unchanged}
 
@@ -25,13 +31,12 @@ prism::
     def _get_escaped_content(self):
         return '\n'.join(map(escape, self.content))
 
-directives.register_directive("prism", PrismDirective)
-
 
 class NotesDirective(Directive):
     """
     """
 
+    directive_tag = 'notes'
     has_content = True
     option_spec = {'date': directives.unchanged}
 
@@ -49,8 +54,6 @@ class NotesDirective(Directive):
     def _get_escaped_content(self):
         return '\n'.join(map(escape, self.content))
 
-directives.register_directive("notes", NotesDirective)
-
 
 class AffDirective(Directive):
     """
@@ -59,6 +62,8 @@ aff::
   :title: title
   :aftag: tag
     """
+
+    directive_tag = 'aff'
     has_content = True
     option_spec = {'asin': directives.unchanged, 'title': directives.unchanged}
 
@@ -80,8 +85,6 @@ aff::
   </a>
   </section>
 </div>'''.format(asin=_asin, title=_title,
-                 tld=settings.directive.aff.tld,
-                 tag=settings.directive.aff.tag)
+                 tld=config.settings.directive.aff.tld,
+                 tag=config.settings.directive.aff.tag)
         return [nodes.raw('', text, format='html')]
-
-directives.register_directive("aff", AffDirective)
