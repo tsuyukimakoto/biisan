@@ -9,6 +9,7 @@ settings = _(
         'biisan.processors.process_docinfo',
         'biisan.processors.process_field_name',
         'biisan.processors.process_field_body',
+        'biisan.processors.process_paragraph',
     ],
     directives = [
         'biisan.directives.PrismDirective',

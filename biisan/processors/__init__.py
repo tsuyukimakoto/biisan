@@ -29,6 +29,15 @@ def process_document(elm, registry, entry):
     for _elm in elm.getchildren():
         registry.process(_elm, entry)
 
+
+def process_paragraph(elm, registry, entry):
+    entry.body.append(elm.text)
+
+
+def process_section(elm, registry, entry):
+    pass
+
+
 def _process_comment(elm, registry, entry):
     _field_list = elm.getchildren()[0]
     commentator = ''

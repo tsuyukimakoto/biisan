@@ -10,6 +10,7 @@ class Entry(object):
         self.title = ''
         self.__date = None
         self.author = ''
+        self.body = []
         self.comments = []
         self._timestamp = None
 
@@ -100,3 +101,29 @@ def previous_entry(entry_list, i):
         return '', ''
     target = entry_list[i - 1]
     return target.title, target.url
+
+
+class Document():
+    pass
+
+
+class P(Document):
+    def __init__(self, text):
+        self.text = text
+
+
+class Section(Document):
+    def __init__(self, depth=0):
+        self.title = ''
+        self.body = []
+        self.depth = depth
+
+    def add_child(self, section):
+        section.depth = self.depth + 1
+        self.body.append(section)
+
+
+class Title(Document):
+    def __init__(self, text):
+        self.text = text
+
