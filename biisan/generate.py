@@ -15,24 +15,26 @@ logger = logging.getLogger(__name__)
 processor_registry = None
 
 
-def unmarshal_entry(pth):
-    entry_class = get_klass(config.settings.entry_class)
+def unmarshal_story(pth):
+    story_class = get_klass(config.settings.story_class)
     with codecs.open(pth, encoding='utf8') as f:
+        logger.warn('Unmarshal : {0}'.format(pth))
         data = f.read()
         parts = publish_parts(data, writer_name='xml')
         document = ET.fromstring(parts.get('whole'))
-        _entry = entry_class()
-        processor_registry.process(document, _entry)
-        return _entry
+        _story = story_class()
+        _story.rst_file = pth
+        processor_registry.process(document, _story)
+        return _story
 
 
 def glob_rst_documents(base_path):
-    entry_list = []
-    for pth in glob('**/*.rst', recursive=True):
-        entry_list.append(unmarshal_entry(pth))
-    entry_list.sort()
-    for entry in entry_list:
-        print(entry)
+    story_list = []
+    for pth in glob('{0}/**/*.rst'.format(base_path), recursive=True):
+        story_list.append(unmarshal_story(pth))
+    story_list.sort()
+    # for story in story_list:
+    #     print(story)
 
 
 def register_directives():
@@ -53,7 +55,13 @@ def register_processor():
         processor_registry.register(func.__name__, func)
 
 
+def print_fire_message():
+    m = '''BIISAN {0}'''.format(biisan.__version__)
+    print(m)
+
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.WARN)
+    print_fire_message()
     register_directives()
     register_processor()
     glob_rst_documents('.')
