@@ -4,18 +4,55 @@ from email.utils import formatdate
 from glueplate import config
 
 
-class Entry(object):
+class Container(object):
+    def __init__(self, *args, **kwargs):
+        super(Container, self).__init__(*args, **kwargs)
+        self.__body = []
+
+    def __append_to_body(self, content):
+        pass
+
+    def add_content(self, content):
+        self.__append_to_body(content)
+        self.__body.append(content)
+
+    @property
+    def contents(self):
+        return self.__body
+
+
+class Nestable(object):
+    def __init__(self, *args, **kwargs):
+        super(Nestable, self).__init__(*args, **kwargs)
+        self.depth = kwargs.get('depth', 0)
+
+    def __append_to_body(self, content):
+        if type(content) == self.__class__:
+            content.depth = self.depth + 1
+
+
+class Story(Container):
     def __init__(self):
+        super(Story, self).__init__()
         self.slug = ''
         self.title = ''
         self.__date = None
         self.author = ''
-        self.body = []
+        self.__body = []
         self.comments = []
         self._timestamp = None
+        self.rst_file = ''
 
     def __lt__(self, other):
-        return self._timestamp <= other._timestamp
+        try:
+            return self._timestamp <= other._timestamp
+        except TypeError as e:
+            print('-'*20)
+            print(self.rst_file)
+            print(self.slug)
+            print(self.__body)
+            print('='*20)
+            raise e
 
     def __repr__(self):
         return '{0}: {1} at {2}, {3} comments'.format(
@@ -81,25 +118,32 @@ def archive_directory(year_month):
         'archive', year_month)
 
 
-class Comment(object):
+class Comment(Container):
     def __init__(self):
+        super(Comment, self).__init__()
         self.commentator = ''
         self.url = ''
-        self.body = []
         self.create_date = None
 
+    def add_content(self, content):
+        self.__body.append(content)
 
-def next_entry(entry_list, i):
-    if i >= len(entry_list) - 1:
+    @property
+    def contents(self):
+        return self.__body
+
+
+def next_story(story_list, i):
+    if i >= len(story_list) - 1:
         return '', ''
-    target = entry_list[i + 1]
+    target = story_list[i + 1]
     return target.title, target.url
 
 
-def previous_entry(entry_list, i):
+def previous_story(story_list, i):
     if i == 0:
         return '', ''
-    target = entry_list[i - 1]
+    target = story_list[i - 1]
     return target.title, target.url
 
 
@@ -107,23 +151,110 @@ class Document():
     pass
 
 
-class P(Document):
-    def __init__(self, text):
-        self.text = text
+class Paragraph(Document):
+    def __init__(self, *args, **kwargs):
+        super(Paragraph, self).__init__(*args, **kwargs)
+        self.text = ''
 
 
-class Section(Document):
-    def __init__(self, depth=0):
+class Section(Document, Container, Nestable):
+    def __init__(self, *args, **kwargs):
+        super(Section, self).__init__(*args, **kwargs)
         self.title = ''
-        self.body = []
-        self.depth = depth
 
-    def add_child(self, section):
-        section.depth = self.depth + 1
-        self.body.append(section)
+
+class BulletList(Document, Container, Nestable):
+    def __init__(self, *args, **kwargs):
+        super(BulletList, self).__init__(*args, **kwargs)
+
+
+class EnumeratedList(Document, Container, Nestable):
+    def __init__(self, *args, **kwargs):
+        super(EnumeratedList, self).__init__(*args, **kwargs)
+
+
+class ListItem(Document, Container, Nestable):
+    def __init__(self, *args, **kwargs):
+        super(ListItem, self).__init__(*args, **kwargs)
 
 
 class Title(Document):
-    def __init__(self, text):
-        self.text = text
+    def __init__(self, *args, **kwargs):
+        super(Title, self).__init__(*args, **kwargs)
+        self.text = ''
 
+    def __repr__(self):
+        return self.text
+
+
+class Target(Document):
+    def __init__(self):
+        super(Target, self).__init__()
+        self.ids = ''
+        self.name = ''
+        self.uri = ''
+
+
+class Raw(Document):
+    def __init__(self):
+        super(Raw, self).__init__()
+        self.format = ''
+        self.text = ''
+
+
+class Image(Document):
+    def __init__(self):
+        super(Image, self).__init__()
+        self.alt = ''
+        self.uri = ''
+        self.width = None
+        self.height = None
+
+
+class BlockQuote(Document, Container, Nestable):
+    def __init__(self, *args, **kwargs):
+        super(BlockQuote, self).__init__(*args, **kwargs)
+
+
+class LiteralBlock(Document, Container, Nestable):
+    def __init__(self, *args, **kwargs):
+        super(LiteralBlock, self).__init__(*args, **kwargs)
+        self.text = kwargs.get('text', '')
+
+
+class Figure(Document, Container):
+    def __init__(self, *args, **kwargs):
+        super(Figure, self).__init__(*args, **kwargs)
+
+
+class Caption(Document):
+    def __init__(self, *args, **kwargs):
+        super(Caption, self).__init__(*args, **kwargs)
+        self.text = ''
+
+
+class Table(Document, Container):
+    def __init__(self, *args, **kwargs):
+        super(Table, self).__init__(*args, **kwargs)
+        self.title = Title()
+
+
+class ColSpec(Document):
+    def __init__(self, *args, **kwargs):
+        super(ColSpec, self).__init__(*args, **kwargs)
+        self.width = None
+
+
+class Row(Document, Container):
+    def __init__(self, *args, **kwargs):
+        super(Row, self).__init__(*args, **kwargs)
+
+
+class Entry(Document, Container):
+    def __init__(self, *args, **kwargs):
+        super(Entry, self).__init__(*args, **kwargs)
+
+
+class Transition(Document):
+    def __init__(self, *args, **kwargs):
+        super(Transition, self).__init__(*args, **kwargs)

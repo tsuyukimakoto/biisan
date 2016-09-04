@@ -2,43 +2,191 @@
 from datetime import datetime
 import logging
 
-from biisan.models import Comment
+from biisan.models import (
+    Comment, Paragraph, Section, BulletList, ListItem, Target, Raw, Image, BlockQuote, Title,
+    LiteralBlock, Figure, Caption, Table, ColSpec, Row, Entry, EnumeratedList, Transition
+)
 
 logger = logging.getLogger(__name__)
 
 
-def process_field_name(elm, registry, entry):
+def _debug(elm):
+    print('-' * 20)
+    print('Tag: {0}'.format(elm.tag))
+    print('text: {0}'.format(elm.text))
+    print('------- items --------------')
+    print(elm.items())
+    print('------- getchildren --------')
+    print(elm.getchildren())
+    print('-' * 20)
+
+
+def process_field_name(elm, registry, container):
     return elm.text
 
 
-def process_field_body(elm, registry, entry):
+def process_field_body(elm, registry, container):
     res = []
     for x in elm.getchildren():
         if 'field_list' == x.tag:
-            print(x.tag)
+            logger.warn("Ignore field_list in field_body's child")
         else:
             res.append(x.text)
     return res
 
 
-def process_title(elm, registry, entry):
-    entry.title = elm.text
+def process_list_item(elm, registry, container):
+    list_item = ListItem()
+    container.add_content(list_item)
+    for _elm in elm.getchildren():
+        registry.process(_elm, list_item)
 
 
-def process_document(elm, registry, entry):
+def process_bullet_list(elm, registry, container):
+    bullet_list = BulletList()
+    container.add_content(bullet_list)
+    for _elm in elm.getchildren():
+        registry.process(_elm, bullet_list)
+
+
+def process_target(elm, registry, container):
+    target = Target()
+    container.add_content(Target())
+    for subitem in elm.items():
+        if subitem[0] == 'ids':
+            target.ids = subitem[1]
+        elif subitem[0] == 'names':
+            target.names = subitem[1]
+        elif subitem[0] == 'uri':
+            target.uri = subitem[1]
+
+
+def process_raw(elm, registry, container):
+    raw = Raw()
+    container.add_content(raw)
+    for subitem in elm.items():
+        if subitem[0] == 'format':
+            raw.format = subitem[1]
+
+
+def process_image(elm, registry, container):
+    img = Image()
+    container.add_content(img)
+    for subitem in elm.items():
+        if subitem[0] == 'alt':
+            img.alt = subitem[1]
+        elif subitem[0] == 'witdh':
+            img.witdh = subitem[1]
+        elif subitem[1] == 'height':
+            img.height = subitem[1]
+        elif subitem[0] == 'uri':
+            img.uri = subitem[1]
+
+
+def process_block_quote(elm, registry, container):
+    block_quote = BlockQuote()
+    container.add_content(block_quote)
+    for _elm in elm.getchildren():
+        registry.process(_elm, block_quote)
+
+
+def process_literal_block(elm, registry, container):
+    literal_block = LiteralBlock()
+    container.add_content(literal_block)
+    literal_block.text = elm.text
+
+
+def process_figure(elm, registry, container):
+    figure = Figure()
+    container.add_content(figure)
+    for _elm in elm.getchildren():
+        registry.process(_elm, figure)
+
+
+def process_caption(elm, registry, container):
+    caption = Caption()
+    caption.text = elm.text
+    container.add_content(caption)
+
+
+def process_title(elm, registry, container):
+    title = Title()
+    container.title = title
+    title.text = elm.text
+
+
+def process_table(elm, registry, container):
+    table = Table()
+    for _elm in elm.getchildren():
+        registry.process(_elm, table)
+
+
+def process_tgroup(elm, registry, container):
+    for _elm in elm.getchildren():
+        registry.process(_elm, container)
+
+
+def process_colspec(elm, registry, container):
+    colspec = ColSpec()
+    for item in elm.items():
+        if hasattr(colspec, item[0]):
+            setattr(colspec, item[1])
+
+
+def process_thead(elm, registry, container):
+    for _elm in elm.getchildren():
+        registry.process(_elm, container)
+
+
+def process_row(elm, registry, container):
+    row = Row()
+    container.add_content(row)
+    for _elm in elm.getchildren():
+        registry.process(_elm, row)
+
+
+def process_entry(elm, registry, container):
+    entry = Entry()
+    container.add_content(entry)
     for _elm in elm.getchildren():
         registry.process(_elm, entry)
 
 
-def process_paragraph(elm, registry, entry):
-    entry.body.append(elm.text)
+def process_tbody(elm, registry, container):
+    for _elm in elm.getchildren():
+        registry.process(_elm, container)
 
 
-def process_section(elm, registry, entry):
-    pass
+def process_enumerated_list(elm, registry, container):
+    enumerated_list = EnumeratedList()
+    container.add_content(enumerated_list)
+    for _elm in elm.getchildren():
+        registry.process(_elm, enumerated_list)
 
 
-def _process_comment(elm, registry, entry):
+def process_transition(elm, registry, container):
+    container.add_content(Transition())
+
+
+def process_document(elm, registry, container):
+    for _elm in elm.getchildren():
+        registry.process(_elm, container)
+
+
+def process_paragraph(elm, registry, container):
+    paragraph = Paragraph()
+    paragraph.text = elm.text
+    container.add_content(paragraph)
+
+
+def process_section(elm, registry, container, depth=0):
+    section = Section()
+    container.add_content(section)
+    for _elm in elm.getchildren():
+        registry.process(_elm, section)
+
+
+def _process_comment(elm, registry, story):
     _field_list = elm.getchildren()[0]
     commentator = ''
     url = ''
@@ -58,30 +206,41 @@ def _process_comment(elm, registry, entry):
     c = Comment()
     c.commentator = commentator
     c.url = url
-    c.body = body
+    map(c.add_content, body)
     c.create_date = create_date
-    entry.comments.append(c)
+    story.comments.append(c)
 
 
-def process_docinfo(elm, registry, entry):
+def process_docinfo(elm, registry, story):
     for _elm in elm.getchildren():
         if len(_elm) == 2:
             if 'field_name' == _elm[0].tag:
-                field_name = process_field_name(_elm[0], registry, entry)
+                field_name = process_field_name(_elm[0], registry, story)
                 if field_name == 'slug':
-                    entry.slug = process_field_body(
-                        _elm[1], registry, entry)[0]
+                    story.slug = process_field_body(
+                        _elm[1], registry, story)[0]
                 elif field_name == 'author':
-                    entry.author = process_field_body(
-                        _elm[1], registry, entry)[0]
+                    story.author = process_field_body(
+                        _elm[1], registry, story)[0]
+                elif field_name == 'date':
+                    story.date = datetime.strptime(
+                        _elm.text, '%Y-%m-%d %H:%M'
+                    )
                 elif field_name == 'comment':
-                    _process_comment(_elm[1], registry, entry)
+                    _process_comment(_elm[1], registry, story)
+            else:
+                logger.warn(
+                    "elm.tag '{0}' doesn't process in process_docinfo.".format(
+                        _elm[0].tag))
         elif 'date' == _elm.tag:
-            entry.date = datetime.strptime(
+            story.date = datetime.strptime(
                 _elm.text, '%Y-%m-%d %H:%M'
             )
+            if story.rst_file == '2009/10/01280.rst':
+                print(_elm.text)
+                print(story.date)
         elif 'author' == _elm.tag:
-            entry.author = _elm.text
+            story.author = _elm.text
 
 
 class FunctionRegistry(dict):
@@ -112,14 +271,14 @@ class FunctionRegistry(dict):
     def register(self, name, func):
         setattr(self, name, func)
 
-    def process(self, elm, entry):
+    def process(self, elm, container):
         _processor_name = 'process_{0}'.format(elm.tag)
         if hasattr(self, _processor_name):
             logger.debug('---------------')
             logger.debug(getattr(self, _processor_name).__name__)
             logger.debug(getattr(self, _processor_name).__code__.co_varnames)
-            return getattr(self, _processor_name)(elm, self, entry)
+            return getattr(self, _processor_name)(elm, self, container)
         else:
-            logger.debug(
+            logger.warn(
                 'processor {0} is not defined and element ignored.'.format(
                     _processor_name))
