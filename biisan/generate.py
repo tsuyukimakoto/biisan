@@ -64,5 +64,4 @@ if __name__ == '__main__':
     print_fire_message()
     register_directives()
     register_processor()
-    # glob_rst_documents('.')
-    glob_rst_documents('./2015/08')
+    glob_rst_documents('.')
