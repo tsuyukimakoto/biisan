@@ -29,6 +29,8 @@ settings = _(
         'biisan.processors.process_tbody',
         'biisan.processors.process_enumerated_list',
         'biisan.processors.process_transition',
+        'biisan.processors.process_topic',
+        'biisan.processors.process_substitution_definition',
 
     ],
     directives = [

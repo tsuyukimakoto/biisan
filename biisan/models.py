@@ -258,3 +258,15 @@ class Entry(Document, Container):
 class Transition(Document):
     def __init__(self, *args, **kwargs):
         super(Transition, self).__init__(*args, **kwargs)
+
+
+class Topic(Document, Container):
+    def __init__(self, *args, **kwargs):
+        super(Topic, self).__init__(*args, **kwargs)
+        self.title = Title()
+
+
+class SubstitutionDefinition(Document, Container):
+    def __init__(self, *args, **kwargs):
+        super(SubstitutionDefinition, self).__init__(*args, **kwargs)
+        self.title = Title()

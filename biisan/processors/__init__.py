@@ -4,7 +4,8 @@ import logging
 
 from biisan.models import (
     Comment, Paragraph, Section, BulletList, ListItem, Target, Raw, Image, BlockQuote, Title,
-    LiteralBlock, Figure, Caption, Table, ColSpec, Row, Entry, EnumeratedList, Transition
+    LiteralBlock, Figure, Caption, Table, ColSpec, Row, Entry, EnumeratedList, Transition,
+    Topic, SubstitutionDefinition
 )
 
 logger = logging.getLogger(__name__)
@@ -103,6 +104,25 @@ def process_figure(elm, registry, container):
         registry.process(_elm, figure)
 
 
+def process_topic(elm, registry, container):
+    topic = Topic()
+    container.add_content(topic)
+    for _elm in elm.getchildren():
+        registry.process(_elm, topic)
+
+
+def process_substitution_definition(elm, registry, container):
+    substitution_definition = SubstitutionDefinition()
+    container.add_content(substitution_definition)
+    for _item in elm.items():
+        if _item[0] == 'names':
+            title = Title()
+            title.text = _item[1]
+            substitution_definition.title = title
+    for _elm in elm.getchildren():
+        registry.process(_elm, substitution_definition)
+
+
 def process_caption(elm, registry, container):
     caption = Caption()
     caption.text = elm.text
@@ -111,8 +131,8 @@ def process_caption(elm, registry, container):
 
 def process_title(elm, registry, container):
     title = Title()
-    container.title = title
     title.text = elm.text
+    container.title = title
 
 
 def process_table(elm, registry, container):

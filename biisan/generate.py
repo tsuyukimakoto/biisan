@@ -18,6 +18,7 @@ processor_registry = None
 def unmarshal_story(pth):
     story_class = get_klass(config.settings.story_class)
     with codecs.open(pth, encoding='utf8') as f:
+        logger.debug('Unmarshal : {0}'.format(pth))
         data = f.read()
         parts = publish_parts(data, writer_name='xml')
         document = ET.fromstring(parts.get('whole'))
