@@ -270,3 +270,31 @@ class SubstitutionDefinition(Document, Container):
     def __init__(self, *args, **kwargs):
         super(SubstitutionDefinition, self).__init__(*args, **kwargs)
         self.title = Title()
+
+
+class Note(Document, Container):
+    def __init__(self, *args, **kwargs):
+        super(Note, self).__init__(*args, **kwargs)
+
+
+class DefinitionList(Document, Container, Nestable):
+    def __init__(self, *args, **kwargs):
+        super(DefinitionList, self).__init__(*args, **kwargs)
+
+
+class Term(Document):
+    def __init__(self, *args, **kwargs):
+        super(Term, self).__init__(*args, **kwargs)
+        self.text = kwargs.get('text', '')
+
+
+class Definition(Document, Container):
+    def __init__(self, *args, **kwargs):
+        super(Definition, self).__init__(*args, **kwargs)
+
+
+class DefinitionListItem(Document):
+    def __init__(self, *args, **kwargs):
+        super(DefinitionListItem, self).__init__(*args, **kwargs)
+        self.term = Term()
+        self.definition = Definition()

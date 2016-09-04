@@ -5,7 +5,7 @@ import logging
 from biisan.models import (
     Comment, Paragraph, Section, BulletList, ListItem, Target, Raw, Image, BlockQuote, Title,
     LiteralBlock, Figure, Caption, Table, ColSpec, Row, Entry, EnumeratedList, Transition,
-    Topic, SubstitutionDefinition
+    Topic, SubstitutionDefinition, Note, DefinitionList, DefinitionListItem, Term, Definition
 )
 
 logger = logging.getLogger(__name__)
@@ -48,6 +48,32 @@ def process_bullet_list(elm, registry, container):
     container.add_content(bullet_list)
     for _elm in elm.getchildren():
         registry.process(_elm, bullet_list)
+
+
+def process_definition_list(elm, registry, container):
+    definition_list = DefinitionList()
+    container.add_content(definition_list)
+    for _elm in elm.getchildren():
+        registry.process(_elm, definition_list)
+
+
+def process_definition(elm, registry, container):
+    definition = Definition()
+    container.definition = definition
+    for _elm in elm.getchildren():
+        registry.process(_elm, definition)
+
+
+def process_definition_list_item(elm, registry, container):
+    definition_list_item = DefinitionListItem()
+    container.add_content(definition_list_item)
+    for _elm in elm.getchildren():
+        if _elm.tag == 'term':
+            term = Term()
+            term.text = _elm.text
+            definition_list_item.term = term
+        elif _elm.tag == 'definition':
+            registry.process(_elm, definition_list_item)
 
 
 def process_target(elm, registry, container):
@@ -127,6 +153,13 @@ def process_caption(elm, registry, container):
     caption = Caption()
     caption.text = elm.text
     container.add_content(caption)
+
+
+def process_note(elm, registry, container):
+    note = Note()
+    container.add_content(note)
+    for _elm in elm.getchildren():
+        registry.process(_elm, note)
 
 
 def process_title(elm, registry, container):

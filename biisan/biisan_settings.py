@@ -31,7 +31,10 @@ settings = _(
         'biisan.processors.process_transition',
         'biisan.processors.process_topic',
         'biisan.processors.process_substitution_definition',
-
+        'biisan.processors.process_note',
+        'biisan.processors.process_definition_list',
+        'biisan.processors.process_definition_list_item',
+        'biisan.processors.process_definition',
     ],
     directives = [
         'biisan.directives.PrismDirective',

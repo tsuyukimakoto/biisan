@@ -18,7 +18,7 @@ processor_registry = None
 def unmarshal_story(pth):
     story_class = get_klass(config.settings.story_class)
     with codecs.open(pth, encoding='utf8') as f:
-        logger.debug('Unmarshal : {0}'.format(pth))
+        logger.warn('Unmarshal : {0}'.format(pth))
         data = f.read()
         parts = publish_parts(data, writer_name='xml')
         document = ET.fromstring(parts.get('whole'))
@@ -33,8 +33,8 @@ def glob_rst_documents(base_path):
     for pth in glob('{0}/**/*.rst'.format(base_path), recursive=True):
         story_list.append(unmarshal_story(pth))
     story_list.sort()
-    for story in story_list:
-        print(story)
+    # for story in story_list:
+    #     print(story)
 
 
 def register_directives():
@@ -64,4 +64,5 @@ if __name__ == '__main__':
     print_fire_message()
     register_directives()
     register_processor()
-    glob_rst_documents('.')
+    # glob_rst_documents('.')
+    glob_rst_documents('./2015/08')
