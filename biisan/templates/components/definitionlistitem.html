@@ -1,0 +1,6 @@
+<dt>{{ element.text }}
+{%- if element.contents -%}
+  <dl>
+    {%- for content in element.contents -%}{{ content.to_html() }}{% endfor -%}
+  </dl>
+{%- endif %}</dt>

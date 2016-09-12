@@ -1,4 +1,7 @@
 from glueplate import Glue as _
+import logging
+import os
+
 
 settings = _(
     GLUE_PLATE_ENVIRONMENT_VARIABLE_KEY = 'BIISAN_SETTINGS_MODULE',
@@ -35,6 +38,9 @@ settings = _(
         'biisan.processors.process_definition_list',
         'biisan.processors.process_definition_list_item',
         'biisan.processors.process_definition',
+        'biisan.processors.process_strong',
+        'biisan.processors.process_emphasis',
+        'biisan.processors.process_reference',
     ],
     directives = [
         'biisan.directives.PrismDirective',
@@ -47,4 +53,12 @@ settings = _(
             tag='everes-22',
         ),
     ),
+    template_dirs = [os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        'templates'),],
+    multiprocess = 4,
+    log_level = logging.INFO,
+    dir = _(
+        output = '/Users/makoto/Desktop'
+    )
 )

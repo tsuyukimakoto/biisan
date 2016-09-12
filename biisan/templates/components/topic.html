@@ -1,0 +1,6 @@
+<div class="topic">
+  <legend>{{ element.title}}</legend>
+  {% for content in element.contents %}
+    {{ content.to_html() }}
+  {% endfor %}
+</div>
