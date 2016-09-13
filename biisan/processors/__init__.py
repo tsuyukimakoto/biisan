@@ -106,6 +106,7 @@ def process_raw(elm, registry, container):
     for subitem in elm.items():
         if subitem[0] == 'format':
             raw.format = subitem[1]
+    raw.text = elm.text
 
 
 def process_image(elm, registry, container):
