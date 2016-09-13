@@ -89,6 +89,6 @@ if __name__ == '__main__':
     register_directives()
     register_processor()
     story_list = glob_rst_documents('.')
-    output(story_list)
     # story_list = glob_rst_documents('./2015/08')
+    output(story_list)
     # print(story_list[0].to_html())

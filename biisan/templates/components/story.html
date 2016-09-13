@@ -3,14 +3,17 @@
     <title>{{ element.title }}</title>
   </head>
   <body>
-    <p><a href="{{ element.prev_story[1] }}">{{ element.prev_story[0] }}</a></p>
-    <p><a href="{{ element.next_story[1] }}">{{ element.next_story[0] }}</a></p>
     <section>
       <h1>{{ element.title }}</h1>
-      <p>date: {{ element.publishd_date }}</p>
+      <p class="meta">{{ element.publishd_datetime }}</p>
 {% for content in element.contents %}
 {{ content.to_html() }}
 {% endfor %}
+<hr />
+  <ul>
+    <li><a href="{{ element.prev_story[1] }}">{{ element.prev_story[0] }}</a></li>
+    <li><a href="{{ element.next_story[1] }}">{{ element.next_story[0] }}</a></li>
+  </ul>
     </section>
   </body>
 </html>

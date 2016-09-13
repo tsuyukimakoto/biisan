@@ -18,6 +18,8 @@ class Container(object):
         pass
 
     def add_content(self, content):
+        if issubclass(self.__class__, Nestable) and (type(self) == type(content)):
+            content.depth = self.depth + 1
         self.__append_to_body(content)
         self.__body.append(content)
 
@@ -29,11 +31,7 @@ class Container(object):
 class Nestable(object):
     def __init__(self, *args, **kwargs):
         super(Nestable, self).__init__(*args, **kwargs)
-        self.depth = kwargs.get('depth', 0)
-
-    def __append_to_body(self, content):
-        if type(content) == self.__class__:
-            content.depth = self.depth + 1
+        self.depth = kwargs.get('depth', 1)
 
 
 class HTMLize(object):
@@ -127,6 +125,15 @@ class Story(Container, HTMLize):
             self.__date.day)
 
     @property
+    def publishd_datetime(self):
+        return '{0:04d}/{1:02d}/{2:02d} {3:02d}:{4:02d}'.format(
+            self.__date.year,
+            self.__date.month,
+            self.__date.day,
+            self.__date.hour,
+            self.__date.minute)
+
+    @property
     def publish_date_rfc2822(self):
         return formatdate(float(self.__date.strftime('%s')))
 
@@ -195,13 +202,13 @@ class Paragraph(Document, Container, HTMLize):
             elif isinstance(content, Reference):
                 _formated = _formated.replace(
                     content.text,
-                    '<a href="#{0}">{1}</a>'.format(
-                        content.name, content.name))
+                    '<a href="{0}">{1}</a>'.format(
+                        content.uri, content.name))
             elif isinstance(content, Raw):
                 _formated = _formated.replace(
                     content.text,
-                    '<pre>{0}</pre>'.format(
-                        content.name, content.name))
+                    '<pre class="code {0}">{0}</pre>'.format(
+                        content.format, content.text))
             else:
                 logger.warn(
                     "Type:{0} in paragraph doesn't treat.".format(
