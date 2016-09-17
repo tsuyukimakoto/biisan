@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+    <channel>
+        <title>{{ config.settings.blog.title }}</title>
+        <link>{{ config.settings.blog.base_url }}</link>
+        <description></description>
+        <language>{{ config.settings.blog.language }}</language>
+        <lastBuildDate>{{ now_rfc2822 }}</lastBuildDate>
+        {% for story in story_list %}<item>
+            <title>{{ story.title }}</title>
+            <link>{{ config.settings.blog.base_url }}{{ story.url }}</link>
+            <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">{{ story.author }}</dc:creator>
+            <pubDate>{{ story.publish_date_rfc2822 }}</pubDate>
+            <guid>{{ config.settings.blog.base_url }}{{ story.url }}</guid>
+            <category>Blog Entry</category>
+        </item>{% endfor %}
+    </channel>
+</rss>
