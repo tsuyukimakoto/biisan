@@ -6,6 +6,7 @@ import os
 settings = _(
     GLUE_PLATE_ENVIRONMENT_VARIABLE_KEY = 'BIISAN_SETTINGS_MODULE',
     story_class = 'biisan.models.Story',
+    latest_list_count = 5,
     processors = [
         'biisan.processors.process_document',
         'biisan.processors.process_title',
@@ -53,12 +54,15 @@ settings = _(
             tag='everes-22',
         ),
     ),
+    extra = [
+        'about',
+    ],
     template_dirs = [os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
         'templates'),],
     multiprocess = 4,
     log_level = logging.INFO,
     dir = _(
-        output = '/Users/makoto/Desktop'
+        output = '/Users/makoto/Desktop/site'
     )
 )

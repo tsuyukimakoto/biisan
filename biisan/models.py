@@ -67,7 +67,7 @@ class Story(Container, HTMLize):
             logger.error('-' * 20)
             logger.error(self.rst_file)
             logger.error(self.slug)
-            logger.errort(self.__body)
+            logger.error(self.__body)
             logger.error('=' * 20)
             raise e
 
@@ -110,7 +110,7 @@ class Story(Container, HTMLize):
 
     @property
     def url(self):
-        return '/{0:04d}/{1:02d}/{2:02d}/{3}/{4}'.format(
+        return '/blog/{0:04d}/{1:02d}/{2:02d}/{3}/{4}'.format(
             self.__date.year,
             self.__date.month,
             self.__date.day,
@@ -141,6 +141,10 @@ class Story(Container, HTMLize):
         self.prev_story = previous_story(story_list, i)
         self.next_story = next_story(story_list, i)
 
+    def extra_directory(self, directory):
+        self._directory = os.path.join(
+            '{0}'.format(config.settings.dir.output),
+            directory)
 
 
 def archive_directory(year_month):

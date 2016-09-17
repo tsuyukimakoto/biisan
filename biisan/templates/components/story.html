@@ -1,8 +1,8 @@
-<html>
-  <head>
-    <title>{{ element.title }}</title>
-  </head>
-  <body>
+{% extends 'base.html' %}
+
+{% block title %}{{ element.title }}{% endblock title %}
+
+{% block contents %}
     <section>
       <h1>{{ element.title }}</h1>
       <p class="meta">{{ element.publishd_datetime }}</p>
@@ -28,5 +28,4 @@
         <li><a href="{{ element.next_story[1] }}">{{ element.next_story[0] }}</a></li>
       </ul>
     </section>
-  </body>
-</html>
+{% endblock contents %}
