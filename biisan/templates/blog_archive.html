@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}{{ year_month }}{% endblock title %}
+
+{% block contents %}
+<div>
+  <ul>{% for story in story_list %}
+    <li>{{ story.published_datetime }} <a href="{{ story.url }}">{{ story.title }}</a></li>
+  {% endfor %}</ul>
+</div>
+{% endblock contents %}

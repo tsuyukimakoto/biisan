@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}{% endblock title %}
+
+{% block contents %}
+<div class="menu">
+<ul>
+  <li><a href="/blog/">blog</a></li>{% for menu in config.settings.extra %}
+  <li><a href="/{{ menu }}/">{{ menu }}</a></li>
+{% endfor %}</ul>
+</div>
+
+
+{% endblock contents %}
