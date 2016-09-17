@@ -5,6 +5,8 @@ from collections import OrderedDict
 from glob import glob
 import logging
 from multiprocessing import Pool
+from email.utils import formatdate
+from datetime import datetime
 import xml.etree.ElementTree as ET
 
 from docutils.core import publish_parts
@@ -107,7 +109,8 @@ def write_blog_top(story_list):
         os.path.join(
             config.settings.dir.output, 'blog', 'index.html'),
             'w', 'utf8') as f:
-        f.write(blog_top.render(latest_story_list=latest_story_list,
+        f.write(blog_top.render(config=config,
+                latest_story_list=latest_story_list,
                 story_list=story_list, year_month=year_month))
 
 
@@ -121,9 +124,25 @@ def write_blog_archive(story_list):
                 config.settings.dir.output, 'blog', _year_month,
                 'index.html'),
                 'w', 'utf8') as f:
-            f.write(blog_archive.render(year_month=_year_month,
-                    story_list=stories))
+            f.write(blog_archive.render(config=config,
+                    year_month=_year_month, story_list=stories))
 
+
+def write_rss20(story_list):
+    now_rfc2822 = formatdate(float(datetime.now().strftime('%s')))
+    cnt = config.settings.latest_list_count * -1 - 1
+    latest_story_list = story_list[:cnt:-1]
+    env = Environment(loader=FileSystemLoader(config.settings.template_dirs))
+    rss20 = env.get_template('rss20.xml')
+    rss = rss20.render(config=config,
+                       story_list=latest_story_list,
+                       now_rfc2822=now_rfc2822)
+    core_dir = os.path.join(config.settings.dir.output, 'api', 'feed', 'core')
+    blog_dir = os.path.join(config.settings.dir.output, 'api', 'feed', 'blog')
+    for d in [core_dir, blog_dir]:
+        os.makedirs(d, exist_ok=True)
+        with codecs.open(os.path.join(d, 'index.xml'), 'w', 'utf8') as f:
+            f.write(rss)
 
 
 def register_directives():
@@ -165,6 +184,7 @@ def main():
     write_top(context)
     write_blog_top(story_list)
     write_blog_archive(story_list)
+    write_rss20(story_list)
 
 
 if __name__ == '__main__':
