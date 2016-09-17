@@ -4,8 +4,9 @@ import logging
 
 from biisan.models import (
     Comment, Paragraph, Section, BulletList, ListItem, Target, Raw, Image, BlockQuote, Title,
-    LiteralBlock, Figure, Caption, Table, ColSpec, Row, Entry, EnumeratedList, Transition,
-    Topic, SubstitutionDefinition, Note, DefinitionList, DefinitionListItem, Term, Definition
+    LiteralBlock, Figure, Caption, Table, Thead, Tgroup, ColSpec, Row, Entry, EnumeratedList, Transition,
+    Topic, SubstitutionDefinition, Note, DefinitionList, DefinitionListItem, Term, Definition,
+    Strong, Emphasis, Reference
 )
 
 logger = logging.getLogger(__name__)
@@ -78,14 +79,25 @@ def process_definition_list_item(elm, registry, container):
 
 def process_target(elm, registry, container):
     target = Target()
-    container.add_content(Target())
+    container.add_content(target)
     for subitem in elm.items():
         if subitem[0] == 'ids':
             target.ids = subitem[1]
         elif subitem[0] == 'names':
             target.names = subitem[1]
-        elif subitem[0] == 'uri':
+        elif subitem[0] == 'uri' or subitem[0] == 'refuri':
             target.uri = subitem[1]
+
+
+def process_reference(elm, registry, container):
+    reference = Reference()
+    reference.text = elm.text
+    container.add_content(reference)
+    for subitem in elm.items():
+        if subitem[0] == 'name':
+            reference.name = subitem[1]
+        elif subitem[0] == 'uri' or subitem[0] == 'refuri':
+            reference.uri = subitem[1]
 
 
 def process_raw(elm, registry, container):
@@ -94,6 +106,7 @@ def process_raw(elm, registry, container):
     for subitem in elm.items():
         if subitem[0] == 'format':
             raw.format = subitem[1]
+    raw.text = elm.text
 
 
 def process_image(elm, registry, container):
@@ -170,23 +183,29 @@ def process_title(elm, registry, container):
 
 def process_table(elm, registry, container):
     table = Table()
+    container.add_content(table)
     for _elm in elm.getchildren():
         registry.process(_elm, table)
 
 
 def process_tgroup(elm, registry, container):
+    tgroup = Tgroup()
+    container.add_content(tgroup)
     for _elm in elm.getchildren():
         registry.process(_elm, container)
 
 
 def process_colspec(elm, registry, container):
     colspec = ColSpec()
+    container.add_content(colspec)
     for item in elm.items():
         if hasattr(colspec, item[0]):
             setattr(colspec, item[1])
 
 
 def process_thead(elm, registry, container):
+    thead = Thead()
+    container.add_content(thead)
     for _elm in elm.getchildren():
         registry.process(_elm, container)
 
@@ -228,8 +247,22 @@ def process_document(elm, registry, container):
 
 def process_paragraph(elm, registry, container):
     paragraph = Paragraph()
-    paragraph.text = elm.text
+    paragraph.text = ''.join(elm.itertext())
     container.add_content(paragraph)
+    for _elm in elm.getchildren():
+        registry.process(_elm, paragraph)
+
+
+def process_strong(elm, registry, container):
+    strong = Strong()
+    strong.text = elm.text
+    container.add_content(strong)
+
+
+def process_emphasis(elm, registry, container):
+    emphasis = Emphasis()
+    emphasis.text = elm.text
+    container.add_content(emphasis)
 
 
 def process_section(elm, registry, container, depth=0):
@@ -251,15 +284,20 @@ def _process_comment(elm, registry, story):
         elif 'url' == _field[0].text:
             url = _field[1].text
         elif 'body' == _field[0].text:
-            body = [x.text for x in _field[1]]
+            body += [x.text for x in _field[1]]
         elif 'create_date' == _field[0].text:
             create_date = datetime.strptime(
                 _field[1][0].text, '%Y-%m-%d %H:%M'
             )
+        else:
+            print(_field[0].text)
     c = Comment()
     c.commentator = commentator
     c.url = url
-    map(c.add_content, body)
+    for b in body:
+        c.add_content(b)
+    # print(body)
+    # map(c.add_content, body)
     c.create_date = create_date
     story.comments.append(c)
 

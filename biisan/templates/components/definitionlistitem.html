@@ -1,0 +1,2 @@
+<dt>{{ element.term.text }}</dt>
+<dd>{% for content in element.definition.contents -%}{{ content.to_html() }}{% endfor %}</dd>

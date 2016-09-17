@@ -1,0 +1,4 @@
+<section class="section{{ element.depth }}">{% if element.title %}<h{{ element.depth + 1}}>{{ element.title }}</h{{ element.depth + 1}}>{% endif %}
+{% for content in element.contents -%}
+{{ content.to_html() }}
+{%- endfor %}</section>
