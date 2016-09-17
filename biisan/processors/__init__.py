@@ -4,7 +4,7 @@ import logging
 
 from biisan.models import (
     Comment, Paragraph, Section, BulletList, ListItem, Target, Raw, Image, BlockQuote, Title,
-    LiteralBlock, Figure, Caption, Table, ColSpec, Row, Entry, EnumeratedList, Transition,
+    LiteralBlock, Figure, Caption, Table, Thead, Tgroup, ColSpec, Row, Entry, EnumeratedList, Transition,
     Topic, SubstitutionDefinition, Note, DefinitionList, DefinitionListItem, Term, Definition,
     Strong, Emphasis, Reference
 )
@@ -183,23 +183,29 @@ def process_title(elm, registry, container):
 
 def process_table(elm, registry, container):
     table = Table()
+    container.add_content(table)
     for _elm in elm.getchildren():
         registry.process(_elm, table)
 
 
 def process_tgroup(elm, registry, container):
+    tgroup = Tgroup()
+    container.add_content(tgroup)
     for _elm in elm.getchildren():
         registry.process(_elm, container)
 
 
 def process_colspec(elm, registry, container):
     colspec = ColSpec()
+    container.add_content(colspec)
     for item in elm.items():
         if hasattr(colspec, item[0]):
             setattr(colspec, item[1])
 
 
 def process_thead(elm, registry, container):
+    thead = Thead()
+    container.add_content(thead)
     for _elm in elm.getchildren():
         registry.process(_elm, container)
 
@@ -278,15 +284,20 @@ def _process_comment(elm, registry, story):
         elif 'url' == _field[0].text:
             url = _field[1].text
         elif 'body' == _field[0].text:
-            body = [x.text for x in _field[1]]
+            body += [x.text for x in _field[1]]
         elif 'create_date' == _field[0].text:
             create_date = datetime.strptime(
                 _field[1][0].text, '%Y-%m-%d %H:%M'
             )
+        else:
+            print(_field[0].text)
     c = Comment()
     c.commentator = commentator
     c.url = url
-    map(c.add_content, body)
+    for b in body:
+        c.add_content(b)
+    # print(body)
+    # map(c.add_content, body)
     c.create_date = create_date
     story.comments.append(c)
 

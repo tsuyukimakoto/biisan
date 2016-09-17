@@ -156,12 +156,21 @@ class Comment(Container):
         self.url = ''
         self.create_date = None
 
-    def add_content(self, content):
-        self.__body.append(content)
+    # def add_content(self, content):
+    #     self.__body.append(content)
+
+    # @property
+    # def contents(self):
+    #     return self.__body
 
     @property
-    def contents(self):
-        return self.__body
+    def comemnted_datetime(self):
+        return '{0:04d}/{1:02d}/{2:02d} {3:02d}:{4:02d}'.format(
+            self.create_date.year,
+            self.create_date.month,
+            self.create_date.day,
+            self.create_date.hour,
+            self.create_date.minute)
 
 
 def next_story(story_list, i):
@@ -339,24 +348,36 @@ class Caption(Document, HTMLize):
         self.text = ''
 
 
-class Table(Document, Container):
+class Table(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
         super(Table, self).__init__(*args, **kwargs)
         self.title = Title()
 
 
-class ColSpec(Document):
+class Thead(Document, Container, HTMLize):
+    def __init__(self, *args, **kwargs):
+        super(Thead, self).__init__(*args, **kwargs)
+
+
+class Tgroup(Document, Container, HTMLize):
+    def __init__(self, *args, **kwargs):
+        super(Tgroup, self).__init__(*args, **kwargs)
+
+
+class ColSpec(Document, HTMLize):
     def __init__(self, *args, **kwargs):
         super(ColSpec, self).__init__(*args, **kwargs)
+        self.colname = ''
         self.width = None
+        self.scale = 100
 
 
-class Row(Document, Container):
+class Row(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
         super(Row, self).__init__(*args, **kwargs)
 
 
-class Entry(Document, Container):
+class Entry(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
         super(Entry, self).__init__(*args, **kwargs)
 

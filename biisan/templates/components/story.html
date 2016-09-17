@@ -9,11 +9,24 @@
 {% for content in element.contents %}
 {{ content.to_html() }}
 {% endfor %}
-<hr />
-  <ul>
-    <li><a href="{{ element.prev_story[1] }}">{{ element.prev_story[0] }}</a></li>
-    <li><a href="{{ element.next_story[1] }}">{{ element.next_story[0] }}</a></li>
-  </ul>
+    </section>
+    {% if element.comments %}
+    <section class="comments">
+      {% for comment in element.comments %}
+      <fieldset class="comment">
+        <legend>{{ comment.comemnted_datetime }} by {{ comment.commentator }}</legend>
+        {% for text in comment.contents %}
+        <pre>{{ text }}</pre>
+        {% endfor %}
+      </fieldset>
+      {% endfor %}
+    </section>
+    {% endif %}
+    <section class="others">
+      <ul>
+        <li><a href="{{ element.prev_story[1] }}">{{ element.prev_story[0] }}</a></li>
+        <li><a href="{{ element.next_story[1] }}">{{ element.next_story[0] }}</a></li>
+      </ul>
     </section>
   </body>
 </html>

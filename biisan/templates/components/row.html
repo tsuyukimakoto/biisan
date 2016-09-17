@@ -1,0 +1,7 @@
+<tr><row>
+{% for content in element.contents -%}
+<td>
+{{ content.to_html() }}
+</td>
+{%- endfor %}
+</row></tr>
