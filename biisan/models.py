@@ -363,6 +363,11 @@ class Thead(Document, Container, HTMLize):
         super(Thead, self).__init__(*args, **kwargs)
 
 
+class Tbody(Document, Container, HTMLize):
+    def __init__(self, *args, **kwargs):
+        super(Tbody, self).__init__(*args, **kwargs)
+
+
 class Tgroup(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
         super(Tgroup, self).__init__(*args, **kwargs)
@@ -379,6 +384,17 @@ class ColSpec(Document, HTMLize):
 class Row(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
         super(Row, self).__init__(*args, **kwargs)
+        self.header = False
+
+    def to_html(self):
+        if not self.header:
+            return super(Row, self).to_html()
+        tmpl = HTMLize.env.get_template(
+            os.path.join('components',
+                'header_{0}.html'.format(self.__class__.__name__).lower()
+            )
+        )
+        return tmpl.render(element=self, config=config)
 
 
 class Entry(Document, Container, HTMLize):

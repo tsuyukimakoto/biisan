@@ -72,18 +72,16 @@ aff::
         _title = '{0}'.format(self.options['title'])
         self.assert_has_content()
         text = '''
-<div class="row aff">
-  <section class="one columns"></section>
-  <section class="three columns">
-  <img src="http://images-jp.amazon.com/images/P/{asin}.09.SZZZZZZZ.jpg">
-  </section>
-  <section class="eight columns">
-  <a href="http://www.amazon.{tld}/gp/product/{asin}?tag={tag}">
-    <h4>{title}</h4>
-    <img
-     src="http://ecx.images-amazon.com/images/G/09/buttons/buy-from-tan.gif" />
-  </a>
-  </section>
+<div class="biisan-aff">
+  <fieldset>
+    <legend>{title}</legend>
+    <img src="http://images-jp.amazon.com/images/P/{asin}.09.SZZZZZZZ.jpg">
+    <a href="http://www.amazon.{tld}/gp/product/{asin}?tag={tag}">
+      <h4>{title}</h4>
+      <img
+       src="http://ecx.images-amazon.com/images/G/09/buttons/buy-from-tan.gif" />
+    </a>
+  </fieldset>
 </div>'''.format(asin=_asin, title=_title,
                  tld=config.settings.directive.aff.tld,
                  tag=config.settings.directive.aff.tag)

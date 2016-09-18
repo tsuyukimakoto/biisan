@@ -3,9 +3,11 @@
 {% block title %}{{ element.title }}{% endblock title %}
 
 {% block contents %}
-    <section>
+    <section class="biisan-section_meta">
       <h1>{{ element.title }}</h1>
-      <p class="meta">{{ element.publishd_datetime }}</p>
+      <p class="biisan-section_published_date">{{ element.publishd_datetime }}</p>
+    </section>
+    <section>
 {% for content in element.contents %}
 {{ content.to_html() }}
 {% endfor %}
