@@ -63,6 +63,6 @@ settings = _(
     multiprocess = 4,
     log_level = logging.INFO,
     dir = _(
-        output = '/Users/makoto/Desktop/site'
+        output = '~/Desktop/biisan'
     )
 )
