@@ -1,10 +1,9 @@
-# import types
 from datetime import datetime
 import logging
 
 from biisan.models import (
     Comment, Paragraph, Section, BulletList, ListItem, Target, Raw, Image, BlockQuote, Title,
-    LiteralBlock, Figure, Caption, Table, Thead, Tgroup, ColSpec, Row, Entry, EnumeratedList, Transition,
+    LiteralBlock, Figure, Caption, Table, Thead, Tbody, Tgroup, ColSpec, Row, Entry, EnumeratedList, Transition,
     Topic, SubstitutionDefinition, Note, DefinitionList, DefinitionListItem, Term, Definition,
     Strong, Emphasis, Reference
 )
@@ -207,11 +206,13 @@ def process_thead(elm, registry, container):
     thead = Thead()
     container.add_content(thead)
     for _elm in elm.getchildren():
-        registry.process(_elm, container)
+        registry.process(_elm, thead)
 
 
 def process_row(elm, registry, container):
     row = Row()
+    if container.__class__ == Thead:
+        row.header = True
     container.add_content(row)
     for _elm in elm.getchildren():
         registry.process(_elm, row)
@@ -225,8 +226,10 @@ def process_entry(elm, registry, container):
 
 
 def process_tbody(elm, registry, container):
+    tbody = Tbody()
+    container.add_content(tbody)
     for _elm in elm.getchildren():
-        registry.process(_elm, container)
+        registry.process(_elm, tbody)
 
 
 def process_enumerated_list(elm, registry, container):
@@ -338,14 +341,12 @@ class FunctionRegistry(dict):
     def __init__(self, *args, **kwargs):
         for key, value in kwargs.items():
             if hasattr(value, '__call__'):
-                # self[key] = types.MethodType(value, self)
                 self[key] = value
             else:
                 raise ValueError('accept only callable.')
 
     def __setattr__(self, key, value):
         if hasattr(value, '__call__'):
-            # self[key] = types.MethodType(value, self)
             self[key] = value
             logger.debug(
                 'register process function: {0}'.format(

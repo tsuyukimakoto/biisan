@@ -3,15 +3,16 @@
 {% block title %}Archives{% endblock title %}
 
 {% block contents %}
-<div class="recent">
+<section class="recent">
   <h2>Recent Entry</h2>
   <ul>{% for story in latest_story_list %}
-    <li><a href="{{ story.url }}">{{ story.title }}</a></li>
+    <li>{{ story.published_datetime }} <a href="{{ story.url }}">{{ story.title }}</a></li>
   {% endfor %}</ul>
-</div>
-<div class="archives">
+</section>
+<section class="archives">
+  <h2>Archives</h2>
   <ul>{% for year, months in year_month.items() %}
-    <li>{{ year }} {% for month in months %}<a href="/blog/{{ year }}/{{ month }}/">{{ month }}月</a> {% endfor %}</li>
+    <li>{{ year }} {% for month in months %}<a href="/blog/{{ year }}/{{ '%02d' % month }}/">{{ month }}月</a> {% endfor %}</li>
   {% endfor %}</ul>
-</div>
+</section>
 {% endblock contents %}

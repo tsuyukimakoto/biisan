@@ -3,9 +3,9 @@
 {% block title %}{{ year_month }}{% endblock title %}
 
 {% block contents %}
-<div>
+<section>
   <ul>{% for story in story_list %}
     <li>{{ story.published_datetime }} <a href="{{ story.url }}">{{ story.title }}</a></li>
   {% endfor %}</ul>
-</div>
+</section>
 {% endblock contents %}

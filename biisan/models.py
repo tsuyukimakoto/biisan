@@ -125,7 +125,7 @@ class Story(Container, HTMLize):
             self.__date.day)
 
     @property
-    def publishd_datetime(self):
+    def published_datetime(self):
         return '{0:04d}/{1:02d}/{2:02d} {3:02d}:{4:02d}'.format(
             self.__date.year,
             self.__date.month,
@@ -213,10 +213,11 @@ class Paragraph(Document, Container, HTMLize):
                     content.text, '<i>{0}</i>'.format(
                         content.text))
             elif isinstance(content, Reference):
+                _name = content.name and content.name or content.uri
                 _formated = _formated.replace(
                     content.text,
                     '<a href="{0}">{1}</a>'.format(
-                        content.uri, content.name))
+                        content.uri, _name))
             elif isinstance(content, Raw):
                 _formated = _formated.replace(
                     content.text,
@@ -363,6 +364,11 @@ class Thead(Document, Container, HTMLize):
         super(Thead, self).__init__(*args, **kwargs)
 
 
+class Tbody(Document, Container, HTMLize):
+    def __init__(self, *args, **kwargs):
+        super(Tbody, self).__init__(*args, **kwargs)
+
+
 class Tgroup(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
         super(Tgroup, self).__init__(*args, **kwargs)
@@ -379,6 +385,17 @@ class ColSpec(Document, HTMLize):
 class Row(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
         super(Row, self).__init__(*args, **kwargs)
+        self.header = False
+
+    def to_html(self):
+        if not self.header:
+            return super(Row, self).to_html()
+        tmpl = HTMLize.env.get_template(
+            os.path.join('components',
+                'header_{0}.html'.format(self.__class__.__name__).lower()
+            )
+        )
+        return tmpl.render(element=self, config=config)
 
 
 class Entry(Document, Container, HTMLize):
