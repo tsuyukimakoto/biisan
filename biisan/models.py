@@ -59,6 +59,7 @@ class Story(Container, HTMLize):
         self.comments = []
         self._timestamp = None
         self.rst_file = ''
+        self.extra = None
 
     def __lt__(self, other):
         try:
