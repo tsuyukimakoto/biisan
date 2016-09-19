@@ -2,6 +2,8 @@
   <head>
     <title>{% block title %}{% endblock title %}</title>
     <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="{{ config.settings.blog.base_url }}/api/feed/core/" />
+    {% block extra_headers %}
+    {% endblock extra_headers %}
   </head>
   <body>
   {%- block contents -%}

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.google.com/schemas/sitemap/0.84">
+<url>
+  <loc>{{ config.settings.blog.base_url }}</loc>
+  <lastmod>2013-10-11</lastmod>
+</url>
+{% for story in entry_list|reverse %}<url>
+  <loc>{{ config.settings.blog.base_url }}{{ story.url }}</loc>
+  <lastmod>{{ story.published_date }}</lastmod>
+</url>
+{% endfor %}
+</urlset>

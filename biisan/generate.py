@@ -85,6 +85,7 @@ def output(story_list):
 
 def write_extra(extra):
     extra_page = unmarshal_story('./extra/{0}.rst'.format(extra))
+    extra_page.extra = extra
     extra_page.extra_directory(extra)
     output([extra_page])
     return extra_page
@@ -145,6 +146,20 @@ def write_rss20(story_list):
             f.write(rss)
 
 
+def write_sitemaps(story_list):
+    last_modified = max(map(lambda x: x.date, story_list))
+    env = Environment(loader=FileSystemLoader(config.settings.template_dirs))
+    sitemaps = env.get_template('sitemaps.xml')
+    sitemap = sitemaps.render(config=config,
+                              story_list=story_list,
+                              last_modified=last_modified)
+    sitemap_dir = os.path.join(
+        config.settings.dir.output, 'api', 'google_sitemaps')
+    os.makedirs(sitemap_dir, exist_ok=True)
+    with codecs.open(os.path.join(sitemap_dir, 'index.xml'), 'w', 'utf8') as f:
+        f.write(sitemap)
+
+
 def register_directives():
     for directive in config.settings.directives:
         directive_class = get_klass(directive)
@@ -185,6 +200,7 @@ def main():
     write_blog_top(story_list)
     write_blog_archive(story_list)
     write_rss20(story_list)
+    write_sitemaps(story_list)
 
 
 if __name__ == '__main__':

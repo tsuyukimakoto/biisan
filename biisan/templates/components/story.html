@@ -2,12 +2,18 @@
 
 {% block title %}{{ element.title }}{% endblock title %}
 
+{% block extra_headers %}
+  {% include "components/story_extra_headers.html" %}
+{% endblock extra_headers %}
+
 {% block contents %}
+{% include "components/story_extra_top1.html" %}
     <section class="biisan-section_meta">
       <h1>{{ element.title }}</h1>
       <p class="biisan-section_published_date">{{ element.published_datetime }}</p>
     </section>
     <section>
+{% include "components/story_extra_top2.html" %}
 {% for content in element.contents %}
 {{ content.to_html() }}
 {% endfor %}
@@ -24,10 +30,5 @@
       {% endfor %}
     </section>
     {% endif %}
-    <section class="others">
-      <ul>
-        <li><a href="{{ element.prev_story[1] }}">{{ element.prev_story[0] }}</a></li>
-        <li><a href="{{ element.next_story[1] }}">{{ element.next_story[0] }}</a></li>
-      </ul>
-    </section>
+{% include "components/story_extra_bottom.html" %}
 {% endblock contents %}
