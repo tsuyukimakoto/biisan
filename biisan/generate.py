@@ -138,12 +138,10 @@ def write_rss20(story_list):
     rss = rss20.render(config=config,
                        story_list=latest_story_list,
                        now_rfc2822=now_rfc2822)
-    core_dir = os.path.join(config.settings.dir.output, 'api', 'feed', 'core')
-    blog_dir = os.path.join(config.settings.dir.output, 'api', 'feed', 'blog')
-    for d in [core_dir, blog_dir]:
-        os.makedirs(d, exist_ok=True)
-        with codecs.open(os.path.join(d, 'index.xml'), 'w', 'utf8') as f:
-            f.write(rss)
+    feed_dir = os.path.join(config.settings.dir.output, 'api', 'feed')
+    os.makedirs(feed_dir, exist_ok=True)
+    with codecs.open(os.path.join(feed_dir, 'index.xml'), 'w', 'utf8') as f:
+        f.write(rss)
 
 
 def write_sitemaps(story_list):
