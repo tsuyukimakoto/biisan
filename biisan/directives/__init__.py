@@ -75,14 +75,22 @@ aff::
 <div class="biisan-aff">
   <fieldset>
     <legend>{title}</legend>
-    <img src="http://images-jp.amazon.com/images/P/{asin}.09.SZZZZZZZ.jpg">
-    <a href="http://www.amazon.{tld}/gp/product/{asin}?tag={tag}">
-      <h4>{title}</h4>
-      <img
-       src="http://ecx.images-amazon.com/images/G/09/buttons/buy-from-tan.gif" />
-    </a>
+    <div class="biisan-aff-container">
+      <div class="biisan-aff_amz">
+        <img src="http://images-jp.amazon.com/images/P/{asin}.09.SZZZZZZZ.jpg">
+        <a href="http://www.amazon.{tld}/gp/product/{asin}?tag={tag}">
+          <h4>{title}</h4>
+          <img
+           src="http://ecx.images-amazon.com/images/G/09/buttons/buy-from-tan.gif" />
+        </a>
+      </div>
+      <div class="biisan-aff_content">
+      {contents}
+      </div>
+    </div>
   </fieldset>
 </div>'''.format(asin=_asin, title=_title,
                  tld=config.settings.directive.aff.tld,
-                 tag=config.settings.directive.aff.tag)
+                 tag=config.settings.directive.aff.tag,
+                 contents='<br />'.join(self.content))
         return [nodes.raw('', text, format='html')]
