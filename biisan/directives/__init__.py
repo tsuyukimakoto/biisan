@@ -94,3 +94,38 @@ aff::
                  tag=config.settings.directive.aff.tag,
                  contents='<br />'.join(self.content))
         return [nodes.raw('', text, format='html')]
+
+class AppleAffButtonDirective(Directive):
+    """
+appleaff::
+  :url: permalink
+  :shop: appstore / macappstore / itunes / music
+    """
+
+    directive_tag = 'appleaff'
+    has_content = False
+    option_spec = {'at': directives.unchanged,
+                   'url': directives.unchanged,
+                   'shop': directives.unchanged}
+    shop_type_button = {
+        'appstore': 'https://linkmaker.itunes.apple.com/images/badges/ja-jp/badge_appstore-lrg.svg',
+        'macappstore': 'https://linkmaker.itunes.apple.com/images/badges/ja-jp/badge_macappstore-lrg.svg',
+        'itunes': 'https://linkmaker.itunes.apple.com/images/badges/ja-jp/badge_itunes-lrg.svg',
+        'music': 'https://linkmaker.itunes.apple.com/images/badges/ja-jp/badge_music-lrg.svg'
+    }
+
+
+    def get_shop(self, shop_type):
+        assert(shop_type in AppleAffButtonDirective.shop_type_button)
+        return AppleAffButtonDirective.shop_type_button[shop_type]
+
+
+    def run(self):
+        _url = '{0}'.format(self.options['url'])
+        _shop = '{0}'.format(self.options['shop'])
+        _shop_button = self.get_shop(_shop)
+        _affurl = '?' in _url and '{0}&at={1}' or '{0}?at={1}'
+        _affurl = _affurl.format(_url, config.settings.directive.appleaff.at)
+        text = '''<a class="biisan-apple-aff" href="{affurl}"><img
+  src="{shop_button}" /></a>'''.format(affurl=_affurl, shop_button=_shop_button)
+        return [nodes.raw('', text, format='html')]
