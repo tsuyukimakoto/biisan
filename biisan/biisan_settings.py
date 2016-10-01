@@ -47,6 +47,7 @@ settings = _(
         'biisan.directives.PrismDirective',
         'biisan.directives.NotesDirective',
         'biisan.directives.AffDirective',
+        'biisan.directives.AppleAffButtonDirective'
     ],
     directive = _(
         aff = _(
