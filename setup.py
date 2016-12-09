@@ -28,6 +28,6 @@ setup(name='biisan',
                    'Programming Language :: Python :: 3.6',
                    'Topic :: Documentation',
                    ],
-      packages=['biisan', 'biisan.directives', ],
-      package_data={'biisan': ['templates/*', ]},
+      packages=['biisan', 'biisan.directives', 'biisan.processors'],
+      package_data={'biisan': ['templates/*', 'templates/components/*' ]},
       )
