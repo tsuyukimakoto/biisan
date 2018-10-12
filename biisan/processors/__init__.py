@@ -12,14 +12,14 @@ logger = logging.getLogger(__name__)
 
 
 def _debug(elm):
-    print('-' * 20)
-    print('Tag: {0}'.format(elm.tag))
-    print('text: {0}'.format(elm.text))
-    print('------- items --------------')
-    print(elm.items())
-    print('------- getchildren --------')
-    print(elm.getchildren())
-    print('-' * 20)
+    logger.debug('-' * 20)
+    logger.debug('Tag: {0}'.format(elm.tag))
+    logger.debug('text: {0}'.format(elm.text))
+    logger.debug('------- items --------------')
+    logger.debug(elm.items())
+    logger.debug('------- getchildren --------')
+    logger.debug(elm.getchildren())
+    logger.debug('-' * 20)
 
 
 def process_field_name(elm, registry, container):
@@ -293,14 +293,12 @@ def _process_comment(elm, registry, story):
                 _field[1][0].text, '%Y-%m-%d %H:%M'
             )
         else:
-            print(_field[0].text)
+            logger.warn(_field[0].text)
     c = Comment()
     c.commentator = commentator
     c.url = url
     for b in body:
         c.add_content(b)
-    # print(body)
-    # map(c.add_content, body)
     c.create_date = create_date
     story.comments.append(c)
 
@@ -330,9 +328,6 @@ def process_docinfo(elm, registry, story):
             story.date = datetime.strptime(
                 _elm.text, '%Y-%m-%d %H:%M'
             )
-            if story.rst_file == '2009/10/01280.rst':
-                print(_elm.text)
-                print(story.date)
         elif 'author' == _elm.tag:
             story.author = _elm.text
 
