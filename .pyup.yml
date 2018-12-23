@@ -1,3 +1,3 @@
 requirements:
-	  - requirements.txt
+  - requirements.txt
 schedule: "every week on saturday"
