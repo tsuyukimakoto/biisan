@@ -195,6 +195,9 @@ def prepare():
 
 def main():
     story_list = glob_rst_documents('./blog')
+    if len(story_list) == 0:
+        logger.error('NO ENTRY FOUND.')
+        return
     output(story_list)
     context = {}
     context['config'] = config

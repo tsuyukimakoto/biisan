@@ -5,9 +5,14 @@ Biisan
 
 Static blog site generator.
 '''
-from distutils.core import setup
+from setuptools import setup
 
 from biisan import __version__
+
+requirements = []
+with open('requirements.txt', 'r') as f:
+    requirements = [req.strip() for req in f.readlines() if req]
+
 
 setup(name='biisan',
       version=__version__,
@@ -29,6 +34,8 @@ setup(name='biisan',
                    'Programming Language :: Python :: 3.7',
                    'Topic :: Documentation',
                    ],
+      zip_safe=False,
+      install_requires=requirements,
       packages=['biisan', 'biisan.directives', 'biisan.processors'],
       package_data={'biisan': ['templates/*', 'templates/components/*' ]},
-      )
+)
