@@ -1,4 +1,5 @@
 docutils==0.14
 Jinja2==2.10
 MarkupSafe==1.1.0
-# glueplate
+glueplate==1.0.2
+PyInquirer=1.0.3
