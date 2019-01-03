@@ -64,8 +64,6 @@ def glob_rst_documents(base_path):
         list(glob('{0}/**/*.rst'.format(base_path), recursive=True))
     )
     story_list.sort()
-    # for story in story_list:
-    #     print(story)
     return story_list
 
 
