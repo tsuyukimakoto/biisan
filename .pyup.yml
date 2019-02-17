@@ -1,3 +1,5 @@
 requirements:
   - requirements.txt
 schedule: "every week on saturday"
+assignees:
+  - tsuyukimakoto
