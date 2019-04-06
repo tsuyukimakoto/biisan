@@ -9,6 +9,7 @@ from email.utils import formatdate
 from datetime import datetime
 import xml.etree.ElementTree as ET
 
+from css_html_js_minify import html_minify
 from docutils.core import publish_parts
 from docutils.parsers.rst import directives
 from glueplate import config
@@ -70,7 +71,7 @@ def glob_rst_documents(base_path):
 def write_html(story):
     os.makedirs(story.directory, exist_ok=True)
     _file = os.path.join(story.directory, 'index.html')
-    _data = story.to_html()
+    _data = html_minify(story.to_html())
     _current = None
     if os.path.exists(_file):
         with codecs.open(_file, 'r', 'utf8') as f:
