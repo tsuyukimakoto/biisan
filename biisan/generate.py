@@ -9,6 +9,7 @@ from email.utils import formatdate
 from datetime import datetime
 import xml.etree.ElementTree as ET
 
+from css_html_js_minify import html_minify
 from docutils.core import publish_parts
 from docutils.parsers.rst import directives
 from glueplate import config
@@ -78,7 +79,7 @@ def write_html(story):
     if _current == _data:
         return
     with codecs.open(_file , 'w', 'utf8') as f:
-        f.write(_data)
+        f.write(html_minify(_data))
         logger.info('Write:{0}'.format(_file))
 
 
