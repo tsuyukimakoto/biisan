@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.google.com/schemas/sitemap/0.84">
 <url>
   <loc>{{ config.settings.blog.base_url }}</loc>
-  <lastmod>2013-10-11</lastmod>
+  <lastmod>{{ last_modified }}</lastmod>
 </url>
 {% for story in entry_list|reverse %}<url>
   <loc>{{ config.settings.blog.base_url }}{{ story.url }}</loc>
