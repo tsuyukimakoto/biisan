@@ -71,7 +71,7 @@ def glob_rst_documents(base_path):
 def write_html(story):
     os.makedirs(story.directory, exist_ok=True)
     _file = os.path.join(story.directory, 'index.html')
-    _data = story.to_html()
+    _data = html_minify(story.to_html())
     _current = None
     if os.path.exists(_file):
         with codecs.open(_file, 'r', 'utf8') as f:
@@ -79,7 +79,7 @@ def write_html(story):
     if _current == _data:
         return
     with codecs.open(_file , 'w', 'utf8') as f:
-        f.write(html_minify(_data))
+        f.write(_data)
         logger.info('Write:{0}'.format(_file))
 
 
