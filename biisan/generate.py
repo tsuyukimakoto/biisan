@@ -150,12 +150,12 @@ def write_rss20(story_list):
 
 
 def write_sitemaps(story_list):
-    last_modified = max(map(lambda x: x.date, story_list))
+    last_modified_iso_8601 = max(map(lambda x: x.date, story_list)).isoformat()
     env = Environment(loader=FileSystemLoader(config.settings.template_dirs))
     sitemaps = env.get_template('sitemaps.xml')
     sitemap = sitemaps.render(config=config,
                               story_list=story_list,
-                              last_modified=last_modified)
+                              last_modified=last_modified_iso_8601)
     sitemap_dir = os.path.join(
         config.settings.dir.output, 'api', 'google_sitemaps')
     os.makedirs(sitemap_dir, exist_ok=True)
