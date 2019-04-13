@@ -13,13 +13,13 @@ from biisan.constants import (
 from glueplate import Glue as _
 from PyInquirer import prompt
 
-
-def init():
-    data_dir = os.path.join(os.getcwd(), BIISAN_DATA_DIR)
+def check_already_init(data_dir):
     if os.path.exists(data_dir):
         sys.exit('biisan data directory, {0} exists already.'.format(BIISAN_DATA_DIR))
-        return
-    answer = prompt(QUESTIONS)
+
+
+def initialize_structures(data_dir, answer):
+    check_already_init(data_dir)
     os.mkdir(data_dir)
     os.mkdir(os.path.join(data_dir, 'data'))
     os.mkdir(os.path.join(data_dir, 'data', 'blog'))
@@ -42,6 +42,13 @@ def init():
                 **answer,
             ),
         )
+
+
+def init():
+    data_dir = os.path.join(os.getcwd(), BIISAN_DATA_DIR)
+    check_already_init(data_dir)
+    answer = prompt(QUESTIONS)
+    initialize_structures(data_dir, answer)
     print('''
         Always set environment variable BIISAN_SETTINGS_MODULE to biisan_local_settings like bellow.
 
