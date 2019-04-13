@@ -32,3 +32,21 @@ def cd(to):
         os.chdir(prev_cwd)
 
 
+def _copy_blog(entry_file):
+    src = Path('.') / 'test_data' / entry_file
+    dest = Path('.') / 'biisan_data' / 'data' / 'blog' / entry_file
+    shutil.copyfile(src, dest)
+
+
+def copy_first_blog():
+    _copy_blog('my_first_blog.rst')
+
+
+def copy_second_blog():
+    _copy_blog('my_second_blog.rst')
+
+
+def copy_test_local_settings():
+    src = Path('.') / 'test_data' / 'biisan_local_settings.py'
+    dest = Path('.') / 'biisan_data' / 'data' / 'biisan_local_settings.py'
+    shutil.copyfile(src, dest)
