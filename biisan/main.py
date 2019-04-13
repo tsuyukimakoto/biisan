@@ -13,6 +13,7 @@ from biisan.constants import (
 from glueplate import Glue as _
 from PyInquirer import prompt
 
+
 def check_already_init(data_dir):
     if os.path.exists(data_dir):
         sys.exit('biisan data directory, {0} exists already.'.format(BIISAN_DATA_DIR))

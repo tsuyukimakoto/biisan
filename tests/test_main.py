@@ -1,39 +1,21 @@
+from pathlib import Path
+from unittest.mock import patch
+import os
+
+import pytest
+
 from ._constants import (
     ANSWER,
     DATA_DIR,
 )
-from contextlib import contextmanager
-from pathlib import Path
-from unittest.mock import patch
-import os
-import shutil
-
-import pytest
-
-
+from ._utils import (
+    cd,
+    cleanup,
+)
 from biisan.main import (
     check_already_init,
     initialize_structures,
 )
-
-@pytest.fixture(scope='function', autouse=True)
-def cleanup():
-    test_generate_dir = (Path('.') / 'tests' / 'biisan_data')
-    if test_generate_dir.exists():
-        shutil.rmtree(test_generate_dir)
-    yield
-    if test_generate_dir.exists():
-        shutil.rmtree(test_generate_dir)
-
-
-@contextmanager
-def cd(to):
-    prev_cwd = Path.cwd()
-    os.chdir(to)
-    try:
-        yield
-    finally:
-        os.chdir(prev_cwd)
 
 
 def test_initialize_structures():
