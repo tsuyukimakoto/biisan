@@ -1,6 +1,7 @@
 from datetime import datetime
 import multiprocessing
 import os
+import sys
 
 from biisan.constants import (
     ABOUT_TMPL,
@@ -16,7 +17,7 @@ from PyInquirer import prompt
 def init():
     data_dir = os.path.join(os.getcwd(), BIISAN_DATA_DIR)
     if os.path.exists(data_dir):
-        print('biisan data directory, {0} exists already.'.format(BIISAN_DATA_DIR))
+        sys.exit('biisan data directory, {0} exists already.'.format(BIISAN_DATA_DIR))
         return
     answer = prompt(QUESTIONS)
     os.mkdir(data_dir)
