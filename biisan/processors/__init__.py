@@ -142,6 +142,7 @@ def process_figure(elm, registry, container):
         registry.process(_elm, figure)
 
 
+# TODO test
 def process_topic(elm, registry, container):
     topic = Topic()
     container.add_content(topic)
@@ -232,6 +233,7 @@ def process_tbody(elm, registry, container):
         registry.process(_elm, tbody)
 
 
+# TODO test
 def process_enumerated_list(elm, registry, container):
     enumerated_list = EnumeratedList()
     container.add_content(enumerated_list)
@@ -239,6 +241,7 @@ def process_enumerated_list(elm, registry, container):
         registry.process(_elm, enumerated_list)
 
 
+# TODO test
 def process_transition(elm, registry, container):
     container.add_content(Transition())
 
@@ -275,6 +278,7 @@ def process_section(elm, registry, container, depth=0):
         registry.process(_elm, section)
 
 
+# TODO test
 def _process_comment(elm, registry, story):
     _field_list = elm.getchildren()[0]
     commentator = ''
