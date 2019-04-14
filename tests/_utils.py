@@ -1,9 +1,12 @@
-from contextlib import contextmanager
-from pathlib import Path
 import os
 import shutil
+from contextlib import (
+    contextmanager,
+)
+from pathlib import Path
 
 import pytest
+
 
 @pytest.fixture(scope='function', autouse=True)
 def cleanup():

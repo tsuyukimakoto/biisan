@@ -1,5 +1,7 @@
 import os
-from glueplate import Glue as _
+
+from glueplate import \
+    Glue as _
 
 settings = _(
     blog = _(

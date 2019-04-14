@@ -1,11 +1,12 @@
-import pytest
+from biisan.main import (
+    initialize_structures,
+)
 
-from biisan.main import initialize_structures
 from ._constants import (
     ANSWER,
     DATA_DIR,
 )
-from ._utils import (
+from ._utils import (  # noqa
     cd,
     cleanup,
     copy_first_blog,
@@ -32,6 +33,7 @@ def test_register_processor():
         assert ['biisan.processors.' + processor for processor in list(
             biisan.generate.processor_registry.keys())
         ] == config.settings.processors
+
 
 def test_processors():
     with cd('tests'):

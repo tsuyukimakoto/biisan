@@ -1,20 +1,18 @@
 from pathlib import Path
-from unittest.mock import patch
-import os
 
 import pytest
+
+from biisan.main import (
+    initialize_structures,
+)
 
 from ._constants import (
     ANSWER,
     DATA_DIR,
 )
-from ._utils import (
+from ._utils import (  # noqa
     cd,
     cleanup,
-)
-from biisan.main import (
-    check_already_init,
-    initialize_structures,
 )
 
 
