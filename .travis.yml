@@ -10,4 +10,4 @@ install:
   - pip install -r requirements/requirements_dev.txt
 # command to run tests
 script:
-  - tox
+  - tox -e "${TOX_ENV}"
