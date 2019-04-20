@@ -4,7 +4,7 @@ import os
 
 
 settings = _(
-    GLUE_PLATE_ENVIRONMENT_VARIABLE_KEY = 'BIISAN_SETTINGS_MODULE',
+    GLUE_PLATE_ENVIRONMENT_VARIABLE_KEY = 'BIISAN_SETTINGS_MODULE',  # noqa E251
     story_class = 'biisan.models.Story',
     latest_list_count = 5,
     processors = [
