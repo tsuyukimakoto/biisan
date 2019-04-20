@@ -1,4 +1,4 @@
-My First Blog
+My Second Blog
 ================================================================
 
 :slug: my_second_blog

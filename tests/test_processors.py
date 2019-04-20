@@ -1,3 +1,6 @@
+from unittest import mock
+from xml.etree.ElementTree import Element
+
 from biisan.main import (
     initialize_structures,
 )
@@ -47,3 +50,24 @@ def test_processors():
 
             prepare()
             main()
+
+
+def test_marshal():
+    with cd('tests'):
+        initialize_structures(DATA_DIR, ANSWER)
+        copy_test_local_settings()
+        copy_first_blog()
+        copy_second_blog()
+
+        with cd('biisan_data/data'):
+            from biisan.generate import prepare, glob_rst_documents
+
+            prepare()
+            story_list = glob_rst_documents('./blog')
+            first_story = story_list[0]
+            second_story = story_list[1]
+            assert str(first_story.title) == 'My First Blog'
+            assert str(first_story.url) == '/blog/2019/04/06/my_first_blog/'
+            assert str(first_story.author) == 'makoto tsuyuki'
+            assert str(second_story.title) == 'My Second Blog'
+            assert str(second_story.url) == '/blog/2019/04/15/my_second_blog/'
