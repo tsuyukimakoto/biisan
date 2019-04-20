@@ -4,10 +4,10 @@ import os
 
 
 settings = _(
-    GLUE_PLATE_ENVIRONMENT_VARIABLE_KEY = 'BIISAN_SETTINGS_MODULE',  # noqa E251
-    story_class = 'biisan.models.Story',
-    latest_list_count = 5,
-    processors = [
+    GLUE_PLATE_ENVIRONMENT_VARIABLE_KEY='BIISAN_SETTINGS_MODULE',
+    story_class='biisan.models.Story',
+    latest_list_count=5,
+    processors=[
         'biisan.processors.process_document',
         'biisan.processors.process_title',
         'biisan.processors.process_docinfo',
@@ -43,27 +43,27 @@ settings = _(
         'biisan.processors.process_emphasis',
         'biisan.processors.process_reference',
     ],
-    directives = [
+    directives=[
         'biisan.directives.PrismDirective',
         'biisan.directives.NotesDirective',
         'biisan.directives.AffDirective',
         'biisan.directives.AppleAffButtonDirective'
     ],
-    directive = _(
-        aff = _(
+    directive=_(
+        aff=_(
             tld='co.jp',
             tag='everes-22',
         ),
     ),
-    extra = [
+    extra=[
         'about',
     ],
-    template_dirs = [os.path.join(
+    template_dirs=[os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
-        'templates'),],
-    multiprocess = 4,
-    log_level = logging.INFO,
-    dir = _(
-        output = '~/Desktop/biisan'
+        'templates'), ],
+    multiprocess=4,
+    log_level=logging.INFO,
+    dir=_(
+        output='~/Desktop/biisan'
     )
 )

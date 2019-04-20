@@ -95,6 +95,7 @@ aff::
                  contents='<br />'.join(self.content))
         return [nodes.raw('', text, format='html')]
 
+
 class AppleAffButtonDirective(Directive):
     """
 appleaff::
@@ -114,11 +115,9 @@ appleaff::
         'music': 'https://linkmaker.itunes.apple.com/images/badges/ja-jp/badge_music-lrg.svg'
     }
 
-
     def get_shop(self, shop_type):
         assert(shop_type in AppleAffButtonDirective.shop_type_button)
         return AppleAffButtonDirective.shop_type_button[shop_type]
-
 
     def run(self):
         _url = '{0}'.format(self.options['url'])

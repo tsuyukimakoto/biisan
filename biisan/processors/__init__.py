@@ -356,7 +356,7 @@ class FunctionRegistry(dict):
     def __getattr__(self, key):
         try:
             return self[key]
-        except:
+        except KeyError:
             object.__getattribute__(self, key)
 
     def register(self, name, func):

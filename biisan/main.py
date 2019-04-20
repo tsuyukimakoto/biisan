@@ -10,7 +10,6 @@ from biisan.constants import (
     SETTINGS_TMPL,
 )
 
-from glueplate import Glue as _
 from PyInquirer import prompt
 
 
@@ -55,6 +54,7 @@ def init():
 
         $ export BIISAN_SETTINGS_MODULE=biisan_local_settings
         ''')
+
 
 if __name__ == '__main__':
     init()

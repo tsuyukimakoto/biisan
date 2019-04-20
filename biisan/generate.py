@@ -78,7 +78,7 @@ def write_html(story):
             _current = f.read()
     if _current == _data:
         return
-    with codecs.open(_file , 'w', 'utf8') as f:
+    with codecs.open(_file, 'w', 'utf8') as f:
         f.write(_data)
         logger.info('Write:{0}'.format(_file))
 

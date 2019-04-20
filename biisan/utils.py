@@ -8,4 +8,5 @@ def get_klass(pth):
     mod = import_module(module_name)
     return getattr(mod, class_name)
 
+
 get_function = get_klass
