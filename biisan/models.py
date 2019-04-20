@@ -36,12 +36,14 @@ class Nestable(object):
 
 class HTMLize(object):
     env = Environment(loader=FileSystemLoader(config.settings.template_dirs))
+
     def __init__(self, *args, **kwargs):
         super(HTMLize, self).__init__(*args, **kwargs)
 
     def to_html(self):
         tmpl = HTMLize.env.get_template(
-            os.path.join('components',
+            os.path.join(
+                'components',
                 '{0}.html'.format(self.__class__.__name__).lower()
             )
         )
@@ -392,7 +394,8 @@ class Row(Document, Container, HTMLize):
         if not self.header:
             return super(Row, self).to_html()
         tmpl = HTMLize.env.get_template(
-            os.path.join('components',
+            os.path.join(
+                'components',
                 'header_{0}.html'.format(self.__class__.__name__).lower()
             )
         )
