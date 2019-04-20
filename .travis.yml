@@ -6,11 +6,10 @@ python:
   - "3.7"
 # command to install dependencies
 install:
-  - pip install -r requirements/requirements_dev.txt
   - pip install tox-travis
 # command to run tests
 script:
-  - tox -e "${TOX_ENV}"
+  - tox
 after_success:
 - tox -e coverage-report
 - codecov
