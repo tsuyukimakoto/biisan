@@ -1,18 +1,14 @@
-dist: xenial   # required for Python >= 3.7
+sudo: false
 language: python
 matrix:
   include:
-    - python: '3.5'
-      env: TOXENV=py35
     - python: '3.6'
       env: TOXENV=py36
     - python: '3.7'
       env: TOXENV=py37
-    - python: '3.7'
+    - python: 3.7
       env: TOXENV=flake8
-    - python: '3.7'
-      env: TOXENV=coverage
-    - python: '3.7'
+    - python: 3.7
       env: TOXENV=isort
 # command to install dependencies
 install:
