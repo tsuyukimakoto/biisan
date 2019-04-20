@@ -14,11 +14,6 @@ matrix:
       env: TOXENV=coverage
     - python: '3.7'
       env: TOXENV=isort
-python:
-  - "3.7"
-  - "3.7-dev"  # 3.7 development branch
-  - "3.8-dev"  # 3.8 development branch
-  - "nightly"  # nightly build
 # command to install dependencies
 install:
   - pip install -r requirements/requirements_dev.txt
