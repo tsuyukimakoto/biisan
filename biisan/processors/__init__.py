@@ -116,7 +116,7 @@ def process_image(elm, registry, container):
             img.alt = subitem[1]
         elif subitem[0] == 'witdh':
             img.witdh = subitem[1]
-        elif subitem[1] == 'height':
+        elif subitem[0] == 'height':
             img.height = subitem[1]
         elif subitem[0] == 'uri':
             img.uri = subitem[1]
