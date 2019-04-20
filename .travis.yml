@@ -16,3 +16,6 @@ install:
 # command to run tests
 script:
   - tox -e "${TOX_ENV}"
+after_success:
+- tox -e coverage-report
+- codecov
