@@ -6,12 +6,15 @@ matrix:
     - python: '3.6'
       env: TOXENV=py36
     - python: '3.6'
+      env: TOXENV=py36
+    - python: '3.6'
       env: TOXENV=flake8
     - python: '3.6'
       env: TOXENV=isort
 # command to install dependencies
 install:
   - pip install -r requirements/requirements_dev.txt
+  - pip install tox-travis
 # command to run tests
 script:
   - tox -e "${TOX_ENV}"
