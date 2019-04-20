@@ -18,7 +18,7 @@ def _debug(elm):
     logger.debug('------- items --------------')
     logger.debug(elm.items())
     logger.debug('------- getchildren --------')
-    logger.debug(elm.getchildren())
+    logger.debug(list(elm))
     logger.debug('-' * 20)
 
 
@@ -28,7 +28,7 @@ def process_field_name(elm, registry, container):
 
 def process_field_body(elm, registry, container):
     res = []
-    for x in elm.getchildren():
+    for x in list(elm):
         if 'field_list' == x.tag:
             logger.warn("Ignore field_list in field_body's child")
         else:
@@ -39,35 +39,35 @@ def process_field_body(elm, registry, container):
 def process_list_item(elm, registry, container):
     list_item = ListItem()
     container.add_content(list_item)
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, list_item)
 
 
 def process_bullet_list(elm, registry, container):
     bullet_list = BulletList()
     container.add_content(bullet_list)
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, bullet_list)
 
 
 def process_definition_list(elm, registry, container):
     definition_list = DefinitionList()
     container.add_content(definition_list)
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, definition_list)
 
 
 def process_definition(elm, registry, container):
     definition = Definition()
     container.definition = definition
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, definition)
 
 
 def process_definition_list_item(elm, registry, container):
     definition_list_item = DefinitionListItem()
     container.add_content(definition_list_item)
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         if _elm.tag == 'term':
             term = Term()
             term.text = _elm.text
@@ -125,7 +125,7 @@ def process_image(elm, registry, container):
 def process_block_quote(elm, registry, container):
     block_quote = BlockQuote()
     container.add_content(block_quote)
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, block_quote)
 
 
@@ -138,7 +138,7 @@ def process_literal_block(elm, registry, container):
 def process_figure(elm, registry, container):
     figure = Figure()
     container.add_content(figure)
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, figure)
 
 
@@ -146,7 +146,7 @@ def process_figure(elm, registry, container):
 def process_topic(elm, registry, container):
     topic = Topic()
     container.add_content(topic)
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, topic)
 
 
@@ -158,7 +158,7 @@ def process_substitution_definition(elm, registry, container):
             title = Title()
             title.text = _item[1]
             substitution_definition.title = title
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, substitution_definition)
 
 
@@ -171,7 +171,7 @@ def process_caption(elm, registry, container):
 def process_note(elm, registry, container):
     note = Note()
     container.add_content(note)
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, note)
 
 
@@ -184,14 +184,14 @@ def process_title(elm, registry, container):
 def process_table(elm, registry, container):
     table = Table()
     container.add_content(table)
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, table)
 
 
 def process_tgroup(elm, registry, container):
     tgroup = Tgroup()
     container.add_content(tgroup)
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, container)
 
 
@@ -206,7 +206,7 @@ def process_colspec(elm, registry, container):
 def process_thead(elm, registry, container):
     thead = Thead()
     container.add_content(thead)
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, thead)
 
 
@@ -215,21 +215,21 @@ def process_row(elm, registry, container):
     if container.__class__ == Thead:
         row.header = True
     container.add_content(row)
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, row)
 
 
 def process_entry(elm, registry, container):
     entry = Entry()
     container.add_content(entry)
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, entry)
 
 
 def process_tbody(elm, registry, container):
     tbody = Tbody()
     container.add_content(tbody)
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, tbody)
 
 
@@ -237,7 +237,7 @@ def process_tbody(elm, registry, container):
 def process_enumerated_list(elm, registry, container):
     enumerated_list = EnumeratedList()
     container.add_content(enumerated_list)
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, enumerated_list)
 
 
@@ -247,7 +247,7 @@ def process_transition(elm, registry, container):
 
 
 def process_document(elm, registry, container):
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, container)
 
 
@@ -255,7 +255,7 @@ def process_paragraph(elm, registry, container):
     paragraph = Paragraph()
     paragraph.text = ''.join(elm.itertext())
     container.add_content(paragraph)
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, paragraph)
 
 
@@ -274,13 +274,13 @@ def process_emphasis(elm, registry, container):
 def process_section(elm, registry, container, depth=0):
     section = Section()
     container.add_content(section)
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         registry.process(_elm, section)
 
 
 # TODO test
 def _process_comment(elm, registry, story):
-    _field_list = elm.getchildren()[0]
+    _field_list = list(elm)[0]
     commentator = ''
     url = ''
     body = []
@@ -308,7 +308,7 @@ def _process_comment(elm, registry, story):
 
 
 def process_docinfo(elm, registry, story):
-    for _elm in elm.getchildren():
+    for _elm in list(elm):
         if len(_elm) == 2:
             if 'field_name' == _elm[0].tag:
                 field_name = process_field_name(_elm[0], registry, story)
