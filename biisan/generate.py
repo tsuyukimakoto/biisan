@@ -15,6 +15,10 @@ from docutils.parsers.rst import directives
 from glueplate import config
 from jinja2 import Environment, FileSystemLoader
 
+from biisan.directives import PrismDirective
+from biisan.directives import NotesDirective
+from biisan.directives import AffDirective
+from biisan.directives import AppleAffButtonDirective
 from biisan.utils import get_klass, get_function
 from biisan.processors import FunctionRegistry
 
@@ -163,10 +167,6 @@ def write_sitemaps(story_list):
     with codecs.open(os.path.join(sitemap_dir, 'index.xml'), 'w', 'utf8') as f:
         f.write(sitemap)
 
-from biisan.directives import PrismDirective
-from biisan.directives import NotesDirective
-from biisan.directives import AffDirective
-from biisan.directives import AppleAffButtonDirective
 
 def register_directives():
     for directive in config.settings.directives:
