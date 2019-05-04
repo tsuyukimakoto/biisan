@@ -96,5 +96,4 @@ def test_unmarshal():
         tobe_data = 'tobe'
         with open(Path('test_data') / 'my_first_blog_output.html') as f:
             tobe_data = f.read()
-
         assert output_data == tobe_data

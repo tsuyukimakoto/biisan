@@ -142,7 +142,6 @@ def process_figure(elm, registry, container):
         registry.process(_elm, figure)
 
 
-# TODO test
 def process_topic(elm, registry, container):
     topic = Topic()
     container.add_content(topic)

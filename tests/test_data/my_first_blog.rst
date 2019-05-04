@@ -5,6 +5,13 @@ My First Blog
 :date: 2019-04-06 11:06
 :author: makoto tsuyuki
 
+:comment:
+  :commentator: コメンテータ
+  :url: https://www.example.com/testurl
+  :body: コメント1行目
+    コメント2行目
+  :create_date: 2019-05-04 22:45
+
 
 This is my first Blog
 -------------------------------------------
@@ -41,6 +48,10 @@ Directives
   :url: https://example.com
   :shop: macappstore
 
+.. topic:: Topic Title
+
+  トピック本文1行目
+  トピック本文2行目
 
 .. [1] A footnote contains body elements
 
@@ -94,3 +105,11 @@ Raw
 
   <div>hello world</div>
 
+Transition
+-------------------------------------------
+
+パラグラフ1
+
+----------
+
+パラグラフ2
