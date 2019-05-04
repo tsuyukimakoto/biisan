@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class Container(object):
     def __init__(self, *args, **kwargs):
-        super(Container, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.__body = []
 
     def __append_to_body(self, content):
@@ -30,7 +30,7 @@ class Container(object):
 
 class Nestable(object):
     def __init__(self, *args, **kwargs):
-        super(Nestable, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.depth = kwargs.get('depth', 1)
 
 
@@ -38,7 +38,7 @@ class HTMLize(object):
     env = Environment(loader=FileSystemLoader(config.settings.template_dirs))
 
     def __init__(self, *args, **kwargs):
-        super(HTMLize, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def to_html(self):
         tmpl = HTMLize.env.get_template(
@@ -52,7 +52,7 @@ class HTMLize(object):
 
 class Story(Container, HTMLize):
     def __init__(self):
-        super(Story, self).__init__()
+        super().__init__()
         self.slug = ''
         self.title = ''
         self.__date = None
@@ -158,7 +158,7 @@ def archive_directory(year_month):
 
 class Comment(Container):
     def __init__(self):
-        super(Comment, self).__init__()
+        super().__init__()
         self.commentator = ''
         self.url = ''
         self.create_date = None
@@ -200,7 +200,7 @@ class Document():
 
 class Paragraph(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(Paragraph, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.text = ''
 
     @property
@@ -235,40 +235,40 @@ class Paragraph(Document, Container, HTMLize):
 
 class Strong(Document, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(Strong, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.text = ''
 
 
 class Emphasis(Document, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(Emphasis, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.text = ''
 
 
 class Section(Document, Container, Nestable, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(Section, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.title = ''
 
 
 class BulletList(Document, Container, Nestable, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(BulletList, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class EnumeratedList(Document, Container, Nestable, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(EnumeratedList, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class ListItem(Document, Container, Nestable, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(ListItem, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class Title(Document):
     def __init__(self, *args, **kwargs):
-        super(Title, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.text = ''
 
     def __repr__(self):
@@ -277,7 +277,7 @@ class Title(Document):
 
 class Target(Document, HTMLize):
     def __init__(self):
-        super(Target, self).__init__()
+        super().__init__()
         self.ids = ''
         self.names = ''
         self.uri = ''
@@ -285,21 +285,21 @@ class Target(Document, HTMLize):
 
 class Reference(Document, HTMLize):
     def __init__(self):
-        super(Reference, self).__init__()
+        super().__init__()
         self.name = ''
         self.uri = ''
 
 
 class Raw(Document, HTMLize):
     def __init__(self):
-        super(Raw, self).__init__()
+        super().__init__()
         self.format = ''
         self.text = ''
 
 
 class Image(Document, HTMLize):
     def __init__(self):
-        super(Image, self).__init__()
+        super().__init__()
         self.alt = ''
         self.uri = ''
         self._width = None
@@ -336,50 +336,50 @@ class Image(Document, HTMLize):
 
 class BlockQuote(Document, Container, Nestable, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(BlockQuote, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class LiteralBlock(Document, Container, Nestable, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(LiteralBlock, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.text = kwargs.get('text', '')
 
 
 class Figure(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(Figure, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class Caption(Document, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(Caption, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.text = ''
 
 
 class Table(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(Table, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.title = Title()
 
 
 class Thead(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(Thead, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class Tbody(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(Tbody, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class Tgroup(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(Tgroup, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class ColSpec(Document, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(ColSpec, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.colname = ''
         self.width = None
         self.scale = 100
@@ -387,12 +387,12 @@ class ColSpec(Document, HTMLize):
 
 class Row(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(Row, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.header = False
 
     def to_html(self):
         if not self.header:
-            return super(Row, self).to_html()
+            return super().to_html()
         tmpl = HTMLize.env.get_template(
             os.path.join(
                 'components',
@@ -404,49 +404,49 @@ class Row(Document, Container, HTMLize):
 
 class Entry(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(Entry, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class Transition(Document, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(Transition, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class Topic(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(Topic, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.title = Title()
 
 
 class SubstitutionDefinition(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(SubstitutionDefinition, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.title = Title()
 
 
 class Note(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(Note, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class DefinitionList(Document, Container, Nestable, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(DefinitionList, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class Term(Document):
     def __init__(self, *args, **kwargs):
-        super(Term, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.text = kwargs.get('text', '')
 
 
 class Definition(Document, Container):
     def __init__(self, *args, **kwargs):
-        super(Definition, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class DefinitionListItem(Document, HTMLize):
     def __init__(self, *args, **kwargs):
-        super(DefinitionListItem, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.term = Term()
         self.definition = Definition()
