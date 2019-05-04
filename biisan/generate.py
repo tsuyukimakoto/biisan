@@ -64,6 +64,8 @@ def glob_rst_documents(base_path):
         unmarshal_story,
         list(glob('{0}/**/*.rst'.format(base_path), recursive=True))
     )
+    pool.close()
+    pool.join()
     story_list.sort()
     return story_list
 
