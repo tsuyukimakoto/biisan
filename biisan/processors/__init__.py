@@ -368,7 +368,8 @@ class FunctionRegistry(dict):
             logger.debug('---------------')
             logger.debug(getattr(self, _processor_name).__name__)
             logger.debug(getattr(self, _processor_name).__code__.co_varnames)
-            return getattr(self, _processor_name)(elm, self, container)
+            _fnc = getattr(self, _processor_name)
+            return _fnc(elm, self, container)
         else:
             logger.warn(
                 'processor {0} is not defined and element ignored.'.format(

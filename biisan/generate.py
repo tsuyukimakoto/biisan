@@ -15,10 +15,6 @@ from docutils.parsers.rst import directives
 from glueplate import config
 from jinja2 import Environment, FileSystemLoader
 
-from biisan.directives import PrismDirective
-from biisan.directives import NotesDirective
-from biisan.directives import AffDirective
-from biisan.directives import AppleAffButtonDirective
 from biisan.utils import get_klass, get_function
 from biisan.processors import FunctionRegistry
 
@@ -176,22 +172,6 @@ def register_directives():
             directive_class
         )
         logger.debug(directive_class)
-    directives.register_directive(
-        PrismDirective.directive_tag,
-        PrismDirective
-    )
-    directives.register_directive(
-        NotesDirective.directive_tag,
-        NotesDirective
-    )
-    directives.register_directive(
-        AffDirective.directive_tag,
-        AffDirective
-    )
-    directives.register_directive(
-        AppleAffButtonDirective.directive_tag,
-        AppleAffButtonDirective
-    )
 
 
 def register_processor():
