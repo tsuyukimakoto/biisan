@@ -62,6 +62,10 @@ Goto `Python`_
 .. _`Python`: https://www.python.org
 
 .. image:: biisan.png
+   :width:  800 px
+   :height: 533 px
+   :alt: ビーサン
+
 
 .. figure:: larch.png
 

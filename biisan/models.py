@@ -313,10 +313,6 @@ class Image(Document, HTMLize):
 
     @width.setter
     def width(self, value):
-        try:
-            int(value)
-        except ValueError:
-            return
         self._width = value
 
     @property
@@ -327,10 +323,6 @@ class Image(Document, HTMLize):
 
     @height.setter
     def height(self, value):
-        try:
-            int(value)
-        except ValueError:
-            return
         self._height = value
 
 
