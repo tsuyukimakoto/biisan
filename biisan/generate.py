@@ -163,6 +163,10 @@ def write_sitemaps(story_list):
     with codecs.open(os.path.join(sitemap_dir, 'index.xml'), 'w', 'utf8') as f:
         f.write(sitemap)
 
+from biisan.directives import PrismDirective
+from biisan.directives import NotesDirective
+from biisan.directives import AffDirective
+from biisan.directives import AppleAffButtonDirective
 
 def register_directives():
     for directive in config.settings.directives:
@@ -172,6 +176,22 @@ def register_directives():
             directive_class
         )
         logger.debug(directive_class)
+    directives.register_directive(
+        PrismDirective.directive_tag,
+        PrismDirective
+    )
+    directives.register_directive(
+        NotesDirective.directive_tag,
+        NotesDirective
+    )
+    directives.register_directive(
+        AffDirective.directive_tag,
+        AffDirective
+    )
+    directives.register_directive(
+        AppleAffButtonDirective.directive_tag,
+        AppleAffButtonDirective
+    )
 
 
 def register_processor():
