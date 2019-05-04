@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from biisan.main import (
     initialize_structures,
 )
@@ -68,3 +70,30 @@ def test_marshal():
             assert str(first_story.author) == 'makoto tsuyuki'
             assert str(second_story.title) == 'My Second Blog'
             assert str(second_story.url) == '/blog/2019/04/15/my_second_blog/'
+
+
+def test_unmarshal():
+    with cd('tests'):
+        initialize_structures(DATA_DIR, ANSWER)
+        copy_test_local_settings()
+        copy_first_blog()
+        copy_second_blog()
+
+        with cd('biisan_data/data'):
+            from biisan.generate import unmarshal_story, output
+
+            story_list = unmarshal_story((Path('.') / 'blog' / 'my_first_blog.rst').absolute())
+            output([story_list])
+            Path('')
+        output_data = 'output'
+        with cd('biisan_data/out'):
+            output_file = Path('.') / 'blog' / '2019' / '04' / '06' / 'my_first_blog' / 'index.html'
+            assert output_file.exists()
+
+            with open(output_file) as f:
+                output_data = f.read()
+
+        tobe_data = 'tobe'
+        with open(Path('test_data') / 'my_first_blog_output.html') as f:
+            tobe_data = f.read()
+        assert output_data == tobe_data

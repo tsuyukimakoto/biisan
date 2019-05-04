@@ -114,8 +114,8 @@ def process_image(elm, registry, container):
     for subitem in elm.items():
         if subitem[0] == 'alt':
             img.alt = subitem[1]
-        elif subitem[0] == 'witdh':
-            img.witdh = subitem[1]
+        elif subitem[0] == 'width':
+            img.width = subitem[1]
         elif subitem[0] == 'height':
             img.height = subitem[1]
         elif subitem[0] == 'uri':
@@ -142,7 +142,6 @@ def process_figure(elm, registry, container):
         registry.process(_elm, figure)
 
 
-# TODO test
 def process_topic(elm, registry, container):
     topic = Topic()
     container.add_content(topic)
@@ -368,7 +367,8 @@ class FunctionRegistry(dict):
             logger.debug('---------------')
             logger.debug(getattr(self, _processor_name).__name__)
             logger.debug(getattr(self, _processor_name).__code__.co_varnames)
-            return getattr(self, _processor_name)(elm, self, container)
+            _fnc = getattr(self, _processor_name)
+            return _fnc(elm, self, container)
         else:
             logger.warn(
                 'processor {0} is not defined and element ignored.'.format(
