@@ -68,18 +68,18 @@ Inside the `biisan_data` folder there are two folders, `data` and `out`.
 
     - biisan_local_settings.py
 
-        setting file. It has been added to or overwritten in the [Original file settings](https://github.com/tsuyukimakoto/biisan/blob/master/biisan/biisan_settings.py) settings.
+        setting file. It has been added to or overwritten in the [Original file settings](https://github.com/tsuyukimakoto/biisan/blob/master/biisan/biisan_settings.py) settings.
 
     - blog
 
-        Put the reStructuredText file in this. It is good to make a folder so that it is easy to organize. The folder structure in the blog folder has nothing to do with the path of the output URL.
+        Put the reStructuredText file in this. It is good to make a folder so that it is easy to organize. The folder structure in the blog folder has nothing to do with the path of the output URL.
 
     - extra
 
-        Put the file if you want to create a separate page from the date based entry. about is set by default.
-        When newly added, add the definition of GLUE_PLATE_PLUS_BEFORE_extra to the setting file (data/biisan_local_settings.py).
+        Put the file if you want to create a separate page from the date based entry. about is set by default.
+        When newly added, add the definition of GLUE_PLATE_PLUS_BEFORE_extra to the setting file (data/biisan_local_settings.py).
 
-        For example, if you put the file imusing.rst, define `GLUE_PLATE_PLUS_BEFORE_extra` in `data/biisan_local_settings.py` as follows.
+        For example, if you put the file imusing.rst, define `GLUE_PLATE_PLUS_BEFORE_extra` in `data/biisan_local_settings.py` as follows.
 
         ```
         # Omitted
@@ -93,17 +93,17 @@ Inside the `biisan_data` folder there are two folders, `data` and `out`.
         )
         ```
 
-        This is how glueplate works, ['imusing' before the `extra` setting in the [original file settings file](https://github.com/tsuyukimakoto/biisan/blob/master/biisan/biisan_settings.py) ',] Is added.
+        This is how glueplate works, ['imusing' before the `extra` setting in the [original file settings file](https://github.com/tsuyukimakoto/biisan/blob/master/biisan/biisan_settings.py) ',] Is added.
 
-        See also [Actual setting](https://github.com/tsuyukimakoto/tsuyukimakoto.com/blob/master/data/biisan_local_settings.py#L19).
+        See also [Actual setting](https://github.com/tsuyukimakoto/tsuyukimakoto.com/blob/master/data/biisan_local_settings.py#L19).
 
     - templates
 
-        Put the template you want to overwrite. Like `GLUE_PLATE_PLUS_BEFORE_extra`, `GLUE_PLATE_PLUS_BEFORE_template_dirs` is defined in the configuration file, so first we will start looking for template files in this folder.
+        Put the template you want to overwrite. Like `GLUE_PLATE_PLUS_BEFORE_extra`, `GLUE_PLATE_PLUS_BEFORE_template_dirs` is defined in the configuration file, so first we will start looking for template files in this folder.
 
-  - out
+- out
 
-      Html is output statically in this folder.
+      Html is output statically in this folder.
 
 ### This is the first entry
 

@@ -101,9 +101,9 @@ $ tree
 
         上書きしたいテンプレートを置きます。 GLUE_PLATE_PLUS_BEFORE_extra と同様に設定ファイルに `GLUE_PLATE_PLUS_BEFORE_template_dirs` が定義されているため、まずこのフォルダからテンプレートファイルを探し始めます。
 
-  - out
+- out
 
-      このフォルダにhtmlが静的に出力されます。
+    このフォルダにhtmlが静的に出力されます。
 
 ### 今度こそ最初のエントリ
 
