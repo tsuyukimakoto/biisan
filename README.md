@@ -82,7 +82,7 @@ Inside the `biisan_data` folder there are two folders, `data` and `out`.
         For example, if you put the file imusing.rst, define `GLUE_PLATE_PLUS_BEFORE_extra` in `data/biisan_local_settings.py` as follows.
 
         ```
-        # Omitted
+        # Omitted
 
         settings = _(
             # 省略
