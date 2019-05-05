@@ -13,3 +13,93 @@ biisan（ビーサン）は、[reStructuredText](http://docutils.sourceforge.net
 - 新しいディレクティブの定義も容易です
 - reStructuredTextの構造をオブジェクトへ変換する処理はmultiprocessingで並行して行われます
 
+## クイックスタート
+
+### インストール
+
+pipでインストールできます。同時に依存するライブラリーもインストールされますので、綺麗に消せるようにしておきたい場合には venv を用いて仮想環境を作ってインストールすると良いかもしれません。
+
+```
+$ pip install biisan
+```
+
+### イニシャライズ
+
+biisanの基本構造と、設定ファイルを生成します。実行したフォルダ直下に `biisan_data` というフォルダができます。
+
+`ブログタイトル`、 `ベースとなるURL`、 `言語コード` を聞かれるので答えます。あとから設定ファイルで変更可能です。
+
+```
+$ python -m biisan.main                                                                                                                                       [~/tmp]
+? What's your blog title  ブログタイトル
+? input your blog base url. like https://www.tsuyukimakoto.com  http:localhost
+? input your blog language like ja  ja
+
+        Always set environment variable BIISAN_SETTINGS_MODULE to biisan_local_settings like bellow.
+
+        $ export BIISAN_SETTINGS_MODULE=biisan_local_settings
+
+```
+
+最後にbiisanを使うときに必ず必要な環境変数について出力されます。biisanを利用する際には必ず必要な環境変数です。
+
+[glueplate](https://pypi.org/project/glueplate/) という設定フレームワークの設定です。
+
+### 最初のエントリー
+
+生成されたフォルダの中身を確認してみましょう。
+
+```
+$ cd biisan_data                                                                                     $ tree
+.
+├── data
+│   ├── biisan_local_settings.py
+│   ├── blog
+│   ├── extra
+│   │   └── about.rst
+│   └── templates
+└── out
+```
+
+`biisan_data`フォルダの中に`data`と`out`という2つのフォルダがあります。
+
+- data
+
+    - biisan_local_settings.py
+
+        設定ファイル。[大元の設定ファイル](https://github.com/tsuyukimakoto/biisan/blob/master/biisan/biisan_settings.py)の設定に追加したり上書きしたりしています。
+
+    - blog
+
+        この中にreStructuredTextのファイルを置きます。整理しやすいようにフォルダを作ると良いでしょう。blogフォルダの中のフォルダ構成は出力されるURLのpathとは関係ありません。
+
+    - extra
+
+        日付ベースのエントリーとは別のページを作りたい場合にファイルを置きます。aboutは標準で置かれて設定されています。
+        新しく追加した場合には設定ファイル(data/biisan_local_settings.py)にGLUE_PLATE_PLUS_BEFORE_extraという定義を追加します。
+
+        たとえば imusing.rst というファイルを置いた場合には `data/biisan_local_settings/py` に `GLUE_PLATE_PLUS_BEFORE_extra` を次のように定義します。
+
+        ```
+        #省略
+
+        settings = _(
+            # 省略
+            multiprocess = 8,
+            GLUE_PLATE_PLUS_BEFORE_extra = [
+                'imusing',
+            ],
+        )
+        ```
+
+        これはglueplateの仕組みで、[大元の設定ファイル](https://github.com/tsuyukimakoto/biisan/blob/master/biisan/biisan_settings.py)にある `extra` という設定の前に ['imusing',] を追加するという指定です。
+
+        [実際の設定](https://github.com/tsuyukimakoto/tsuyukimakoto.com/blob/master/data/biisan_local_settings.py#L19) も参照してみてください。
+
+    - templates
+
+        上書きしたいテンプレートを置きます。 GLUE_PLATE_PLUS_BEFORE_extra と同様に設定ファイルに `GLUE_PLATE_PLUS_BEFORE_template_dirs` が定義されているため、まずこのフォルダからテンプレートファイルを探し始めます。
+
+  - out
+
+      このフォルダにhtmlが静的に出力されます。
