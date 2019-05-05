@@ -54,11 +54,11 @@ $ cd biisan_data
 $ tree
 .
 ├── data
-│   ├── biisan_local_settings.py
-│   ├── blog
-│   ├── extra
-│   │   └── about.rst
-│   └── templates
+│   ├── biisan_local_settings.py
+│   ├── blog
+│   ├── extra
+│   │   └── about.rst
+│   └── templates
 └── out
 ```
 
@@ -66,43 +66,44 @@ Inside the `biisan_data` folder there are two folders, `data` and `out`.
 
 - data
 
-    - biisan_local_settings.py
+    - biisan_local_settings.py
 
-        setting file. It has been added to or overwritten in the [Original file settings](https://github.com/tsuyukimakoto/biisan/blob/master/biisan/biisan_settings.py) settings.
+        setting file. It has been added to or overwritten in the [Original file settings](https://github.com/tsuyukimakoto/biisan/blob/master/biisan/biisan_settings.py) settings.
 
-    - blog
+    - blog
 
-        Put the reStructuredText file in this. It is good to make a folder so that it is easy to organize. The folder structure in the blog folder has nothing to do with the path of the output URL.
+        Put the reStructuredText file in this. It is good to make a folder so that it is easy to organize. The folder structure in the blog folder has nothing to do with the path of the output URL.
 
-    - extra
+    - extra
 
-        Put the file if you want to create a separate page from the date based entry. about is set by default.
-        When newly added, add the definition of GLUE_PLATE_PLUS_BEFORE_extra to the setting file (data/biisan_local_settings.py).
+        Put the file if you want to create a separate page from the date based entry. about is set by default.
+        When newly added, add the definition of GLUE_PLATE_PLUS_BEFORE_extra to the setting file (data/biisan_local_settings.py).
 
-        For example, if you put the file imusing.rst, define `GLUE_PLATE_PLUS_BEFORE_extra` in `data/biisan_local_settings.py` as follows.
+        For example, if you put the file imusing.rst, define `GLUE_PLATE_PLUS_BEFORE_extra` in `data/biisan_local_settings.py` as follows.
 
-        ```
-        # Omitted
+        ```
+        # Omitted
+
         settings = _(
-            # Omitted
+            # 省略
             multiprocess = 8,
             GLUE_PLATE_PLUS_BEFORE_extra = [
                 'imusing',
             ],
         )
-        ```
+        ```
 
-        This is how glueplate works, ['imusing' before the `extra` setting in the [original file settings file](https://github.com/tsuyukimakoto/biisan/blob/master/biisan/biisan_settings.py) ',] Is added.
+        This is how glueplate works, ['imusing' before the `extra` setting in the [original file settings file](https://github.com/tsuyukimakoto/biisan/blob/master/biisan/biisan_settings.py) ',] Is added.
 
-        See also [Actual setting](https://github.com/tsuyukimakoto/tsuyukimakoto.com/blob/master/data/biisan_local_settings.py#L19).
+        See also [Actual setting](https://github.com/tsuyukimakoto/tsuyukimakoto.com/blob/master/data/biisan_local_settings.py#L19).
 
-    - templates
+    - templates
 
-        Put the template you want to overwrite. Like `GLUE_PLATE_PLUS_BEFORE_extra', `GLUE_PLATE_PLUS_BEFORE_template_dirs` is defined in the configuration file, so first we will start looking for template files in this folder.
+        Put the template you want to overwrite. Like `GLUE_PLATE_PLUS_BEFORE_extra`, `GLUE_PLATE_PLUS_BEFORE_template_dirs` is defined in the configuration file, so first we will start looking for template files in this folder.
 
-  - out
+- out
 
-      Html is output statically in this folder.
+      Html is output statically in this folder.
 
 ### This is the first entry
 
@@ -164,30 +165,30 @@ The URL is composed of `date` and `slug` described in the entry. At this point, 
 ```
 .
 ├── data
-│   ├── __pycache__
-│   │   └── biisan_local_settings.cpython-37.pyc
-│   ├── biisan_local_settings.py
-│   ├── blog
-│   │   └── my_first_entry.rst
-│   ├── extra
-│   │   └── about.rst
-│   └── templates
+│   ├── __pycache__
+│   │   └── biisan_local_settings.cpython-37.pyc
+│   ├── biisan_local_settings.py
+│   ├── blog
+│   │   └── my_first_entry.rst
+│   ├── extra
+│   │   └── about.rst
+│   └── templates
 └── out
     ├── about
-    │   └── index.html
+    │   └── index.html
     ├── api
-    │   ├── feed
-    │   │   └── index.xml
-    │   └── google_sitemaps
-    │       └── index.xml
+    │   ├── feed
+    │   │   └── index.xml
+    │   └── google_sitemaps
+    │       └── index.xml
     ├── blog
-    │   ├── 2019
-    │   │   └── 05
-    │   │       ├── 05
-    │   │       │   └── my_first_biisan_entry
-    │   │       │       └── index.html
-    │   │       └── index.html
-    │   └── index.html
+    │   ├── 2019
+    │   │   └── 05
+    │   │       ├── 05
+    │   │       │   └── my_first_biisan_entry
+    │   │       │       └── index.html
+    │   │       └── index.html
+    │   └── index.html
     └── index.html
 ```
 
