@@ -103,3 +103,109 @@ $ cd biisan_data                                                                
   - out
 
       このフォルダにhtmlが静的に出力されます。
+
+### 今度こそ最初のエントリ
+
+`data/blog`の中にmy_first_entry.rstというファイルで以下のように保存してみましょう。ファイル名は拡張子が .rst であればその前はなんでも構いません。
+
+```
+最初のエントリです
+=========================================================
+
+:slug: my_first_biisan_entry
+:date: 2019-05-05 13:00
+:author: あなたの名前
+
+こんにちは！世界！
+```
+
+### ビルドする
+
+操作は `data` ディレクトリの中で行います（biisan_data/dataの中）。
+
+```
+$ python -m biisan.generate
+```
+
+もし、以下のようなエラーが出た場合には、イニシャライズした際に表示された環境変数を設定していないためです。
+
+```
+Traceback (most recent call last):
+（省略）
+KeyError: 'BIISAN_SETTINGS_MODULE'
+```
+
+環境変数を設定していない場合には設定をし直して再度コマンドを実行してみましょう。
+
+```
+$ export BIISAN_SETTINGS_MODULE=biisan_local_settings
+$ python -m biisan.generate
+```
+
+もし、以下のようなエラーが出た場合には、コマンドを実行しているフォルダが間違っています。 `biisan_data/data` の中で実行しましょう。
+
+```
+Traceback (most recent call last):
+（省略）
+ModuleNotFoundError: No module named 'biisan_local_settings'
+```
+
+うまくいくと次のように出力されますので、ブラウザで開いてみましょう。
+
+```
+$ python -m biisan.generate                                                                                                                  [~/tmp/biisan_data/data]
+BIISAN 0.3.0
+INFO:__main__:Write:（省略）/biisan_data/out/blog/2019/05/05/my_first_biisan_entry/index.html
+INFO:__main__:Write:（省略）/biisan_data/out/about/index.html
+```
+
+エントリーに記載した `date` と `slug` でURLが構成されます。この時点ではdataフォルダとoutフォルダは以下のようになります。
+
+```
+.
+├── data
+│   ├── __pycache__
+│   │   └── biisan_local_settings.cpython-37.pyc
+│   ├── biisan_local_settings.py
+│   ├── blog
+│   │   └── my_first_entry.rst
+│   ├── extra
+│   │   └── about.rst
+│   └── templates
+└── out
+    ├── about
+    │   └── index.html
+    ├── api
+    │   ├── feed
+    │   │   └── index.xml
+    │   └── google_sitemaps
+    │       └── index.xml
+    ├── blog
+    │   ├── 2019
+    │   │   └── 05
+    │   │       ├── 05
+    │   │       │   └── my_first_biisan_entry
+    │   │       │       └── index.html
+    │   │       └── index.html
+    │   └── index.html
+    └── index.html
+```
+
+ファイル名はindex.htmlですが、Webサーバーのディレクトリーインデックスの指定で省略できることを想定しています。
+
+例えば `https://www.tsuyukimakoto.com/about/` のように、ファイル名を省略した場合にindex.htmlが返るように設定してください。
+
+エントリーのパスはエントリーのrstファイルに記述した `slug` と `date` を元に作成されます。
+
+:slug: my_first_biisan_entry
+:date: 2019-05-05 13:00
+
+## テンプレート
+
+ディレクティブごとにテンプレートが用意されています。スタイルなどを変更したい場合にはテンプレートをtemplatesフォルダに置きます。
+
+[デフォルトのテンプレート](https://github.com/tsuyukimakoto/biisan/tree/master/biisan/templates) と [実際のプロジェクトのテンプレート](https://github.com/tsuyukimakoto/tsuyukimakoto.com/tree/master/data/templates) がどうなっているか参照してみてください。
+
+## デプロイ
+
+outの中身を適切なサーバへ配備しましょう。ディレクトリーインデックスの指定を忘れずに。
