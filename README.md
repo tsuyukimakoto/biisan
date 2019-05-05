@@ -197,8 +197,10 @@ For example, `https://www.tsuyukimakoto.com/about/` should be set to return inde
 
 The entry path is created based on `slug` and `date` described in the entry rst file.
 
+```
 :slug: my_first_biisan_entry
 :date: 2019-05-05 13:00
+```
 
 ## template
 
