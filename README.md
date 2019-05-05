@@ -81,16 +81,17 @@ Inside the `biisan_data` folder there are two folders, `data` and `out`.
 
         For example, if you put the file imusing.rst, define `GLUE_PLATE_PLUS_BEFORE_extra` in `data/biisan_local_settings.py` as follows.
 
-        ```
+        ```
         # Omitted
+
         settings = _(
-            # Omitted
+            # 省略
             multiprocess = 8,
             GLUE_PLATE_PLUS_BEFORE_extra = [
                 'imusing',
             ],
         )
-        ```
+        ```
 
         This is how glueplate works, ['imusing' before the `extra` setting in the [original file settings file](https://github.com/tsuyukimakoto/biisan/blob/master/biisan/biisan_settings.py) ',] Is added.
 
@@ -98,7 +99,7 @@ Inside the `biisan_data` folder there are two folders, `data` and `out`.
 
     - templates
 
-        Put the template you want to overwrite. Like `GLUE_PLATE_PLUS_BEFORE_extra', `GLUE_PLATE_PLUS_BEFORE_template_dirs` is defined in the configuration file, so first we will start looking for template files in this folder.
+        Put the template you want to overwrite. Like `GLUE_PLATE_PLUS_BEFORE_extra`, `GLUE_PLATE_PLUS_BEFORE_template_dirs` is defined in the configuration file, so first we will start looking for template files in this folder.
 
   - out
 
