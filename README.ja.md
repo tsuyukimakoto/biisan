@@ -198,8 +198,10 @@ INFO:__main__:Write:（省略）/biisan_data/out/about/index.html
 
 エントリーのパスはエントリーのrstファイルに記述した `slug` と `date` を元に作成されます。
 
+```
 :slug: my_first_biisan_entry
 :date: 2019-05-05 13:00
+```
 
 ## テンプレート
 
