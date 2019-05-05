@@ -54,11 +54,11 @@ $ cd biisan_data
 $ tree
 .
 ├── data
-│   ├── biisan_local_settings.py
-│   ├── blog
-│   ├── extra
-│   │   └── about.rst
-│   └── templates
+│   ├── biisan_local_settings.py
+│   ├── blog
+│   ├── extra
+│   │   └── about.rst
+│   └── templates
 └── out
 ```
 
@@ -165,30 +165,30 @@ INFO:__main__:Write:（省略）/biisan_data/out/about/index.html
 ```
 .
 ├── data
-│   ├── __pycache__
-│   │   └── biisan_local_settings.cpython-37.pyc
-│   ├── biisan_local_settings.py
-│   ├── blog
-│   │   └── my_first_entry.rst
-│   ├── extra
-│   │   └── about.rst
-│   └── templates
+│   ├── __pycache__
+│   │   └── biisan_local_settings.cpython-37.pyc
+│   ├── biisan_local_settings.py
+│   ├── blog
+│   │   └── my_first_entry.rst
+│   ├── extra
+│   │   └── about.rst
+│   └── templates
 └── out
     ├── about
-    │   └── index.html
+    │   └── index.html
     ├── api
-    │   ├── feed
-    │   │   └── index.xml
-    │   └── google_sitemaps
-    │       └── index.xml
+    │   ├── feed
+    │   │   └── index.xml
+    │   └── google_sitemaps
+    │       └── index.xml
     ├── blog
-    │   ├── 2019
-    │   │   └── 05
-    │   │       ├── 05
-    │   │       │   └── my_first_biisan_entry
-    │   │       │       └── index.html
-    │   │       └── index.html
-    │   └── index.html
+    │   ├── 2019
+    │   │   └── 05
+    │   │       ├── 05
+    │   │       │   └── my_first_biisan_entry
+    │   │       │       └── index.html
+    │   │       └── index.html
+    │   └── index.html
     └── index.html
 ```
 
