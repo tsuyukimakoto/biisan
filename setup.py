@@ -25,6 +25,7 @@ setup(
     author_email='mtsuyuki@gmail.com',
     url='https://github.com/tsuyukimakoto/biisan',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
