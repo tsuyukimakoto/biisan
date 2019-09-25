@@ -19,15 +19,19 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install tox tox-gh-actions codecov
-    - name: Test with tox
-      run: tox
-    - name: coverage
+        python -m pip install -r requirements/requirements_dev.txt
+    - name: flake8
+      run: flake8 biisan tests
+    - name: Generate coverage report
       if: success()
-      env:
-        CODECOV_TOKEN: cffa7d67-20fe-4be5-baa4-abf45a547e52
-      run: tox -e coverage-report
-    - name: codecov
+      run: |
+        pip install pytest pytest-cov
+        pytest --cov=./ --cov-report=xml
+    - name: Upload coverage to Codecov  
+      if: success()
       uses: codecov/codecov-action@v1.0.2
       with:
         token: ${{secrets.CODECOV_TOKEN}}
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella 
