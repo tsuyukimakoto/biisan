@@ -1,6 +1,6 @@
 name: Python CI
 
-on: [push, pull_requests]
+on: [push, pull_request]
 
 jobs:
   build:
