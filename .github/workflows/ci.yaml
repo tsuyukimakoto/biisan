@@ -24,9 +24,9 @@ jobs:
       run: tox
     - name: coverage
       if: success()
-      env:
-        CODECOV_TOKEN: cffa7d67-20fe-4be5-baa4-abf45a547e52
       run: tox -e coverage-report
     - name: codecov
       if: success()
+      env:
+        CODECOV_TOKEN: cffa7d67-20fe-4be5-baa4-abf45a547e52
       run: codecov
