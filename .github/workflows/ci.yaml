@@ -22,8 +22,13 @@ jobs:
         pip install tox tox-gh-actions codecov
     - name: Test with tox
       run: tox
-    - name: codecov
+    - name: coverage
       if: success()
       env:
         CODECOV_TOKEN: cffa7d67-20fe-4be5-baa4-abf45a547e52
-      run: tox -e coverage-report && codecov
+      run: tox -e coverage-report
+    - name: codecov
+      uses: codecov/codecov-action@v1.0.2
+      with:
+        token: ${{secrets.CODECOV_TOKEN}}
+        file: ./coverage.xml
