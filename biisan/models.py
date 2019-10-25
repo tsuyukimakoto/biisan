@@ -227,7 +227,7 @@ class Paragraph(Document, Container, HTMLize):
                     '<pre class="code {0}">{0}</pre>'.format(
                         content.format, content.text))
             else:
-                logger.warn(
+                logger.warning(
                     "Type:{0} in paragraph doesn't treat.".format(
                         type(content)))
         return _formated

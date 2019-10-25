@@ -30,7 +30,7 @@ def process_field_body(elm, registry, container):
     res = []
     for x in list(elm):
         if 'field_list' == x.tag:
-            logger.warn("Ignore field_list in field_body's child")
+            logger.warning("Ignore field_list in field_body's child")
         else:
             res.append(x.text)
     return res
@@ -296,7 +296,7 @@ def _process_comment(elm, registry, story):
                 _field[1][0].text, '%Y-%m-%d %H:%M'
             )
         else:
-            logger.warn(_field[0].text)
+            logger.warning(_field[0].text)
     c = Comment()
     c.commentator = commentator
     c.url = url
@@ -324,7 +324,7 @@ def process_docinfo(elm, registry, story):
                 elif field_name == 'comment':
                     _process_comment(_elm[1], registry, story)
             else:
-                logger.warn(
+                logger.warning(
                     "elm.tag '{0}' doesn't process in process_docinfo.".format(
                         _elm[0].tag))
         elif 'date' == _elm.tag:
@@ -370,6 +370,6 @@ class FunctionRegistry(dict):
             _fnc = getattr(self, _processor_name)
             return _fnc(elm, self, container)
         else:
-            logger.warn(
+            logger.warning(
                 'processor {0} is not defined and element ignored.'.format(
                     _processor_name))
