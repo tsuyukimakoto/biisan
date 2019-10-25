@@ -1,4 +1,4 @@
-from cgi import escape
+from html import escape
 import logging
 
 from docutils import nodes
