@@ -109,8 +109,7 @@ def write_top(context):
 
 
 def write_blog_top(story_list):
-    cnt = config.settings.latest_list_count * -1 - 1
-    latest_story_list = story_list[:cnt:-1]
+    latest_story_list = __latest_stories(story_list)
     year_month = extract_year_month(story_list)
     env = Environment(loader=FileSystemLoader(config.settings.template_dirs))
     blog_top = env.get_template('blog_top.html')
@@ -194,6 +193,11 @@ def prepare():
     register_processor()
 
 
+def __latest_stories(story_list):
+    cnt = config.settings.latest_list_count * -1 - 1
+    return story_list[:cnt:-1]
+
+
 def main():
     story_list = glob_rst_documents('./blog')
     if len(story_list) == 0:
@@ -203,6 +207,7 @@ def main():
     context = {}
     context['config'] = config
     context['story_list'] = story_list
+    context['latest_story_list'] = __latest_stories(story_list)
     for extra in config.settings.extra:
         context[extra] = write_extra(extra)
     write_top(context)
