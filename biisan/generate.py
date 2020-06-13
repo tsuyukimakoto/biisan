@@ -23,6 +23,11 @@ logger = logging.getLogger(__name__)
 processor_registry = None
 
 
+def __latest_stories(story_list):
+    cnt = config.settings.latest_list_count * -1 - 1
+    return story_list[:cnt:-1]
+
+
 def unmarshal_story(pth):
     story_class = get_klass(config.settings.story_class)
     with codecs.open(pth, encoding='utf8') as f:
@@ -109,8 +114,7 @@ def write_top(context):
 
 
 def write_blog_top(story_list):
-    cnt = config.settings.latest_list_count * -1 - 1
-    latest_story_list = story_list[:cnt:-1]
+    latest_story_list = __latest_stories(story_list)
     year_month = extract_year_month(story_list)
     env = Environment(loader=FileSystemLoader(config.settings.template_dirs))
     blog_top = env.get_template('blog_top.html')
@@ -138,7 +142,7 @@ def write_blog_archive(story_list):
 
 
 def write_rss20(story_list):
-    now_rfc2822 = formatdate(float(datetime.now().strftime('%s')))
+    now_rfc2822 = formatdate(float(datetime.now(tz=config.settings.timezone).strftime('%s')))
     cnt = config.settings.latest_list_count * -1 - 1
     latest_story_list = story_list[:cnt:-1]
     env = Environment(loader=FileSystemLoader(config.settings.template_dirs))
@@ -203,6 +207,7 @@ def main():
     context = {}
     context['config'] = config
     context['story_list'] = story_list
+    context['latest_story_list'] = __latest_stories(story_list)
     for extra in config.settings.extra:
         context[extra] = write_extra(extra)
     write_top(context)

@@ -149,6 +149,10 @@ class Story(Container, HTMLize):
     @property
     def publish_date_rfc2822(self):
         return formatdate(float(self.__date.strftime('%s')))
+    
+    @property
+    def publish_datetime_iso_8601(self):
+        return self.__date.isoformat()
 
     def prepare_html(self, story_list, i):
         self.prev_story = previous_story(story_list, i)
