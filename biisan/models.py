@@ -62,6 +62,7 @@ class Story(Container, HTMLize):
         self._timestamp = None
         self.rst_file = ''
         self.extra = None
+        self.additional_meta = {}
 
     def __lt__(self, other):
         try:
@@ -77,6 +78,15 @@ class Story(Container, HTMLize):
     def __repr__(self):
         return '{0}: {1} at {2}, {3} comments'.format(
             self.slug, self.title, self.__date, len(self.comments))
+    
+    def __getattr__(self, name):
+        try:
+            return object.__getattribute__(self, 'additional_meta')[name]
+        except KeyError:
+            object.__getattribute__(self, name)
+    
+    def has_additional_meta(self, name):
+        return hasattr(self, name)
 
     @property
     def date(self):

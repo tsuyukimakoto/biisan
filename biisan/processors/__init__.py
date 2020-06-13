@@ -323,6 +323,15 @@ def process_docinfo(elm, registry, story):
                     )
                 elif field_name == 'comment':
                     _process_comment(_elm[1], registry, story)
+                else:
+                    _value = process_field_body(
+                        _elm[1], registry, story)[0]
+                    if _value is None:
+                        logger.warning(
+                            "docinfo needs escape : using \\ <- %s parse as None",
+                            field_name,
+                        )
+                    story.additional_meta[field_name] = _value
             else:
                 logger.warning(
                     "elm.tag '{0}' doesn't process in process_docinfo.".format(
@@ -370,6 +379,6 @@ class FunctionRegistry(dict):
             _fnc = getattr(self, _processor_name)
             return _fnc(elm, self, container)
         else:
-            logger.warning(
+            logger.debug(
                 'processor {0} is not defined and element ignored.'.format(
                     _processor_name))
