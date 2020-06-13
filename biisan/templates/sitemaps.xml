@@ -6,7 +6,7 @@
 </url>
 {% for story in story_list|reverse %}<url>
   <loc>{{ config.settings.blog.base_url }}{{ story.url }}</loc>
-  <lastmod>{{ story.published_datetime }}</lastmod>
+  <lastmod>{{ story.publish_datetime_iso_8601 }}</lastmod>
 </url>
 {% endfor %}
 </urlset>
