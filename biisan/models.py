@@ -1,6 +1,7 @@
 import os
 from email.utils import formatdate
 import logging
+from hashlib import md5
 
 from glueplate import config
 from jinja2 import Environment, FileSystemLoader
@@ -18,6 +19,8 @@ class Container(object):
         pass
 
     def add_content(self, content):
+        # if issubclass(content.__class__, Document):
+        #     content.cnt = len(self.__body) + 1
         if issubclass(self.__class__, Nestable) and (type(self) == type(content)):
             content.depth = self.depth + 1
         self.__append_to_body(content)
@@ -47,7 +50,7 @@ class HTMLize(object):
                 '{0}.html'.format(self.__class__.__name__).lower()
             )
         )
-        return tmpl.render(element=self, config=config)
+        return tmpl.render(element=self, config=config, hash_func=md5)
 
 
 class Story(Container, HTMLize):
@@ -209,7 +212,9 @@ def previous_story(story_list, i):
 
 
 class Document():
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.cnt = 0
 
 
 class Paragraph(Document, Container, HTMLize):
@@ -405,7 +410,7 @@ class Row(Document, Container, HTMLize):
                 'header_{0}.html'.format(self.__class__.__name__).lower()
             )
         )
-        return tmpl.render(element=self, config=config)
+        return tmpl.render(element=self, config=config, hash_func=md5)
 
 
 class Entry(Document, Container, HTMLize):
