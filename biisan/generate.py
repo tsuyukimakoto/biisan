@@ -13,9 +13,8 @@ from css_html_js_minify import html_minify
 from docutils.core import publish_parts
 from docutils.parsers.rst import directives
 from glueplate import config
-from jinja2 import Environment, FileSystemLoader
 
-from biisan.utils import get_klass, get_function
+from biisan.utils import get_klass, get_function, get_environment
 from biisan.processors import FunctionRegistry
 
 logging.basicConfig(level=config.settings.log_level)
@@ -105,7 +104,7 @@ def write_extra(extra):
 
 
 def write_top(context):
-    env = Environment(loader=FileSystemLoader(config.settings.template_dirs))
+    env = get_environment(config)
     top = env.get_template('index.html')
     with codecs.open(
         os.path.join(
@@ -116,7 +115,7 @@ def write_top(context):
 def write_blog_top(story_list):
     latest_story_list = __latest_stories(story_list)
     year_month = extract_year_month(story_list)
-    env = Environment(loader=FileSystemLoader(config.settings.template_dirs))
+    env = get_environment(config)
     blog_top = env.get_template('blog_top.html')
     with codecs.open(
         os.path.join(
@@ -129,7 +128,7 @@ def write_blog_top(story_list):
 
 def write_blog_archive(story_list):
     packed = pack_story_to_year_month(story_list)
-    env = Environment(loader=FileSystemLoader(config.settings.template_dirs))
+    env = get_environment(config)
     blog_archive = env.get_template('blog_archive.html')
     for _year_month, stories in packed.items():
         with codecs.open(
@@ -145,7 +144,7 @@ def write_rss20(story_list):
     now_rfc2822 = formatdate(float(datetime.now(tz=config.settings.timezone).strftime('%s')))
     cnt = config.settings.latest_list_count * -1 - 1
     latest_story_list = story_list[:cnt:-1]
-    env = Environment(loader=FileSystemLoader(config.settings.template_dirs))
+    env = get_environment(config)
     rss20 = env.get_template('rss20.xml')
     rss = rss20.render(config=config,
                        story_list=latest_story_list,
@@ -158,7 +157,7 @@ def write_rss20(story_list):
 
 def write_sitemaps(story_list):
     last_modified_iso_8601 = max(map(lambda x: x.date, story_list)).isoformat()
-    env = Environment(loader=FileSystemLoader(config.settings.template_dirs))
+    env = get_environment(config)
     sitemaps = env.get_template('sitemaps.xml')
     sitemap = sitemaps.render(config=config,
                               story_list=story_list,

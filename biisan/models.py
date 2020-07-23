@@ -4,7 +4,8 @@ import logging
 from hashlib import md5
 
 from glueplate import config
-from jinja2 import Environment, FileSystemLoader
+
+from biisan.utils import get_environment
 
 
 logger = logging.getLogger(__name__)
@@ -38,7 +39,7 @@ class Nestable(object):
 
 
 class HTMLize(object):
-    env = Environment(loader=FileSystemLoader(config.settings.template_dirs))
+    env = get_environment(config)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

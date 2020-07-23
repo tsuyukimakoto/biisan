@@ -68,5 +68,6 @@ settings = _(
     dir=_(
         output='~/Desktop/biisan'
     ),
-    timezone=timezone(timedelta(hours=0, minutes=0))
+    timezone=timezone(timedelta(hours=0, minutes=0)),
+    custom_filters={}
 )
