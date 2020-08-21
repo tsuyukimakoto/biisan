@@ -2,6 +2,6 @@
 pytest-cov==2.10.0
 tox==3.17.1
 tox-travis==0.12
-codecov==2.1.8
+codecov==2.1.9
 coverage==5.2
 flake8==3.7.9
