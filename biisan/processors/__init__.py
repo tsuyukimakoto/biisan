@@ -1,6 +1,9 @@
 from datetime import datetime
 import logging
 
+from glueplate import config
+
+
 from biisan.models import (
     Comment, Paragraph, Section, BulletList, ListItem, Target, Raw, Image, BlockQuote, Title,
     LiteralBlock, Figure, Caption, Table, Thead, Tbody, Tgroup, ColSpec, Row, Entry, EnumeratedList, Transition,
@@ -20,6 +23,21 @@ def _debug(elm):
     logger.debug('------- getchildren --------')
     logger.debug(list(elm))
     logger.debug('-' * 20)
+
+
+def _datetime_with_tz(time_str):
+    _date = datetime.strptime(
+        time_str, '%Y-%m-%d %H:%M'
+    )
+    _tm = _date.timetuple()
+    return datetime(
+        _tm.tm_year,
+        _tm.tm_mon,
+        _tm.tm_mday,
+        _tm.tm_hour,
+        _tm.tm_min,
+        tzinfo=config.settings.timezone,
+    )
 
 
 def process_field_name(elm, registry, container):
@@ -292,9 +310,7 @@ def _process_comment(elm, registry, story):
         elif 'body' == _field[0].text:
             body += [x.text for x in _field[1]]
         elif 'create_date' == _field[0].text:
-            create_date = datetime.strptime(
-                _field[1][0].text, '%Y-%m-%d %H:%M'
-            )
+            create_date = _datetime_with_tz(_field[1][0].text)
         else:
             logger.warning(_field[0].text)
     c = Comment()
@@ -318,19 +334,24 @@ def process_docinfo(elm, registry, story):
                     story.author = process_field_body(
                         _elm[1], registry, story)[0]
                 elif field_name == 'date':
-                    story.date = datetime.strptime(
-                        _elm.text, '%Y-%m-%d %H:%M'
-                    )
+                    story.date = _datetime_with_tz(_elm.text)
                 elif field_name == 'comment':
                     _process_comment(_elm[1], registry, story)
+                else:
+                    _value = process_field_body(
+                        _elm[1], registry, story)[0]
+                    if _value is None:
+                        logger.warning(
+                            "docinfo needs escape : using \\ <- %s parse as None",
+                            field_name,
+                        )
+                    story.additional_meta[field_name] = _value
             else:
                 logger.warning(
                     "elm.tag '{0}' doesn't process in process_docinfo.".format(
                         _elm[0].tag))
         elif 'date' == _elm.tag:
-            story.date = datetime.strptime(
-                _elm.text, '%Y-%m-%d %H:%M'
-            )
+            story.date = _datetime_with_tz(_elm.text)
         elif 'author' == _elm.tag:
             story.author = _elm.text
 
@@ -370,6 +391,6 @@ class FunctionRegistry(dict):
             _fnc = getattr(self, _processor_name)
             return _fnc(elm, self, container)
         else:
-            logger.warning(
+            logger.debug(
                 'processor {0} is not defined and element ignored.'.format(
                     _processor_name))

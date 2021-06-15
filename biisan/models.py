@@ -1,9 +1,11 @@
 import os
 from email.utils import formatdate
 import logging
+from hashlib import md5
 
 from glueplate import config
-from jinja2 import Environment, FileSystemLoader
+
+from biisan.utils import get_environment
 
 
 logger = logging.getLogger(__name__)
@@ -18,6 +20,8 @@ class Container(object):
         pass
 
     def add_content(self, content):
+        # if issubclass(content.__class__, Document):
+        #     content.cnt = len(self.__body) + 1
         if issubclass(self.__class__, Nestable) and (type(self) == type(content)):
             content.depth = self.depth + 1
         self.__append_to_body(content)
@@ -35,7 +39,7 @@ class Nestable(object):
 
 
 class HTMLize(object):
-    env = Environment(loader=FileSystemLoader(config.settings.template_dirs))
+    env = get_environment(config)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -47,7 +51,7 @@ class HTMLize(object):
                 '{0}.html'.format(self.__class__.__name__).lower()
             )
         )
-        return tmpl.render(element=self, config=config)
+        return tmpl.render(element=self, config=config, hash_func=md5)
 
 
 class Story(Container, HTMLize):
@@ -62,6 +66,7 @@ class Story(Container, HTMLize):
         self._timestamp = None
         self.rst_file = ''
         self.extra = None
+        self.additional_meta = {}
 
     def __lt__(self, other):
         try:
@@ -77,6 +82,15 @@ class Story(Container, HTMLize):
     def __repr__(self):
         return '{0}: {1} at {2}, {3} comments'.format(
             self.slug, self.title, self.__date, len(self.comments))
+
+    def __getattr__(self, name):
+        try:
+            return object.__getattribute__(self, 'additional_meta')[name]
+        except KeyError:
+            object.__getattribute__(self, name)
+
+    def has_additional_meta(self, name):
+        return hasattr(self, name)
 
     @property
     def date(self):
@@ -140,6 +154,10 @@ class Story(Container, HTMLize):
     def publish_date_rfc2822(self):
         return formatdate(float(self.__date.strftime('%s')))
 
+    @property
+    def publish_datetime_iso_8601(self):
+        return self.__date.isoformat()
+
     def prepare_html(self, story_list, i):
         self.prev_story = previous_story(story_list, i)
         self.next_story = next_story(story_list, i)
@@ -195,7 +213,9 @@ def previous_story(story_list, i):
 
 
 class Document():
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.cnt = 0
 
 
 class Paragraph(Document, Container, HTMLize):
@@ -391,7 +411,7 @@ class Row(Document, Container, HTMLize):
                 'header_{0}.html'.format(self.__class__.__name__).lower()
             )
         )
-        return tmpl.render(element=self, config=config)
+        return tmpl.render(element=self, config=config, hash_func=md5)
 
 
 class Entry(Document, Container, HTMLize):

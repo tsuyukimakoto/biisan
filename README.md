@@ -212,3 +212,15 @@ A template is provided for each directive. Put templates in the templates folder
 ## Deploy
 
 Deploy the contents of out to an appropriate server. Don't forget to specify the directory index.
+
+## Additional docinfo.
+
+Same notation as :slug:, You can add extra docinfos, but not overlapping with the Story class attributes.
+
+For example: **:og_image: https\://www.tsuyukimakoto.com/example.png** , it is assumed to be used on the template as follows.
+
+{% if element.has_additional_meta("og_image") %}
+let's output {{ element.og_image }}
+{% endif %}
+
+Since docinfo uses a : (colon) delimiter, the : in the value should be escaped with **\\** .

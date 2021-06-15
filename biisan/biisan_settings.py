@@ -1,4 +1,6 @@
 from glueplate import Glue as _
+
+from datetime import timedelta, timezone
 import logging
 import os
 
@@ -65,5 +67,7 @@ settings = _(
     log_level=logging.INFO,
     dir=_(
         output='~/Desktop/biisan'
-    )
+    ),
+    timezone=timezone(timedelta(hours=0, minutes=0)),
+    custom_filters={}
 )

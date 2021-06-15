@@ -212,3 +212,16 @@ INFO:__main__:Write:（省略）/biisan_data/out/about/index.html
 ## デプロイ
 
 outの中身を適切なサーバへ配備しましょう。ディレクトリーインデックスの指定を忘れずに。
+
+## 追加のdocinfo
+
+:slug: などと同様に、任意の（ただし、Storyクラスのアトリビュートと重複しないもの）docinfoを追加できます。
+
+例えば、 **:og_image: https\://www.tsuyukimakoto.com/example.png** とした場合、テンプレート上で次のように使われることを想定しています。
+
+{% if element.has_additional_meta("og_image") %}
+let's output {{ element.og_image }}
+{% endif %}
+
+docinfoの区切り文字が : (コロン) であるため、:は **\\** でエスケープします。
+
