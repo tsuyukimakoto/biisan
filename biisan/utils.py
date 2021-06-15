@@ -9,6 +9,7 @@ def get_klass(pth):
     mod = import_module(module_name)
     return getattr(mod, class_name)
 
+
 def get_environment(config):
     env = Environment(loader=FileSystemLoader(config.settings.template_dirs))
     for filter_name, filter_func in config.settings.custom_filters.items():

@@ -82,13 +82,13 @@ class Story(Container, HTMLize):
     def __repr__(self):
         return '{0}: {1} at {2}, {3} comments'.format(
             self.slug, self.title, self.__date, len(self.comments))
-    
+
     def __getattr__(self, name):
         try:
             return object.__getattribute__(self, 'additional_meta')[name]
         except KeyError:
             object.__getattribute__(self, name)
-    
+
     def has_additional_meta(self, name):
         return hasattr(self, name)
 
@@ -153,7 +153,7 @@ class Story(Container, HTMLize):
     @property
     def publish_date_rfc2822(self):
         return formatdate(float(self.__date.strftime('%s')))
-    
+
     @property
     def publish_datetime_iso_8601(self):
         return self.__date.isoformat()

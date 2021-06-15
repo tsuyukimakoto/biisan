@@ -70,8 +70,8 @@ def test_marshal():
             assert str(first_story.author) == 'makoto tsuyuki'
             assert str(second_story.title) == 'My Second Blog'
             assert str(second_story.url) == '/blog/2019/04/15/my_second_blog/'
-            assert first_story.has_additional_meta('other_url') == False
-            assert second_story.has_additional_meta('other_url') == True
+            assert not first_story.has_additional_meta('other_url')
+            assert second_story.has_additional_meta('other_url')
             assert second_story.other_url == 'https://www.tsuyukimakoto.com/'
 
 

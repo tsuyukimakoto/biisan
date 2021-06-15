@@ -24,6 +24,7 @@ def _debug(elm):
     logger.debug(list(elm))
     logger.debug('-' * 20)
 
+
 def _datetime_with_tz(time_str):
     _date = datetime.strptime(
         time_str, '%Y-%m-%d %H:%M'
@@ -37,6 +38,7 @@ def _datetime_with_tz(time_str):
         _tm.tm_min,
         tzinfo=config.settings.timezone,
     )
+
 
 def process_field_name(elm, registry, container):
     return elm.text
