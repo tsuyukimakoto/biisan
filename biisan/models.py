@@ -3,7 +3,9 @@ from email.utils import formatdate
 import logging
 
 from glueplate import config
-from jinja2 import Environment, FileSystemLoader
+
+
+from biisan.utils import get_jinja_environment
 
 
 logger = logging.getLogger(__name__)
@@ -35,7 +37,11 @@ class Nestable(object):
 
 
 class HTMLize(object):
-    env = Environment(loader=FileSystemLoader(config.settings.template_dirs))
+    env = get_jinja_environment(
+        config.settings.template_dirs,
+        config.settings.template_filters,
+        config.settings.template_functions,
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -62,6 +68,7 @@ class Story(Container, HTMLize):
         self._timestamp = None
         self.rst_file = ''
         self.extra = None
+        self.extra_docinfo = {}
 
     def __lt__(self, other):
         try:
@@ -148,6 +155,12 @@ class Story(Container, HTMLize):
         self._directory = os.path.join(
             '{0}'.format(config.settings.dir.output),
             directory)
+
+    def has_extra_docinfo(self, k):
+        return k in self.extra_docinfo
+
+    def get_extra_docinfo(self, k):
+        return self.extra_docinfo.get(k, '')
 
 
 def archive_directory(year_month):

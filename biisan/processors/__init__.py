@@ -19,6 +19,8 @@ def _debug(elm):
     logger.debug(elm.items())
     logger.debug('------- getchildren --------')
     logger.debug(list(elm))
+    logger.debug(process_field_name(elm[0], None, None))
+    logger.debug(process_field_body(elm[1], None, None))
     logger.debug('-' * 20)
 
 
@@ -323,6 +325,13 @@ def process_docinfo(elm, registry, story):
                     )
                 elif field_name == 'comment':
                     _process_comment(_elm[1], registry, story)
+                else:
+                    story.extra_docinfo[
+                        process_field_name(_elm[0], None, None)
+                    ] = ''.join(process_field_body(_elm[1], None, None))
+                    logger.debug(
+                        "field_name '{0}' doesn't process in process_docinfo and set it to story.extra_docinfo.".format(
+                            field_name))
             else:
                 logger.warning(
                     "elm.tag '{0}' doesn't process in process_docinfo.".format(

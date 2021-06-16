@@ -1,4 +1,5 @@
 from importlib import import_module
+from jinja2 import Environment, FileSystemLoader
 
 
 def get_klass(pth):
@@ -10,3 +11,16 @@ def get_klass(pth):
 
 
 get_function = get_klass
+
+
+def get_jinja_environment(
+    template_dir,
+    template_filters,
+    template_functions
+):
+    env = Environment(loader=FileSystemLoader(template_dir))
+    for filter in template_filters:
+        env.filters[filter.__name__] = filter
+    for func in template_functions:
+        env.globals[func.__name__] = func
+    return env

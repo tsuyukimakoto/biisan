@@ -49,6 +49,11 @@ settings = _(
         'biisan.directives.AffDirective',
         'biisan.directives.AppleAffButtonDirective'
     ],
+    template_functions=[
+    ],
+    template_filters=[
+
+    ],
     directive=_(
         aff=_(
             tld='co.jp',
