@@ -14,6 +14,8 @@ def get_environment(config):
     env = Environment(loader=FileSystemLoader(config.settings.template_dirs))
     for filter_name, filter_func in config.settings.custom_filters.items():
         env.filters[filter_name] = filter_func
+    for func_name, func in config.settings.template_functions.items():
+        env.globals[func_name] = func
     return env
 
 
