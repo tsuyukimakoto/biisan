@@ -77,9 +77,11 @@ aff::
         self.assert_has_content()
         _image_url = self.options.get('image_url', None)
         if _image_url:
-          _image_url = '<img src="{url}">'.format(url=_image_url)
+            _image_url = '<img src="{url}">'.format(url=_image_url)
         else:
-          _image_url = '<img src="http://images-jp.amazon.com/images/P/{asin}.09.SZZZZZZZ.jpg">'.format(asin=self.options['asin'])
+            _image_url = '<img src="http://images-jp.amazon.com/images/P/{asin}.09.SZZZZZZZ.jpg">'.format(
+                asin=self.options['asin'],
+            )
         text = '''
 <div class="biisan-aff">
   <fieldset>
@@ -100,11 +102,13 @@ aff::
       </div>
     </div>
   </fieldset>
-</div>'''.format(asin=_asin, title=_title,
-                 image_url = _image_url,
+</div>'''.format(asin=_asin,
+                 title=_title,
+                 image_url=_image_url,
                  tld=config.settings.directive.aff.tld,
                  tag=config.settings.directive.aff.tag,
-                 contents='<br />'.join(self.content))
+                 contents='<br />'.join(self.content),
+                )
         return [nodes.raw('', text, format='html')]
 
 
