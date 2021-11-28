@@ -102,13 +102,14 @@ aff::
       </div>
     </div>
   </fieldset>
-</div>'''.format(asin=_asin,
-                 title=_title,
-                 image_url=_image_url,
-                 tld=config.settings.directive.aff.tld,
-                 tag=config.settings.directive.aff.tag,
-                 contents='<br />'.join(self.content),
-                )
+</div>'''.format(
+              asin=_asin,
+              title=_title,
+              image_url=_image_url,
+              tld=config.settings.directive.aff.tld,
+              tag=config.settings.directive.aff.tag,
+              contents='<br />'.join(self.content),
+          )
         return [nodes.raw('', text, format='html')]
 
 
