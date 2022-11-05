@@ -10,7 +10,7 @@ from biisan.constants import (
     SETTINGS_TMPL,
 )
 
-from PyInquirer import prompt
+import inquirer
 
 
 def check_already_init(data_dir):
@@ -47,7 +47,12 @@ def initialize_structures(data_dir, answer):
 def init():
     data_dir = os.path.join(os.getcwd(), BIISAN_DATA_DIR)
     check_already_init(data_dir)
-    answer = prompt(QUESTIONS)
+    questions = [
+        inquirer.Text(
+                x['name'], message=x['message']
+            ) for x in QUESTIONS
+        ]
+    answer = inquirer.prompt(questions)
     initialize_structures(data_dir, answer)
     print('''
         Always set environment variable BIISAN_SETTINGS_MODULE to biisan_local_settings like bellow.
