@@ -65,34 +65,51 @@ aff::
 
     directive_tag = 'aff'
     has_content = True
-    option_spec = {'asin': directives.unchanged, 'title': directives.unchanged}
+    option_spec = {
+      'asin': directives.unchanged,
+      'title': directives.unchanged,
+      'image_url': directives.unchanged,
+    }
 
     def run(self):
         _asin = '{0}'.format(self.options['asin'])
         _title = '{0}'.format(self.options['title'])
         self.assert_has_content()
+        _image_url = self.options.get('image_url', None)
+        if _image_url:
+            _image_url = '<img src="{url}">'.format(url=_image_url)
+        else:
+            _image_url = '<img src="http://images-jp.amazon.com/images/P/{asin}.09.SZZZZZZZ.jpg">'.format(
+                asin=self.options['asin'],
+            )
         text = '''
 <div class="biisan-aff">
   <fieldset>
     <legend>{title}</legend>
     <div class="biisan-aff-container">
-      <div class="biisan-aff_amz">
-        <img src="http://images-jp.amazon.com/images/P/{asin}.09.SZZZZZZZ.jpg">
-        <a href="http://www.amazon.{tld}/gp/product/{asin}?tag={tag}">
-          <h4>{title}</h4>
-          <img
-           src="http://ecx.images-amazon.com/images/G/09/buttons/buy-from-tan.gif" />
-        </a>
+      <div class="biisan-aff-amz">
+        <p>{image_url}</p>
       </div>
-      <div class="biisan-aff_content">
+      <div class="biisan-aff-content">
+        <h4>{title}</h4>
       {contents}
+        <p>
+          <a href="http://www.amazon.{tld}/gp/product/{asin}?tag={tag}">
+            <img
+            src="http://ecx.images-amazon.com/images/G/09/buttons/buy-from-tan.gif" />
+          </a>
+        </p>
       </div>
     </div>
   </fieldset>
-</div>'''.format(asin=_asin, title=_title,
-                 tld=config.settings.directive.aff.tld,
-                 tag=config.settings.directive.aff.tag,
-                 contents='<br />'.join(self.content))
+</div>'''.format(
+              asin=_asin,
+              title=_title,
+              image_url=_image_url,
+              tld=config.settings.directive.aff.tld,
+              tag=config.settings.directive.aff.tag,
+              contents='<br />'.join(self.content),
+          )
         return [nodes.raw('', text, format='html')]
 
 

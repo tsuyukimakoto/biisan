@@ -244,7 +244,7 @@ class Paragraph(Document, Container, HTMLize):
             elif isinstance(content, Raw):
                 _formated = _formated.replace(
                     content.text,
-                    '<pre class="code {0}">{0}</pre>'.format(
+                    '<pre class="code {0}">{1}</pre>'.format(
                         content.format, content.text))
             else:
                 logger.warning(
