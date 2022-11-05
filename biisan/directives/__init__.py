@@ -133,7 +133,7 @@ appleaff::
     }
 
     def get_shop(self, shop_type):
-        assert(shop_type in AppleAffButtonDirective.shop_type_button)
+        assert (shop_type in AppleAffButtonDirective.shop_type_button)
         return AppleAffButtonDirective.shop_type_button[shop_type]
 
     def run(self):
