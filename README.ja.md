@@ -1,7 +1,5 @@
 # biisan
 
-[![travis](https://travis-ci.org/tsuyukimakoto/biisan.svg?branch=master)](https://travis-ci.org/tsuyukimakoto/biisan) [![codecov](https://codecov.io/gh/tsuyukimakoto/biisan/branch/master/graph/badge.svg)](https://codecov.io/gh/tsuyukimakoto/biisan) [![Updates](https://pyup.io/repos/github/tsuyukimakoto/biisan/shield.svg)](https://pyup.io/repos/github/tsuyukimakoto/biisan/) [![Python 3](https://pyup.io/repos/github/tsuyukimakoto/biisan/python-3-shield.svg)](https://pyup.io/repos/github/tsuyukimakoto/biisan/)[![Reviewed by Hound](https://img.shields.io/badge/Reviewed_by-Hound-8E64B0.svg)](https://houndci.com)[![codebeat badge](https://codebeat.co/badges/e5a0ad5d-baab-4795-b07d-e03594b477d4)](https://codebeat.co/projects/github-com-tsuyukimakoto-biisan-master)
-
 biisan（ビーサン）は、[reStructuredText](http://docutils.sourceforge.net/rst.html)で文書を記述できるスタティックサイトジェネレーターです。
 
 ## 特徴 Feature
