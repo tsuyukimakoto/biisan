@@ -174,13 +174,14 @@ def write_all_entry(story_list):
     env = get_environment(config)
     all_entry = env.get_template('blog_all.html')
     all_entries = all_entry.render(config=config,
-                              story_list=story_list,
-                              last_modified=last_modified_iso_8601)
+                                   story_list=story_list,
+                                   last_modified=last_modified_iso_8601)
     all_entry_dir = os.path.join(
         config.settings.dir.output, 'blog', 'all')
     os.makedirs(all_entry_dir, exist_ok=True)
     with codecs.open(os.path.join(all_entry_dir, 'index.html'), 'w', 'utf8') as f:
         f.write(all_entries)
+
 
 def register_directives():
     for directive in config.settings.directives:
