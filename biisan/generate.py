@@ -155,6 +155,33 @@ def write_rss20(story_list):
         f.write(rss)
 
 
+def __classify_category(story_list):
+    res = {}
+    for story in story_list:
+        if story.has_additional_meta("category"):
+            category = story.category
+            if category in res:
+                res[category].append(story)
+            else:
+                res[category] = [story]
+    return res
+
+
+def write_category_rss20(category, story_list):
+    now_rfc2822 = formatdate(float(datetime.now(tz=config.settings.timezone).strftime('%s')))
+    cnt = config.settings.latest_list_count * -1 - 1
+    latest_story_list = story_list[:cnt:-1]
+    env = get_environment(config)
+    rss20 = env.get_template('rss20.xml')
+    rss = rss20.render(config=config,
+                       story_list=latest_story_list,
+                       now_rfc2822=now_rfc2822)
+    feed_dir = os.path.join(config.settings.dir.output, 'api', 'feed', category)
+    os.makedirs(feed_dir, exist_ok=True)
+    with codecs.open(os.path.join(feed_dir, 'index.xml'), 'w', 'utf8') as f:
+        f.write(rss)
+
+
 def write_sitemaps(story_list):
     last_modified_iso_8601 = max(map(lambda x: x.date, story_list)).isoformat()
     env = get_environment(config)
@@ -227,6 +254,9 @@ def main():
     write_blog_top(story_list)
     write_blog_archive(story_list)
     write_rss20(story_list)
+    story_by_category = __classify_category(story_list)
+    for category, _story_list in story_by_category.items():
+        write_category_rss20(category, _story_list)
     write_sitemaps(story_list)
     write_all_entry(story_list)
 
