@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}All Entry{% endblock title %}
+
+{% block contents %}
+<section class="recent">
+  <h2>All Entry</h2>
+  <ul>{% for story in story_list|reverse %}
+    <li>{{ loop.revindex }} : {{ story.published_datetime }} <a href="{{ story.url }}">{{ story.title }}</a></li>
+  {% endfor %}</ul>
+</section>
+{% endblock contents %}

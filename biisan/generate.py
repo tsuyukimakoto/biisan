@@ -169,6 +169,20 @@ def write_sitemaps(story_list):
         f.write(sitemap)
 
 
+def write_all_entry(story_list):
+    last_modified_iso_8601 = max(map(lambda x: x.date, story_list)).isoformat()
+    env = get_environment(config)
+    all_entry = env.get_template('blog_all.html')
+    all_entries = all_entry.render(config=config,
+                                   story_list=story_list,
+                                   last_modified=last_modified_iso_8601)
+    all_entry_dir = os.path.join(
+        config.settings.dir.output, 'blog', 'all')
+    os.makedirs(all_entry_dir, exist_ok=True)
+    with codecs.open(os.path.join(all_entry_dir, 'index.html'), 'w', 'utf8') as f:
+        f.write(all_entries)
+
+
 def register_directives():
     for directive in config.settings.directives:
         directive_class = get_klass(directive)
@@ -214,6 +228,7 @@ def main():
     write_blog_archive(story_list)
     write_rss20(story_list)
     write_sitemaps(story_list)
+    write_all_entry(story_list)
 
 
 if __name__ == '__main__':
