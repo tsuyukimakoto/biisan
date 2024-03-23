@@ -15,4 +15,10 @@
     <li>{{ year }} {% for month in months %}<a href="/blog/{{ year }}/{{ '%02d' % month }}/">{{ month }}月</a> {% endfor %}</li>
   {% endfor %}</ul>
 </section>
+
+<section class="allentries">
+  <h2>All Entries</h2>
+  <a href="/blog/all/">All Entries</a>
+</section>
+
 {% endblock contents %}
