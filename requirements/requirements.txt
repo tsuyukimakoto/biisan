@@ -1,4 +1,4 @@
-docutils==0.19
+docutils==0.21.1
 Jinja2==3.1.2
 MarkupSafe==2.1.2
 glueplate==1.2.0
