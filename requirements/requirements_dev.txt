@@ -1,4 +1,4 @@
 -r requirements.txt
-tox==3.27.0
+tox==4.15.0
 tox-travis==0.13
 flake8==6.0.0
