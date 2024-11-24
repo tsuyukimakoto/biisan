@@ -1,0 +1,20 @@
+[project]
+name = "biisan"
+version = "0.8.3"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "css-html-js-minify>=2.5.5",
+    "docutils>=0.19",
+    "glueplate>=1.2.0",
+    "inquirer>=3.4.0",
+    "jinja2>=3.1.4",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.3",
+    "tox-travis>=0.12",
+    "tox>=4.23.2",
+]
