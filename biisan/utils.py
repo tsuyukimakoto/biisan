@@ -3,9 +3,9 @@ from jinja2 import Environment, FileSystemLoader
 
 
 def get_klass(pth):
-    sep_index = pth.rfind('.')
+    sep_index = pth.rfind(".")
     module_name = pth[:sep_index]
-    class_name = pth[sep_index + 1:]
+    class_name = pth[sep_index + 1 :]
     mod = import_module(module_name)
     return getattr(mod, class_name)
 

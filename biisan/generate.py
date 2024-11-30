@@ -29,11 +29,11 @@ def __latest_stories(story_list):
 
 def unmarshal_story(pth):
     story_class = get_klass(config.settings.story_class)
-    with codecs.open(pth, encoding='utf8') as f:
-        logger.debug('Unmarshal : {0}'.format(pth))
+    with codecs.open(pth, encoding="utf8") as f:
+        logger.debug("Unmarshal : {0}".format(pth))
         data = f.read()
-        parts = publish_parts(data, writer_name='xml')
-        document = ET.fromstring(parts.get('whole'))
+        parts = publish_parts(data, writer_name="xml")
+        document = ET.fromstring(parts.get("whole"))
         _story = story_class()
         _story.rst_file = pth
         processor_registry.process(document, _story)
@@ -54,8 +54,7 @@ def extract_year_month(story_list):
 def pack_story_to_year_month(story_list):
     result = OrderedDict()
     for story in story_list:
-        _year_month = '{0:04d}/{1:02d}'.format(
-            story.date.year, story.date.month)
+        _year_month = "{0:04d}/{1:02d}".format(story.date.year, story.date.month)
         _stories = result.get(_year_month, [])
         _stories.append(story)
         result[_year_month] = _stories
@@ -65,8 +64,7 @@ def pack_story_to_year_month(story_list):
 def glob_rst_documents(base_path):
     pool = Pool(config.settings.multiprocess)
     story_list = pool.map(
-        unmarshal_story,
-        list(glob('{0}/**/*.rst'.format(base_path), recursive=True))
+        unmarshal_story, list(glob("{0}/**/*.rst".format(base_path), recursive=True))
     )
     pool.close()
     pool.join()
@@ -76,17 +74,17 @@ def glob_rst_documents(base_path):
 
 def write_html(story):
     os.makedirs(story.directory, exist_ok=True)
-    _file = os.path.join(story.directory, 'index.html')
+    _file = os.path.join(story.directory, "index.html")
     _data = html_minify(story.to_html())
     _current = None
     if os.path.exists(_file):
-        with codecs.open(_file, 'r', 'utf8') as f:
+        with codecs.open(_file, "r", "utf8") as f:
             _current = f.read()
     if _current == _data:
         return
-    with codecs.open(_file, 'w', 'utf8') as f:
+    with codecs.open(_file, "w", "utf8") as f:
         f.write(_data)
-        logger.info('Write:{0}'.format(_file))
+        logger.info("Write:{0}".format(_file))
 
 
 def output(story_list):
@@ -96,7 +94,7 @@ def output(story_list):
 
 
 def write_extra(extra):
-    extra_page = unmarshal_story('./extra/{0}.rst'.format(extra))
+    extra_page = unmarshal_story("./extra/{0}.rst".format(extra))
     extra_page.extra = extra
     extra_page.extra_directory(extra)
     output([extra_page])
@@ -105,10 +103,10 @@ def write_extra(extra):
 
 def write_top(context):
     env = get_environment(config)
-    top = env.get_template('index.html')
+    top = env.get_template("index.html")
     with codecs.open(
-        os.path.join(
-            config.settings.dir.output, 'index.html'), 'w', 'utf8') as f:
+        os.path.join(config.settings.dir.output, "index.html"), "w", "utf8"
+    ) as f:
         f.write(top.render(**context))
 
 
@@ -116,42 +114,51 @@ def write_blog_top(story_list):
     latest_story_list = __latest_stories(story_list)
     year_month = extract_year_month(story_list)
     env = get_environment(config)
-    blog_top = env.get_template('blog_top.html')
+    blog_top = env.get_template("blog_top.html")
     with codecs.open(
-        os.path.join(
-            config.settings.dir.output, 'blog', 'index.html'),
-            'w', 'utf8') as f:
-        f.write(blog_top.render(config=config,
+        os.path.join(config.settings.dir.output, "blog", "index.html"), "w", "utf8"
+    ) as f:
+        f.write(
+            blog_top.render(
+                config=config,
                 latest_story_list=latest_story_list,
-                story_list=story_list, year_month=year_month))
+                story_list=story_list,
+                year_month=year_month,
+            )
+        )
 
 
 def write_blog_archive(story_list):
     packed = pack_story_to_year_month(story_list)
     env = get_environment(config)
-    blog_archive = env.get_template('blog_archive.html')
+    blog_archive = env.get_template("blog_archive.html")
     for _year_month, stories in packed.items():
         with codecs.open(
-            os.path.join(
-                config.settings.dir.output, 'blog', _year_month,
-                'index.html'),
-                'w', 'utf8') as f:
-            f.write(blog_archive.render(config=config,
-                    year_month=_year_month, story_list=stories))
+            os.path.join(config.settings.dir.output, "blog", _year_month, "index.html"),
+            "w",
+            "utf8",
+        ) as f:
+            f.write(
+                blog_archive.render(
+                    config=config, year_month=_year_month, story_list=stories
+                )
+            )
 
 
 def write_rss20(story_list):
-    now_rfc2822 = formatdate(float(datetime.now(tz=config.settings.timezone).strftime('%s')))
+    now_rfc2822 = formatdate(
+        float(datetime.now(tz=config.settings.timezone).strftime("%s"))
+    )
     cnt = config.settings.latest_list_count * -1 - 1
     latest_story_list = story_list[:cnt:-1]
     env = get_environment(config)
-    rss20 = env.get_template('rss20.xml')
-    rss = rss20.render(config=config,
-                       story_list=latest_story_list,
-                       now_rfc2822=now_rfc2822)
-    feed_dir = os.path.join(config.settings.dir.output, 'api', 'feed')
+    rss20 = env.get_template("rss20.xml")
+    rss = rss20.render(
+        config=config, story_list=latest_story_list, now_rfc2822=now_rfc2822
+    )
+    feed_dir = os.path.join(config.settings.dir.output, "api", "feed")
     os.makedirs(feed_dir, exist_ok=True)
-    with codecs.open(os.path.join(feed_dir, 'index.xml'), 'w', 'utf8') as f:
+    with codecs.open(os.path.join(feed_dir, "index.xml"), "w", "utf8") as f:
         f.write(rss)
 
 
@@ -168,55 +175,52 @@ def __classify_category(story_list):
 
 
 def write_category_rss20(category, story_list):
-    now_rfc2822 = formatdate(float(datetime.now(tz=config.settings.timezone).strftime('%s')))
+    now_rfc2822 = formatdate(
+        float(datetime.now(tz=config.settings.timezone).strftime("%s"))
+    )
     cnt = config.settings.latest_list_count * -1 - 1
     latest_story_list = story_list[:cnt:-1]
     env = get_environment(config)
-    rss20 = env.get_template('rss20.xml')
-    rss = rss20.render(config=config,
-                       story_list=latest_story_list,
-                       now_rfc2822=now_rfc2822)
-    feed_dir = os.path.join(config.settings.dir.output, 'api', 'feed', category)
+    rss20 = env.get_template("rss20.xml")
+    rss = rss20.render(
+        config=config, story_list=latest_story_list, now_rfc2822=now_rfc2822
+    )
+    feed_dir = os.path.join(config.settings.dir.output, "api", "feed", category)
     os.makedirs(feed_dir, exist_ok=True)
-    with codecs.open(os.path.join(feed_dir, 'index.xml'), 'w', 'utf8') as f:
+    with codecs.open(os.path.join(feed_dir, "index.xml"), "w", "utf8") as f:
         f.write(rss)
 
 
 def write_sitemaps(story_list):
     last_modified_iso_8601 = max(map(lambda x: x.date, story_list)).isoformat()
     env = get_environment(config)
-    sitemaps = env.get_template('sitemaps.xml')
-    sitemap = sitemaps.render(config=config,
-                              story_list=story_list,
-                              last_modified=last_modified_iso_8601)
-    sitemap_dir = os.path.join(
-        config.settings.dir.output, 'api', 'google_sitemaps')
+    sitemaps = env.get_template("sitemaps.xml")
+    sitemap = sitemaps.render(
+        config=config, story_list=story_list, last_modified=last_modified_iso_8601
+    )
+    sitemap_dir = os.path.join(config.settings.dir.output, "api", "google_sitemaps")
     os.makedirs(sitemap_dir, exist_ok=True)
-    with codecs.open(os.path.join(sitemap_dir, 'index.xml'), 'w', 'utf8') as f:
+    with codecs.open(os.path.join(sitemap_dir, "index.xml"), "w", "utf8") as f:
         f.write(sitemap)
 
 
 def write_all_entry(story_list):
     last_modified_iso_8601 = max(map(lambda x: x.date, story_list)).isoformat()
     env = get_environment(config)
-    all_entry = env.get_template('blog_all.html')
-    all_entries = all_entry.render(config=config,
-                                   story_list=story_list,
-                                   last_modified=last_modified_iso_8601)
-    all_entry_dir = os.path.join(
-        config.settings.dir.output, 'blog', 'all')
+    all_entry = env.get_template("blog_all.html")
+    all_entries = all_entry.render(
+        config=config, story_list=story_list, last_modified=last_modified_iso_8601
+    )
+    all_entry_dir = os.path.join(config.settings.dir.output, "blog", "all")
     os.makedirs(all_entry_dir, exist_ok=True)
-    with codecs.open(os.path.join(all_entry_dir, 'index.html'), 'w', 'utf8') as f:
+    with codecs.open(os.path.join(all_entry_dir, "index.html"), "w", "utf8") as f:
         f.write(all_entries)
 
 
 def register_directives():
     for directive in config.settings.directives:
         directive_class = get_klass(directive)
-        directives.register_directive(
-            directive_class.directive_tag,
-            directive_class
-        )
+        directives.register_directive(directive_class.directive_tag, directive_class)
         logger.debug(directive_class)
 
 
@@ -229,7 +233,7 @@ def register_processor():
 
 
 def print_fire_message():
-    m = '''BIISAN {0}'''.format(biisan.__version__)
+    m = """BIISAN {0}""".format(biisan.__version__)
     print(m)
 
 
@@ -239,15 +243,15 @@ def prepare():
 
 
 def main():
-    story_list = glob_rst_documents('./blog')
+    story_list = glob_rst_documents("./blog")
     if len(story_list) == 0:
-        logger.error('NO ENTRY FOUND.')
+        logger.error("NO ENTRY FOUND.")
         return
     output(story_list)
     context = {}
-    context['config'] = config
-    context['story_list'] = story_list
-    context['latest_story_list'] = __latest_stories(story_list)
+    context["config"] = config
+    context["story_list"] = story_list
+    context["latest_story_list"] = __latest_stories(story_list)
     for extra in config.settings.extra:
         context[extra] = write_extra(extra)
     write_top(context)
@@ -261,7 +265,7 @@ def main():
     write_all_entry(story_list)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print_fire_message()
     prepare()
     main()

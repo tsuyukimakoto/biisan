@@ -19,7 +19,7 @@ from ._utils import (  # noqa
 
 
 def test_register_processor():
-    with cd('tests'):
+    with cd("tests"):
         initialize_structures(DATA_DIR, ANSWER)
         copy_test_local_settings()
 
@@ -32,19 +32,20 @@ def test_register_processor():
         import biisan.generate
 
         assert biisan.generate.processor_registry is not None
-        assert ['biisan.processors.' + processor for processor in list(
-            biisan.generate.processor_registry.keys())
+        assert [
+            "biisan.processors." + processor
+            for processor in list(biisan.generate.processor_registry.keys())
         ] == config.settings.processors
 
 
 def test_processors():
-    with cd('tests'):
+    with cd("tests"):
         initialize_structures(DATA_DIR, ANSWER)
         copy_test_local_settings()
         copy_first_blog()
         copy_second_blog()
 
-        with cd('biisan_data/data'):
+        with cd("biisan_data/data"):
             from biisan.generate import prepare, main
 
             prepare()
@@ -52,51 +53,61 @@ def test_processors():
 
 
 def test_marshal():
-    with cd('tests'):
+    with cd("tests"):
         initialize_structures(DATA_DIR, ANSWER)
         copy_test_local_settings()
         copy_first_blog()
         copy_second_blog()
 
-        with cd('biisan_data/data'):
+        with cd("biisan_data/data"):
             from biisan.generate import prepare, glob_rst_documents
 
             prepare()
-            story_list = glob_rst_documents('./blog')
+            story_list = glob_rst_documents("./blog")
             first_story = story_list[0]
             second_story = story_list[1]
-            assert str(first_story.title) == 'My First Blog'
-            assert str(first_story.url) == '/blog/2019/04/06/my_first_blog/'
-            assert str(first_story.author) == 'makoto tsuyuki'
-            assert str(second_story.title) == 'My Second Blog'
-            assert str(second_story.url) == '/blog/2019/04/15/my_second_blog/'
-            assert not first_story.has_additional_meta('other_url')
-            assert second_story.has_additional_meta('other_url')
-            assert second_story.other_url == 'https://www.tsuyukimakoto.com/'
+            assert str(first_story.title) == "My First Blog"
+            assert str(first_story.url) == "/blog/2019/04/06/my_first_blog/"
+            assert str(first_story.author) == "makoto tsuyuki"
+            assert str(second_story.title) == "My Second Blog"
+            assert str(second_story.url) == "/blog/2019/04/15/my_second_blog/"
+            assert not first_story.has_additional_meta("other_url")
+            assert second_story.has_additional_meta("other_url")
+            assert second_story.other_url == "https://www.tsuyukimakoto.com/"
 
 
 def test_unmarshal():
-    with cd('tests'):
+    with cd("tests"):
         initialize_structures(DATA_DIR, ANSWER)
         copy_test_local_settings()
         copy_first_blog()
         copy_second_blog()
 
-        with cd('biisan_data/data'):
+        with cd("biisan_data/data"):
             from biisan.generate import unmarshal_story, output
 
-            story_list = unmarshal_story((Path('.') / 'blog' / 'my_first_blog.rst').absolute())
+            story_list = unmarshal_story(
+                (Path(".") / "blog" / "my_first_blog.rst").absolute()
+            )
             output([story_list])
-            Path('')
-        output_data = 'output'
-        with cd('biisan_data/out'):
-            output_file = Path('.') / 'blog' / '2019' / '04' / '06' / 'my_first_blog' / 'index.html'
+            Path("")
+        output_data = "output"
+        with cd("biisan_data/out"):
+            output_file = (
+                Path(".")
+                / "blog"
+                / "2019"
+                / "04"
+                / "06"
+                / "my_first_blog"
+                / "index.html"
+            )
             assert output_file.exists()
 
             with open(output_file) as f:
                 output_data = f.read()
 
-        tobe_data = 'tobe'
-        with open(Path('test_data') / 'my_first_blog_output.html') as f:
+        tobe_data = "tobe"
+        with open(Path("test_data") / "my_first_blog_output.html") as f:
             tobe_data = f.read()
         assert output_data == tobe_data

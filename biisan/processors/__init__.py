@@ -5,30 +5,56 @@ from glueplate import config
 
 
 from biisan.models import (
-    Comment, Paragraph, Section, BulletList, ListItem, Target, Raw, Image, BlockQuote, Title,
-    LiteralBlock, Figure, Caption, Table, Thead, Tbody, Tgroup, ColSpec, Row, Entry, EnumeratedList, Transition,
-    Topic, SubstitutionDefinition, Note, DefinitionList, DefinitionListItem, Term, Definition,
-    Strong, Emphasis, Reference
+    Comment,
+    Paragraph,
+    Section,
+    BulletList,
+    ListItem,
+    Target,
+    Raw,
+    Image,
+    BlockQuote,
+    Title,
+    LiteralBlock,
+    Figure,
+    Caption,
+    Table,
+    Thead,
+    Tbody,
+    Tgroup,
+    ColSpec,
+    Row,
+    Entry,
+    EnumeratedList,
+    Transition,
+    Topic,
+    SubstitutionDefinition,
+    Note,
+    DefinitionList,
+    DefinitionListItem,
+    Term,
+    Definition,
+    Strong,
+    Emphasis,
+    Reference,
 )
 
 logger = logging.getLogger(__name__)
 
 
 def _debug(elm):
-    logger.debug('-' * 20)
-    logger.debug('Tag: {0}'.format(elm.tag))
-    logger.debug('text: {0}'.format(elm.text))
-    logger.debug('------- items --------------')
+    logger.debug("-" * 20)
+    logger.debug("Tag: {0}".format(elm.tag))
+    logger.debug("text: {0}".format(elm.text))
+    logger.debug("------- items --------------")
     logger.debug(elm.items())
-    logger.debug('------- getchildren --------')
+    logger.debug("------- getchildren --------")
     logger.debug(list(elm))
-    logger.debug('-' * 20)
+    logger.debug("-" * 20)
 
 
 def _datetime_with_tz(time_str):
-    _date = datetime.strptime(
-        time_str, '%Y-%m-%d %H:%M'
-    )
+    _date = datetime.strptime(time_str, "%Y-%m-%d %H:%M")
     _tm = _date.timetuple()
     return datetime(
         _tm.tm_year,
@@ -47,7 +73,7 @@ def process_field_name(elm, registry, container):
 def process_field_body(elm, registry, container):
     res = []
     for x in list(elm):
-        if 'field_list' == x.tag:
+        if "field_list" == x.tag:
             logger.warning("Ignore field_list in field_body's child")
         else:
             res.append(x.text)
@@ -86,11 +112,11 @@ def process_definition_list_item(elm, registry, container):
     definition_list_item = DefinitionListItem()
     container.add_content(definition_list_item)
     for _elm in list(elm):
-        if _elm.tag == 'term':
+        if _elm.tag == "term":
             term = Term()
             term.text = _elm.text
             definition_list_item.term = term
-        elif _elm.tag == 'definition':
+        elif _elm.tag == "definition":
             registry.process(_elm, definition_list_item)
 
 
@@ -98,11 +124,11 @@ def process_target(elm, registry, container):
     target = Target()
     container.add_content(target)
     for subitem in elm.items():
-        if subitem[0] == 'ids':
+        if subitem[0] == "ids":
             target.ids = subitem[1]
-        elif subitem[0] == 'names':
+        elif subitem[0] == "names":
             target.names = subitem[1]
-        elif subitem[0] == 'uri' or subitem[0] == 'refuri':
+        elif subitem[0] == "uri" or subitem[0] == "refuri":
             target.uri = subitem[1]
 
 
@@ -111,9 +137,9 @@ def process_reference(elm, registry, container):
     reference.text = elm.text
     container.add_content(reference)
     for subitem in elm.items():
-        if subitem[0] == 'name':
+        if subitem[0] == "name":
             reference.name = subitem[1]
-        elif subitem[0] == 'uri' or subitem[0] == 'refuri':
+        elif subitem[0] == "uri" or subitem[0] == "refuri":
             reference.uri = subitem[1]
 
 
@@ -121,7 +147,7 @@ def process_raw(elm, registry, container):
     raw = Raw()
     container.add_content(raw)
     for subitem in elm.items():
-        if subitem[0] == 'format':
+        if subitem[0] == "format":
             raw.format = subitem[1]
     raw.text = elm.text
 
@@ -130,13 +156,13 @@ def process_image(elm, registry, container):
     img = Image()
     container.add_content(img)
     for subitem in elm.items():
-        if subitem[0] == 'alt':
+        if subitem[0] == "alt":
             img.alt = subitem[1]
-        elif subitem[0] == 'width':
+        elif subitem[0] == "width":
             img.width = subitem[1]
-        elif subitem[0] == 'height':
+        elif subitem[0] == "height":
             img.height = subitem[1]
-        elif subitem[0] == 'uri':
+        elif subitem[0] == "uri":
             img.uri = subitem[1]
 
 
@@ -171,7 +197,7 @@ def process_substitution_definition(elm, registry, container):
     substitution_definition = SubstitutionDefinition()
     container.add_content(substitution_definition)
     for _item in elm.items():
-        if _item[0] == 'names':
+        if _item[0] == "names":
             title = Title()
             title.text = _item[1]
             substitution_definition.title = title
@@ -270,7 +296,7 @@ def process_document(elm, registry, container):
 
 def process_paragraph(elm, registry, container):
     paragraph = Paragraph()
-    paragraph.text = ''.join(elm.itertext())
+    paragraph.text = "".join(elm.itertext())
     container.add_content(paragraph)
     for _elm in list(elm):
         registry.process(_elm, paragraph)
@@ -298,18 +324,18 @@ def process_section(elm, registry, container, depth=0):
 # TODO test
 def _process_comment(elm, registry, story):
     _field_list = list(elm)[0]
-    commentator = ''
-    url = ''
+    commentator = ""
+    url = ""
     body = []
     create_date = None
     for _field in _field_list:
-        if 'commentator' == _field[0].text:
+        if "commentator" == _field[0].text:
             commentator = _field[1][0].text
-        elif 'url' == _field[0].text:
+        elif "url" == _field[0].text:
             url = _field[1].text
-        elif 'body' == _field[0].text:
+        elif "body" == _field[0].text:
             body += [x.text for x in _field[1]]
-        elif 'create_date' == _field[0].text:
+        elif "create_date" == _field[0].text:
             create_date = _datetime_with_tz(_field[1][0].text)
         else:
             logger.warning(_field[0].text)
@@ -325,21 +351,18 @@ def _process_comment(elm, registry, story):
 def process_docinfo(elm, registry, story):
     for _elm in list(elm):
         if len(_elm) == 2:
-            if 'field_name' == _elm[0].tag:
+            if "field_name" == _elm[0].tag:
                 field_name = process_field_name(_elm[0], registry, story)
-                if field_name == 'slug':
-                    story.slug = process_field_body(
-                        _elm[1], registry, story)[0]
-                elif field_name == 'author':
-                    story.author = process_field_body(
-                        _elm[1], registry, story)[0]
-                elif field_name == 'date':
+                if field_name == "slug":
+                    story.slug = process_field_body(_elm[1], registry, story)[0]
+                elif field_name == "author":
+                    story.author = process_field_body(_elm[1], registry, story)[0]
+                elif field_name == "date":
                     story.date = _datetime_with_tz(_elm.text)
-                elif field_name == 'comment':
+                elif field_name == "comment":
                     _process_comment(_elm[1], registry, story)
                 else:
-                    _value = process_field_body(
-                        _elm[1], registry, story)[0]
+                    _value = process_field_body(_elm[1], registry, story)[0]
                     if _value is None:
                         logger.warning(
                             "docinfo needs escape : using \\ <- %s parse as None",
@@ -349,29 +372,29 @@ def process_docinfo(elm, registry, story):
             else:
                 logger.warning(
                     "elm.tag '{0}' doesn't process in process_docinfo.".format(
-                        _elm[0].tag))
-        elif 'date' == _elm.tag:
+                        _elm[0].tag
+                    )
+                )
+        elif "date" == _elm.tag:
             story.date = _datetime_with_tz(_elm.text)
-        elif 'author' == _elm.tag:
+        elif "author" == _elm.tag:
             story.author = _elm.text
 
 
 class FunctionRegistry(dict):
     def __init__(self, *args, **kwargs):
         for key, value in kwargs.items():
-            if hasattr(value, '__call__'):
+            if hasattr(value, "__call__"):
                 self[key] = value
             else:
-                raise ValueError('accept only callable.')
+                raise ValueError("accept only callable.")
 
     def __setattr__(self, key, value):
-        if hasattr(value, '__call__'):
+        if hasattr(value, "__call__"):
             self[key] = value
-            logger.debug(
-                'register process function: {0}'.format(
-                    self[key]))
+            logger.debug("register process function: {0}".format(self[key]))
         else:
-            raise ValueError('accept only callable.')
+            raise ValueError("accept only callable.")
 
     def __getattr__(self, key):
         try:
@@ -383,14 +406,16 @@ class FunctionRegistry(dict):
         setattr(self, name, func)
 
     def process(self, elm, container):
-        _processor_name = 'process_{0}'.format(elm.tag)
+        _processor_name = "process_{0}".format(elm.tag)
         if hasattr(self, _processor_name):
-            logger.debug('---------------')
+            logger.debug("---------------")
             logger.debug(getattr(self, _processor_name).__name__)
             logger.debug(getattr(self, _processor_name).__code__.co_varnames)
             _fnc = getattr(self, _processor_name)
             return _fnc(elm, self, container)
         else:
             logger.debug(
-                'processor {0} is not defined and element ignored.'.format(
-                    _processor_name))
+                "processor {0} is not defined and element ignored.".format(
+                    _processor_name
+                )
+            )
