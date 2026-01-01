@@ -64,7 +64,7 @@ class Story(Container, HTMLize):
         self.__body = []
         self.comments = []
         self._timestamp = None
-        self.rst_file = ''
+        self.source_file = ''
         self.extra = None
         self.additional_meta = {}
 
@@ -73,7 +73,7 @@ class Story(Container, HTMLize):
             return self._timestamp <= other._timestamp
         except TypeError as e:
             logger.error('-' * 20)
-            logger.error(self.rst_file)
+            logger.error(self.source_file)
             logger.error(self.slug)
             logger.error(self.__body)
             logger.error('=' * 20)
@@ -225,7 +225,10 @@ class Paragraph(Document, Container, HTMLize):
 
     @property
     def formated(self):
+        # For inline elements that need text replacement
         _formated = self.text
+
+        # First pass: replace text-based inline elements
         for content in self.contents:
             if isinstance(content, Strong):
                 _formated = _formated.replace(
@@ -235,21 +238,33 @@ class Paragraph(Document, Container, HTMLize):
                 _formated = _formated.replace(
                     content.text, '<i>{0}</i>'.format(
                         content.text))
-            elif isinstance(content, Reference):
-                _name = content.name and content.name or content.uri
+            elif isinstance(content, Literal):
                 _formated = _formated.replace(
-                    content.text,
-                    '<a href="{0}">{1}</a>'.format(
-                        content.uri, _name))
+                    content.text, '<code>{0}</code>'.format(
+                        content.text))
+            elif isinstance(content, Reference):
+                _name = content.name and content.name or content.text
+                if content.text:  # Only replace if text exists
+                    _formated = _formated.replace(
+                        content.text,
+                        '<a href="{0}">{1}</a>'.format(
+                            content.uri, _name))
             elif isinstance(content, Raw):
                 _formated = _formated.replace(
                     content.text,
                     '<pre class="code {0}">{1}</pre>'.format(
                         content.format, content.text))
-            else:
+
+        # Second pass: append non-text elements (like images)
+        for content in self.contents:
+            if isinstance(content, Image):
+                # Image doesn't have text to replace, so we append it
+                _formated += content.to_html()
+            elif not isinstance(content, (Strong, Emphasis, Literal, Reference, Raw)):
                 logger.warning(
                     "Type:{0} in paragraph doesn't treat.".format(
                         type(content)))
+
         return _formated
 
 
@@ -308,6 +323,13 @@ class Reference(Document, HTMLize):
         super().__init__()
         self.name = ''
         self.uri = ''
+        self.text = ''
+
+
+class Literal(Document, HTMLize):
+    def __init__(self):
+        super().__init__()
+        self.text = ''
 
 
 class Raw(Document, HTMLize):

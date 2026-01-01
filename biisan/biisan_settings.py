@@ -44,6 +44,7 @@ settings = _(
         'biisan.processors.process_strong',
         'biisan.processors.process_emphasis',
         'biisan.processors.process_reference',
+        'biisan.processors.process_literal',
     ],
     directives=[
         'biisan.directives.PrismDirective',

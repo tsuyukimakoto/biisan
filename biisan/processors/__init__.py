@@ -8,7 +8,7 @@ from biisan.models import (
     Comment, Paragraph, Section, BulletList, ListItem, Target, Raw, Image, BlockQuote, Title,
     LiteralBlock, Figure, Caption, Table, Thead, Tbody, Tgroup, ColSpec, Row, Entry, EnumeratedList, Transition,
     Topic, SubstitutionDefinition, Note, DefinitionList, DefinitionListItem, Term, Definition,
-    Strong, Emphasis, Reference
+    Strong, Emphasis, Reference, Literal
 )
 
 logger = logging.getLogger(__name__)
@@ -41,16 +41,20 @@ def _datetime_with_tz(time_str):
 
 
 def process_field_name(elm, registry, container):
+    # print(f"[DEBUG] process_field_name: {elm.text}")
     return elm.text
 
 
 def process_field_body(elm, registry, container):
+    # print(f"[DEBUG] process_field_body: tag={elm.tag}, children={len(list(elm))}")
     res = []
     for x in list(elm):
+        # print(f"[DEBUG]   child: tag={x.tag}, text={x.text}")
         if 'field_list' == x.tag:
             logger.warning("Ignore field_list in field_body's child")
         else:
             res.append(x.text)
+    # print(f"[DEBUG] process_field_body result: {res}")
     return res
 
 
@@ -108,7 +112,8 @@ def process_target(elm, registry, container):
 
 def process_reference(elm, registry, container):
     reference = Reference()
-    reference.text = elm.text
+    # Use itertext() to get all text, or use elm.text attribute if available
+    reference.text = elm.text if elm.text else ''.join(elm.itertext())
     container.add_content(reference)
     for subitem in elm.items():
         if subitem[0] == 'name':
@@ -264,33 +269,53 @@ def process_transition(elm, registry, container):
 
 
 def process_document(elm, registry, container):
+    # print("[DEBUG] === process_document START ===")
+    # print(f"[DEBUG] Document children count: {len(list(elm))}")
     for _elm in list(elm):
+        # print(f"[DEBUG] Processing child: tag={_elm.tag}")
         registry.process(_elm, container)
+    # print("[DEBUG] === process_document END ===")
 
 
 def process_paragraph(elm, registry, container):
     paragraph = Paragraph()
+    # Get all text for text-based element replacement
     paragraph.text = ''.join(elm.itertext())
     container.add_content(paragraph)
+    # Process all child elements (including images)
     for _elm in list(elm):
         registry.process(_elm, paragraph)
 
 
 def process_strong(elm, registry, container):
     strong = Strong()
-    strong.text = elm.text
+    # Use itertext() to get all text including nested elements
+    strong.text = ''.join(elm.itertext())
     container.add_content(strong)
 
 
 def process_emphasis(elm, registry, container):
     emphasis = Emphasis()
-    emphasis.text = elm.text
+    # Use itertext() to get all text including nested elements
+    emphasis.text = ''.join(elm.itertext())
     container.add_content(emphasis)
+
+
+def process_literal(elm, registry, container):
+    literal = Literal()
+    # Use itertext() to get all text
+    literal.text = ''.join(elm.itertext())
+    container.add_content(literal)
 
 
 def process_section(elm, registry, container, depth=0):
     section = Section()
     container.add_content(section)
+    # Check if XML element has depth attribute (from Markdown heading level)
+    # Set this AFTER add_content to override automatic depth calculation
+    if elm.get('depth'):
+        # Set depth directly from Markdown heading level
+        section.depth = int(elm.get('depth'))
     for _elm in list(elm):
         registry.process(_elm, section)
 
@@ -323,23 +348,48 @@ def _process_comment(elm, registry, story):
 
 
 def process_docinfo(elm, registry, story):
+    # print("[DEBUG] === process_docinfo START ===")
+    # print(f"[DEBUG] Number of children: {len(list(elm))}")
+
     for _elm in list(elm):
+        # print(f"[DEBUG] Processing child element, length={len(_elm)}, tag={_elm.tag if hasattr(_elm, 'tag') else 'NO TAG'}")
+
         if len(_elm) == 2:
+            # print(f"[DEBUG] Child[0] tag: {_elm[0].tag}, Child[1] tag: {_elm[1].tag}")
+
             if 'field_name' == _elm[0].tag:
                 field_name = process_field_name(_elm[0], registry, story)
+                # print(f"[DEBUG] >>> Processing field: {field_name}")
+
                 if field_name == 'slug':
-                    story.slug = process_field_body(
-                        _elm[1], registry, story)[0]
+                    slug_value = process_field_body(_elm[1], registry, story)[0]
+                    # print(f"[DEBUG] >>> Setting slug: {slug_value}")
+                    story.slug = slug_value
                 elif field_name == 'author':
-                    story.author = process_field_body(
-                        _elm[1], registry, story)[0]
+                    author_value = process_field_body(_elm[1], registry, story)[0]
+                    # print(f"[DEBUG] >>> Setting author: {author_value}")
+                    story.author = author_value
+                elif field_name == 'title':
+                    # Support title field from YAML Front Matter
+                    title_value = process_field_body(_elm[1], registry, story)[0]
+                    # print(f"[DEBUG] >>> Setting title: {title_value}")
+                    title = Title()
+                    title.text = title_value
+                    story.title = title
                 elif field_name == 'date':
-                    story.date = _datetime_with_tz(_elm.text)
+                    # Get date value from field_body
+                    date_value = process_field_body(_elm[1], registry, story)[0]
+                    # print(f"[DEBUG] >>> Setting date: {date_value} (type: {type(date_value)})")
+                    if date_value:
+                        story.date = _datetime_with_tz(date_value)
+                        # print(f"[DEBUG] >>> Date set to: {story.date}")
                 elif field_name == 'comment':
+                    # print(f"[DEBUG] >>> Processing comment")
                     _process_comment(_elm[1], registry, story)
                 else:
                     _value = process_field_body(
                         _elm[1], registry, story)[0]
+                    # print(f"[DEBUG] >>> Setting additional_meta[{field_name}] = {_value}")
                     if _value is None:
                         logger.warning(
                             "docinfo needs escape : using \\ <- %s parse as None",
@@ -351,9 +401,18 @@ def process_docinfo(elm, registry, story):
                     "elm.tag '{0}' doesn't process in process_docinfo.".format(
                         _elm[0].tag))
         elif 'date' == _elm.tag:
+            # print(f"[DEBUG] >>> Direct date element: {_elm.text}")
             story.date = _datetime_with_tz(_elm.text)
         elif 'author' == _elm.tag:
+            # print(f"[DEBUG] >>> Direct author element: {_elm.text}")
             story.author = _elm.text
+
+    # print("[DEBUG] === process_docinfo END ===")
+    # print(f"[DEBUG] Final story.slug: {story.slug}")
+    # print(f"[DEBUG] Final story.author: {story.author}")
+    # print(f"[DEBUG] Final story.title: {story.title}")
+    # Access private __date to avoid ValueError when None
+    # print(f"[DEBUG] Final story._Story__date: {story._Story__date}")
 
 
 class FunctionRegistry(dict):

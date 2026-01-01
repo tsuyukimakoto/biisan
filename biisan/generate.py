@@ -16,6 +16,7 @@ from glueplate import config
 
 from biisan.utils import get_klass, get_function, get_environment
 from biisan.processors import FunctionRegistry
+from biisan.markdown_processor import parse_markdown_to_xml
 
 logging.basicConfig(level=config.settings.log_level)
 logger = logging.getLogger(__name__)
@@ -28,14 +29,42 @@ def __latest_stories(story_list):
 
 
 def unmarshal_story(pth):
+    """
+    Parse and unmarshal a story file (RST or Markdown).
+
+    Args:
+        pth: Path to the story file (.rst or .md)
+
+    Returns:
+        Story object with parsed content
+    """
     story_class = get_klass(config.settings.story_class)
     with codecs.open(pth, encoding='utf8') as f:
         logger.debug('Unmarshal : {0}'.format(pth))
         data = f.read()
-        parts = publish_parts(data, writer_name='xml')
-        document = ET.fromstring(parts.get('whole'))
+
+        # Determine file type and parse accordingly
+        if pth.endswith('.md'):
+            # Parse Markdown to XML
+            # print(f'=== Parsing Markdown file: {pth} ===')
+            document = parse_markdown_to_xml(data)
+
+            # Debug: Print XML structure
+            # print('=== Generated XML Structure ===')
+            ET.indent(document, space="  ")
+            xml_string = ET.tostring(document, encoding='unicode')
+            # print(xml_string[:2000])  # First 2000 chars
+            # print('=== End XML Structure ===')
+
+        elif pth.endswith('.rst'):
+            # Parse RST to XML using docutils
+            parts = publish_parts(data, writer_name='xml')
+            document = ET.fromstring(parts.get('whole'))
+        else:
+            raise ValueError(f'Unsupported file format: {pth}. Only .rst and .md are supported.')
+
         _story = story_class()
-        _story.rst_file = pth
+        _story.source_file = pth
         processor_registry.process(document, _story)
         return _story
 
@@ -62,16 +91,32 @@ def pack_story_to_year_month(story_list):
     return result
 
 
-def glob_rst_documents(base_path):
+def glob_documents(base_path):
+    """
+    Find and parse all story documents (RST and Markdown).
+
+    Args:
+        base_path: Base directory to search for documents
+
+    Returns:
+        Sorted list of Story objects
+    """
     pool = Pool(config.settings.multiprocess)
-    story_list = pool.map(
-        unmarshal_story,
-        list(glob('{0}/**/*.rst'.format(base_path), recursive=True))
-    )
+
+    # Collect both .rst and .md files
+    rst_files = list(glob('{0}/**/*.rst'.format(base_path), recursive=True))
+    md_files = list(glob('{0}/**/*.md'.format(base_path), recursive=True))
+    all_files = rst_files + md_files
+
+    story_list = pool.map(unmarshal_story, all_files)
     pool.close()
     pool.join()
     story_list.sort()
     return story_list
+
+
+# Backward compatibility alias
+glob_rst_documents = glob_documents
 
 
 def write_html(story):
@@ -239,7 +284,7 @@ def prepare():
 
 
 def main():
-    story_list = glob_rst_documents('./blog')
+    story_list = glob_documents('./blog')
     if len(story_list) == 0:
         logger.error('NO ENTRY FOUND.')
         return

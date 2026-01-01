@@ -5,3 +5,5 @@ glueplate==1.2.0
 inquirer==2.10.0
 css-html-js-minify==2.5.5
 pytest==7.2.0
+marko>=2.2.0
+PyYAML>=6.0
