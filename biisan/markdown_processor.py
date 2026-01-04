@@ -200,7 +200,7 @@ def _convert_ast_to_xml_nested(node, parent, docinfo):
     elif isinstance(node, block.HTMLBlock):
         raw = ET.SubElement(parent, 'raw')
         raw.set('format', 'html')
-        raw.text = node.children[0].children if node.children else ''
+        raw.text = node.body
 
     elif hasattr(node, 'children') and isinstance(node.children, list):
         for child in node.children:
@@ -298,7 +298,7 @@ def _convert_ast_to_xml(node, parent, docinfo, current_section_holder=None):
         html_parent = current_section_holder[0] if current_section_holder[0] is not None else parent
         raw = ET.SubElement(html_parent, 'raw')
         raw.set('format', 'html')
-        raw.text = node.children[0].children if node.children else ''
+        raw.text = node.body
 
     elif hasattr(node, 'children') and isinstance(node.children, list):
         # Generic block element with children

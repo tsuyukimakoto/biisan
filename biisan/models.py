@@ -250,10 +250,16 @@ class Paragraph(Document, Container, HTMLize):
                         '<a href="{0}">{1}</a>'.format(
                             content.uri, _name))
             elif isinstance(content, Raw):
-                _formated = _formated.replace(
-                    content.text,
-                    '<pre class="code {0}">{1}</pre>'.format(
-                        content.format, content.text))
+                if content.format == 'html':
+                    # HTML format: output as-is without wrapping
+                    _formated = _formated.replace(
+                        content.text, content.text)
+                else:
+                    # Other formats: wrap in pre tag
+                    _formated = _formated.replace(
+                        content.text,
+                        '<pre class="code {0}">{1}</pre>'.format(
+                            content.format, content.text))
 
         # Second pass: append non-text elements (like images)
         for content in self.contents:
