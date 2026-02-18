@@ -1,6 +1,8 @@
 import biisan
 import os
 import codecs
+import hashlib
+import time
 from collections import OrderedDict
 from glob import glob
 import logging
@@ -21,11 +23,22 @@ from biisan.markdown_processor import parse_markdown_to_xml
 logging.basicConfig(level=config.settings.log_level)
 logger = logging.getLogger(__name__)
 processor_registry = None
+_DOCUTILS_SILENT_STREAM = open(os.devnull, 'w')
 
 
 def __latest_stories(story_list):
     cnt = config.settings.latest_list_count * -1 - 1
     return story_list[:cnt:-1]
+
+
+def _docutils_settings_overrides():
+    overrides = {
+        'report_level': getattr(config.settings, 'docutils_report_level', 2),
+        'halt_level': getattr(config.settings, 'docutils_halt_level', 6),
+    }
+    if getattr(config.settings, 'docutils_quiet_warnings', False):
+        overrides['warning_stream'] = _DOCUTILS_SILENT_STREAM
+    return overrides
 
 
 def unmarshal_story(pth):
@@ -46,19 +59,15 @@ def unmarshal_story(pth):
         # Determine file type and parse accordingly
         if pth.endswith('.md'):
             # Parse Markdown to XML
-            # print(f'=== Parsing Markdown file: {pth} ===')
             document = parse_markdown_to_xml(data)
-
-            # Debug: Print XML structure
-            # print('=== Generated XML Structure ===')
-            ET.indent(document, space="  ")
-            xml_string = ET.tostring(document, encoding='unicode')
-            # print(xml_string[:2000])  # First 2000 chars
-            # print('=== End XML Structure ===')
 
         elif pth.endswith('.rst'):
             # Parse RST to XML using docutils
-            parts = publish_parts(data, writer_name='xml')
+            parts = publish_parts(
+                data,
+                writer_name='xml',
+                settings_overrides=_docutils_settings_overrides(),
+            )
             document = ET.fromstring(parts.get('whole'))
         else:
             raise ValueError(f'Unsupported file format: {pth}. Only .rst and .md are supported.')
@@ -119,25 +128,74 @@ def glob_documents(base_path):
 glob_rst_documents = glob_documents
 
 
+def _digest_cache_path(story):
+    return os.path.join(story.directory, '.biisan.raw.sha256')
+
+
+def _read_digest_cache(cache_path):
+    if not os.path.exists(cache_path):
+        return None
+    try:
+        with codecs.open(cache_path, 'r', 'utf8') as f:
+            return f.read().strip()
+    except OSError:
+        return None
+
+
+def _write_digest_cache(cache_path, digest):
+    with codecs.open(cache_path, 'w', 'utf8') as f:
+        f.write(digest)
+
+
 def write_html(story):
     os.makedirs(story.directory, exist_ok=True)
     _file = os.path.join(story.directory, 'index.html')
-    _data = html_minify(story.to_html())
+    cache_path = _digest_cache_path(story)
+    rendered = story.to_html()
+    digest = hashlib.sha256(rendered.encode('utf8')).hexdigest()
+    cached_digest = _read_digest_cache(cache_path)
+
+    # Fast path: if rendered content hasn't changed, skip minification and write.
+    if cached_digest == digest and os.path.exists(_file):
+        return False
+
+    _data = html_minify(rendered)
     _current = None
     if os.path.exists(_file):
         with codecs.open(_file, 'r', 'utf8') as f:
             _current = f.read()
     if _current == _data:
-        return
+        if cached_digest != digest:
+            _write_digest_cache(cache_path, digest)
+        return False
     with codecs.open(_file, 'w', 'utf8') as f:
         f.write(_data)
         logger.info('Write:{0}'.format(_file))
+    _write_digest_cache(cache_path, digest)
+    return True
 
 
 def output(story_list):
-    for i, story in enumerate(story_list):
-        story.prepare_html(story_list, i)
-        write_html(story)
+    total = len(story_list)
+    if total == 0:
+        return
+    logger.info('Render start: %d stories', total)
+    start = time.monotonic()
+    written = 0
+    for i, story in enumerate(story_list, start=1):
+        story.prepare_html(story_list, i - 1)
+        if write_html(story):
+            written += 1
+        if i == 1 or i % 50 == 0 or i == total:
+            elapsed = time.monotonic() - start
+            logger.info(
+                'Render progress: %d/%d (written=%d, elapsed=%.1fs)',
+                i, total, written, elapsed
+            )
+    logger.info(
+        'Render done: %d/%d written in %.1fs',
+        written, total, time.monotonic() - start
+    )
 
 
 def write_extra(extra):
@@ -284,10 +342,13 @@ def prepare():
 
 
 def main():
+    logger.info('Collecting stories...')
+    start = time.monotonic()
     story_list = glob_documents('./blog')
     if len(story_list) == 0:
         logger.error('NO ENTRY FOUND.')
         return
+    logger.info('Collected %d stories in %.1fs', len(story_list), time.monotonic() - start)
     output(story_list)
     context = {}
     context['config'] = config
