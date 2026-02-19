@@ -352,7 +352,8 @@ def process_docinfo(elm, registry, story):
     # print(f"[DEBUG] Number of children: {len(list(elm))}")
 
     for _elm in list(elm):
-        # print(f"[DEBUG] Processing child element, length={len(_elm)}, tag={_elm.tag if hasattr(_elm, 'tag') else 'NO TAG'}")
+        # print(f"[DEBUG] Processing child element, length={len(_elm)}, "
+        # "tag={_elm.tag if hasattr(_elm, 'tag') else 'NO TAG'}")
 
         if len(_elm) == 2:
             # print(f"[DEBUG] Child[0] tag: {_elm[0].tag}, Child[1] tag: {_elm[1].tag}")
