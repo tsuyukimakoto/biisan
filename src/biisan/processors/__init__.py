@@ -1,34 +1,60 @@
-from datetime import datetime
 import logging
+from datetime import datetime
 
 from glueplate import config
 
-
 from biisan.models import (
-    Comment, Paragraph, Section, BulletList, ListItem, Target, Raw, Image, BlockQuote, Title,
-    LiteralBlock, Figure, Caption, Table, Thead, Tbody, Tgroup, ColSpec, Row, Entry, EnumeratedList, Transition,
-    Topic, SubstitutionDefinition, Note, DefinitionList, DefinitionListItem, Term, Definition,
-    Strong, Emphasis, Reference, Literal
+    BlockQuote,
+    BulletList,
+    Caption,
+    ColSpec,
+    Comment,
+    Definition,
+    DefinitionList,
+    DefinitionListItem,
+    Emphasis,
+    Entry,
+    EnumeratedList,
+    Figure,
+    Image,
+    ListItem,
+    Literal,
+    LiteralBlock,
+    Note,
+    Paragraph,
+    Raw,
+    Reference,
+    Row,
+    Section,
+    Strong,
+    SubstitutionDefinition,
+    Table,
+    Target,
+    Tbody,
+    Term,
+    Tgroup,
+    Thead,
+    Title,
+    Topic,
+    Transition,
 )
 
 logger = logging.getLogger(__name__)
 
 
 def _debug(elm):
-    logger.debug('-' * 20)
-    logger.debug('Tag: {0}'.format(elm.tag))
-    logger.debug('text: {0}'.format(elm.text))
-    logger.debug('------- items --------------')
+    logger.debug("-" * 20)
+    logger.debug(f"Tag: {elm.tag}")
+    logger.debug(f"text: {elm.text}")
+    logger.debug("------- items --------------")
     logger.debug(elm.items())
-    logger.debug('------- getchildren --------')
+    logger.debug("------- getchildren --------")
     logger.debug(list(elm))
-    logger.debug('-' * 20)
+    logger.debug("-" * 20)
 
 
 def _datetime_with_tz(time_str):
-    _date = datetime.strptime(
-        time_str, '%Y-%m-%d %H:%M'
-    )
+    _date = datetime.strptime(time_str, "%Y-%m-%d %H:%M")
     _tm = _date.timetuple()
     return datetime(
         _tm.tm_year,
@@ -50,7 +76,7 @@ def process_field_body(elm, registry, container):
     res = []
     for x in list(elm):
         # print(f"[DEBUG]   child: tag={x.tag}, text={x.text}")
-        if 'field_list' == x.tag:
+        if "field_list" == x.tag:
             logger.warning("Ignore field_list in field_body's child")
         else:
             res.append(x.text)
@@ -90,11 +116,11 @@ def process_definition_list_item(elm, registry, container):
     definition_list_item = DefinitionListItem()
     container.add_content(definition_list_item)
     for _elm in list(elm):
-        if _elm.tag == 'term':
+        if _elm.tag == "term":
             term = Term()
             term.text = _elm.text
             definition_list_item.term = term
-        elif _elm.tag == 'definition':
+        elif _elm.tag == "definition":
             registry.process(_elm, definition_list_item)
 
 
@@ -102,23 +128,23 @@ def process_target(elm, registry, container):
     target = Target()
     container.add_content(target)
     for subitem in elm.items():
-        if subitem[0] == 'ids':
+        if subitem[0] == "ids":
             target.ids = subitem[1]
-        elif subitem[0] == 'names':
+        elif subitem[0] == "names":
             target.names = subitem[1]
-        elif subitem[0] == 'uri' or subitem[0] == 'refuri':
+        elif subitem[0] == "uri" or subitem[0] == "refuri":
             target.uri = subitem[1]
 
 
 def process_reference(elm, registry, container):
     reference = Reference()
     # Use itertext() to get all text, or use elm.text attribute if available
-    reference.text = elm.text if elm.text else ''.join(elm.itertext())
+    reference.text = elm.text if elm.text else "".join(elm.itertext())
     container.add_content(reference)
     for subitem in elm.items():
-        if subitem[0] == 'name':
+        if subitem[0] == "name":
             reference.name = subitem[1]
-        elif subitem[0] == 'uri' or subitem[0] == 'refuri':
+        elif subitem[0] == "uri" or subitem[0] == "refuri":
             reference.uri = subitem[1]
 
 
@@ -126,7 +152,7 @@ def process_raw(elm, registry, container):
     raw = Raw()
     container.add_content(raw)
     for subitem in elm.items():
-        if subitem[0] == 'format':
+        if subitem[0] == "format":
             raw.format = subitem[1]
     raw.text = elm.text
 
@@ -135,13 +161,13 @@ def process_image(elm, registry, container):
     img = Image()
     container.add_content(img)
     for subitem in elm.items():
-        if subitem[0] == 'alt':
+        if subitem[0] == "alt":
             img.alt = subitem[1]
-        elif subitem[0] == 'width':
+        elif subitem[0] == "width":
             img.width = subitem[1]
-        elif subitem[0] == 'height':
+        elif subitem[0] == "height":
             img.height = subitem[1]
-        elif subitem[0] == 'uri':
+        elif subitem[0] == "uri":
             img.uri = subitem[1]
 
 
@@ -176,7 +202,7 @@ def process_substitution_definition(elm, registry, container):
     substitution_definition = SubstitutionDefinition()
     container.add_content(substitution_definition)
     for _item in elm.items():
-        if _item[0] == 'names':
+        if _item[0] == "names":
             title = Title()
             title.text = _item[1]
             substitution_definition.title = title
@@ -221,8 +247,10 @@ def process_colspec(elm, registry, container):
     colspec = ColSpec()
     container.add_content(colspec)
     for item in elm.items():
-        if hasattr(colspec, item[0]):
-            setattr(colspec, item[1])
+        if item[0] == "colwidth":
+            colspec.width = item[1]
+        elif hasattr(colspec, item[0]):
+            setattr(colspec, item[0], item[1])
 
 
 def process_thead(elm, registry, container):
@@ -280,7 +308,7 @@ def process_document(elm, registry, container):
 def process_paragraph(elm, registry, container):
     paragraph = Paragraph()
     # Get all text for text-based element replacement
-    paragraph.text = ''.join(elm.itertext())
+    paragraph.text = "".join(elm.itertext())
     container.add_content(paragraph)
     # Process all child elements (including images)
     for _elm in list(elm):
@@ -290,21 +318,21 @@ def process_paragraph(elm, registry, container):
 def process_strong(elm, registry, container):
     strong = Strong()
     # Use itertext() to get all text including nested elements
-    strong.text = ''.join(elm.itertext())
+    strong.text = "".join(elm.itertext())
     container.add_content(strong)
 
 
 def process_emphasis(elm, registry, container):
     emphasis = Emphasis()
     # Use itertext() to get all text including nested elements
-    emphasis.text = ''.join(elm.itertext())
+    emphasis.text = "".join(elm.itertext())
     container.add_content(emphasis)
 
 
 def process_literal(elm, registry, container):
     literal = Literal()
     # Use itertext() to get all text
-    literal.text = ''.join(elm.itertext())
+    literal.text = "".join(elm.itertext())
     container.add_content(literal)
 
 
@@ -313,9 +341,9 @@ def process_section(elm, registry, container, depth=0):
     container.add_content(section)
     # Check if XML element has depth attribute (from Markdown heading level)
     # Set this AFTER add_content to override automatic depth calculation
-    if elm.get('depth'):
+    if elm.get("depth"):
         # Set depth directly from Markdown heading level
-        section.depth = int(elm.get('depth'))
+        section.depth = int(elm.get("depth"))
     for _elm in list(elm):
         registry.process(_elm, section)
 
@@ -323,18 +351,18 @@ def process_section(elm, registry, container, depth=0):
 # TODO test
 def _process_comment(elm, registry, story):
     _field_list = list(elm)[0]
-    commentator = ''
-    url = ''
+    commentator = ""
+    url = ""
     body = []
     create_date = None
     for _field in _field_list:
-        if 'commentator' == _field[0].text:
+        if "commentator" == _field[0].text:
             commentator = _field[1][0].text
-        elif 'url' == _field[0].text:
+        elif "url" == _field[0].text:
             url = _field[1].text
-        elif 'body' == _field[0].text:
+        elif "body" == _field[0].text:
             body += [x.text for x in _field[1]]
-        elif 'create_date' == _field[0].text:
+        elif "create_date" == _field[0].text:
             create_date = _datetime_with_tz(_field[1][0].text)
         else:
             logger.warning(_field[0].text)
@@ -358,38 +386,37 @@ def process_docinfo(elm, registry, story):
         if len(_elm) == 2:
             # print(f"[DEBUG] Child[0] tag: {_elm[0].tag}, Child[1] tag: {_elm[1].tag}")
 
-            if 'field_name' == _elm[0].tag:
+            if "field_name" == _elm[0].tag:
                 field_name = process_field_name(_elm[0], registry, story)
                 # print(f"[DEBUG] >>> Processing field: {field_name}")
 
-                if field_name == 'slug':
+                if field_name == "slug":
                     slug_value = process_field_body(_elm[1], registry, story)[0]
                     # print(f"[DEBUG] >>> Setting slug: {slug_value}")
                     story.slug = slug_value
-                elif field_name == 'author':
+                elif field_name == "author":
                     author_value = process_field_body(_elm[1], registry, story)[0]
                     # print(f"[DEBUG] >>> Setting author: {author_value}")
                     story.author = author_value
-                elif field_name == 'title':
+                elif field_name == "title":
                     # Support title field from YAML Front Matter
                     title_value = process_field_body(_elm[1], registry, story)[0]
                     # print(f"[DEBUG] >>> Setting title: {title_value}")
                     title = Title()
                     title.text = title_value
                     story.title = title
-                elif field_name == 'date':
+                elif field_name == "date":
                     # Get date value from field_body
                     date_value = process_field_body(_elm[1], registry, story)[0]
                     # print(f"[DEBUG] >>> Setting date: {date_value} (type: {type(date_value)})")
                     if date_value:
                         story.date = _datetime_with_tz(date_value)
                         # print(f"[DEBUG] >>> Date set to: {story.date}")
-                elif field_name == 'comment':
+                elif field_name == "comment":
                     # print(f"[DEBUG] >>> Processing comment")
                     _process_comment(_elm[1], registry, story)
                 else:
-                    _value = process_field_body(
-                        _elm[1], registry, story)[0]
+                    _value = process_field_body(_elm[1], registry, story)[0]
                     # print(f"[DEBUG] >>> Setting additional_meta[{field_name}] = {_value}")
                     if _value is None:
                         logger.warning(
@@ -398,13 +425,11 @@ def process_docinfo(elm, registry, story):
                         )
                     story.additional_meta[field_name] = _value
             else:
-                logger.warning(
-                    "elm.tag '{0}' doesn't process in process_docinfo.".format(
-                        _elm[0].tag))
-        elif 'date' == _elm.tag:
+                logger.warning(f"elm.tag '{_elm[0].tag}' doesn't process in process_docinfo.")
+        elif "date" == _elm.tag:
             # print(f"[DEBUG] >>> Direct date element: {_elm.text}")
             story.date = _datetime_with_tz(_elm.text)
-        elif 'author' == _elm.tag:
+        elif "author" == _elm.tag:
             # print(f"[DEBUG] >>> Direct author element: {_elm.text}")
             story.author = _elm.text
 
@@ -419,38 +444,34 @@ def process_docinfo(elm, registry, story):
 class FunctionRegistry(dict):
     def __init__(self, *args, **kwargs):
         for key, value in kwargs.items():
-            if hasattr(value, '__call__'):
+            if hasattr(value, "__call__"):
                 self[key] = value
             else:
-                raise ValueError('accept only callable.')
+                raise ValueError("accept only callable.")
 
     def __setattr__(self, key, value):
-        if hasattr(value, '__call__'):
+        if hasattr(value, "__call__"):
             self[key] = value
-            logger.debug(
-                'register process function: {0}'.format(
-                    self[key]))
+            logger.debug(f"register process function: {self[key]}")
         else:
-            raise ValueError('accept only callable.')
+            raise ValueError("accept only callable.")
 
     def __getattr__(self, key):
         try:
             return self[key]
         except KeyError:
-            object.__getattribute__(self, key)
+            raise AttributeError(key) from None
 
     def register(self, name, func):
         setattr(self, name, func)
 
     def process(self, elm, container):
-        _processor_name = 'process_{0}'.format(elm.tag)
+        _processor_name = f"process_{elm.tag}"
         if hasattr(self, _processor_name):
-            logger.debug('---------------')
+            logger.debug("---------------")
             logger.debug(getattr(self, _processor_name).__name__)
             logger.debug(getattr(self, _processor_name).__code__.co_varnames)
             _fnc = getattr(self, _processor_name)
             return _fnc(elm, self, container)
         else:
-            logger.debug(
-                'processor {0} is not defined and element ignored.'.format(
-                    _processor_name))
+            logger.debug(f"processor {_processor_name} is not defined and element ignored.")

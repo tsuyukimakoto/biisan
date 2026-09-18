@@ -1,7 +1,0 @@
-{
-  "extends": [
-    "config:base"
-  ],
-  "assignees": ["tsuyukimakoto"],
-  "schedule": "every weekend"
-}
