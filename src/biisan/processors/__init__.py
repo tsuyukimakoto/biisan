@@ -1,14 +1,42 @@
-from datetime import datetime
 import logging
+from datetime import datetime
 
 from glueplate import config
 
-
 from biisan.models import (
-    Comment, Paragraph, Section, BulletList, ListItem, Target, Raw, Image, BlockQuote, Title,
-    LiteralBlock, Figure, Caption, Table, Thead, Tbody, Tgroup, ColSpec, Row, Entry, EnumeratedList, Transition,
-    Topic, SubstitutionDefinition, Note, DefinitionList, DefinitionListItem, Term, Definition,
-    Strong, Emphasis, Reference, Literal
+    BlockQuote,
+    BulletList,
+    Caption,
+    ColSpec,
+    Comment,
+    Definition,
+    DefinitionList,
+    DefinitionListItem,
+    Emphasis,
+    Entry,
+    EnumeratedList,
+    Figure,
+    Image,
+    ListItem,
+    Literal,
+    LiteralBlock,
+    Note,
+    Paragraph,
+    Raw,
+    Reference,
+    Row,
+    Section,
+    Strong,
+    SubstitutionDefinition,
+    Table,
+    Target,
+    Tbody,
+    Term,
+    Tgroup,
+    Thead,
+    Title,
+    Topic,
+    Transition,
 )
 
 logger = logging.getLogger(__name__)
@@ -16,8 +44,8 @@ logger = logging.getLogger(__name__)
 
 def _debug(elm):
     logger.debug('-' * 20)
-    logger.debug('Tag: {0}'.format(elm.tag))
-    logger.debug('text: {0}'.format(elm.text))
+    logger.debug(f'Tag: {elm.tag}')
+    logger.debug(f'text: {elm.text}')
     logger.debug('------- items --------------')
     logger.debug(elm.items())
     logger.debug('------- getchildren --------')
@@ -26,9 +54,7 @@ def _debug(elm):
 
 
 def _datetime_with_tz(time_str):
-    _date = datetime.strptime(
-        time_str, '%Y-%m-%d %H:%M'
-    )
+    _date = datetime.strptime(time_str, '%Y-%m-%d %H:%M')
     _tm = _date.timetuple()
     return datetime(
         _tm.tm_year,
@@ -51,7 +77,7 @@ def process_field_body(elm, registry, container):
     for x in list(elm):
         # print(f"[DEBUG]   child: tag={x.tag}, text={x.text}")
         if 'field_list' == x.tag:
-            logger.warning("Ignore field_list in field_body's child")
+            logger.warning('Ignore field_list in a child of field_body')
         else:
             res.append(x.text)
     # print(f"[DEBUG] process_field_body result: {res}")
@@ -221,8 +247,10 @@ def process_colspec(elm, registry, container):
     colspec = ColSpec()
     container.add_content(colspec)
     for item in elm.items():
-        if hasattr(colspec, item[0]):
-            setattr(colspec, item[1])
+        if item[0] == 'colwidth':
+            colspec.width = item[1]
+        elif hasattr(colspec, item[0]):
+            setattr(colspec, item[0], item[1])
 
 
 def process_thead(elm, registry, container):
@@ -388,19 +416,16 @@ def process_docinfo(elm, registry, story):
                     # print(f"[DEBUG] >>> Processing comment")
                     _process_comment(_elm[1], registry, story)
                 else:
-                    _value = process_field_body(
-                        _elm[1], registry, story)[0]
+                    _value = process_field_body(_elm[1], registry, story)[0]
                     # print(f"[DEBUG] >>> Setting additional_meta[{field_name}] = {_value}")
                     if _value is None:
                         logger.warning(
-                            "docinfo needs escape : using \\ <- %s parse as None",
+                            'docinfo needs escape : using \\ <- %s parse as None',
                             field_name,
                         )
                     story.additional_meta[field_name] = _value
             else:
-                logger.warning(
-                    "elm.tag '{0}' doesn't process in process_docinfo.".format(
-                        _elm[0].tag))
+                logger.warning(f"elm.tag '{_elm[0].tag}' doesn't process in process_docinfo.")
         elif 'date' == _elm.tag:
             # print(f"[DEBUG] >>> Direct date element: {_elm.text}")
             story.date = _datetime_with_tz(_elm.text)
@@ -427,9 +452,7 @@ class FunctionRegistry(dict):
     def __setattr__(self, key, value):
         if hasattr(value, '__call__'):
             self[key] = value
-            logger.debug(
-                'register process function: {0}'.format(
-                    self[key]))
+            logger.debug(f'register process function: {self[key]}')
         else:
             raise ValueError('accept only callable.')
 
@@ -437,13 +460,13 @@ class FunctionRegistry(dict):
         try:
             return self[key]
         except KeyError:
-            object.__getattribute__(self, key)
+            raise AttributeError(key) from None
 
     def register(self, name, func):
         setattr(self, name, func)
 
     def process(self, elm, container):
-        _processor_name = 'process_{0}'.format(elm.tag)
+        _processor_name = f'process_{elm.tag}'
         if hasattr(self, _processor_name):
             logger.debug('---------------')
             logger.debug(getattr(self, _processor_name).__name__)
@@ -451,6 +474,4 @@ class FunctionRegistry(dict):
             _fnc = getattr(self, _processor_name)
             return _fnc(elm, self, container)
         else:
-            logger.debug(
-                'processor {0} is not defined and element ignored.'.format(
-                    _processor_name))
+            logger.debug(f'processor {_processor_name} is not defined and element ignored.')

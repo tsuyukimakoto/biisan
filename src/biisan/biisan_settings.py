@@ -1,9 +1,8 @@
-from glueplate import Glue as _
-
-from datetime import timedelta, timezone
 import logging
 import os
+from datetime import timedelta, timezone
 
+from glueplate import Glue as _
 
 settings = _(
     GLUE_PLATE_ENVIRONMENT_VARIABLE_KEY='BIISAN_SETTINGS_MODULE',
@@ -50,7 +49,7 @@ settings = _(
         'biisan.directives.PrismDirective',
         'biisan.directives.NotesDirective',
         'biisan.directives.AffDirective',
-        'biisan.directives.AppleAffButtonDirective'
+        'biisan.directives.AppleAffButtonDirective',
     ],
     directive=_(
         aff=_(
@@ -61,14 +60,12 @@ settings = _(
     extra=[
         'about',
     ],
-    template_dirs=[os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        'templates'), ],
+    template_dirs=[
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates'),
+    ],
     multiprocess=4,
     log_level=logging.INFO,
-    dir=_(
-        output='~/Desktop/biisan'
-    ),
+    dir=_(output='~/Desktop/biisan'),
     timezone=timezone(timedelta(hours=0, minutes=0)),
     custom_filters={},
     template_functions={},

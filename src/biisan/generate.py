@@ -1,29 +1,29 @@
-import biisan
-import os
-import codecs
 import hashlib
-import time
-from collections import OrderedDict
-from glob import glob
+import io
 import logging
-from multiprocessing import Pool
-from email.utils import formatdate
-from datetime import datetime
+import os
+import time
 import xml.etree.ElementTree as ET
+from collections import OrderedDict
+from datetime import datetime
+from email.utils import formatdate
+from glob import glob
+from multiprocessing import Pool
+from pathlib import Path
 
-from css_html_js_minify import html_minify
+import minify_html
 from docutils.core import publish_parts
 from docutils.parsers.rst import directives
 from glueplate import config
 
-from biisan.utils import get_klass, get_function, get_environment
-from biisan.processors import FunctionRegistry
+import biisan
 from biisan.markdown_processor import parse_markdown_to_xml
+from biisan.processors import FunctionRegistry
+from biisan.utils import get_environment, get_function, get_klass
 
 logging.basicConfig(level=config.settings.log_level)
 logger = logging.getLogger(__name__)
-processor_registry = None
-_DOCUTILS_SILENT_STREAM = open(os.devnull, 'w')
+processor_registry: FunctionRegistry | None = None
 
 
 def __latest_stories(story_list):
@@ -33,11 +33,11 @@ def __latest_stories(story_list):
 
 def _docutils_settings_overrides():
     overrides = {
-        'report_level': getattr(config.settings, 'docutils_report_level', 2),
-        'halt_level': getattr(config.settings, 'docutils_halt_level', 6),
+        'report_level': config.settings.get('docutils_report_level', 2),
+        'halt_level': config.settings.get('docutils_halt_level', 6),
     }
-    if getattr(config.settings, 'docutils_quiet_warnings', False):
-        overrides['warning_stream'] = _DOCUTILS_SILENT_STREAM
+    if config.settings.get('docutils_quiet_warnings', False):
+        overrides['warning_stream'] = io.StringIO()
     return overrides
 
 
@@ -51,31 +51,30 @@ def unmarshal_story(pth):
     Returns:
         Story object with parsed content
     """
+    path = Path(pth)
+    _ensure_prepared()
     story_class = get_klass(config.settings.story_class)
-    with codecs.open(pth, encoding='utf8') as f:
-        logger.debug('Unmarshal : {0}'.format(pth))
-        data = f.read()
+    logger.debug(f'Unmarshal : {path}')
+    data = path.read_text(encoding='utf8')
 
-        # Determine file type and parse accordingly
-        if pth.endswith('.md'):
-            # Parse Markdown to XML
-            document = parse_markdown_to_xml(data)
+    # Determine file type and parse accordingly
+    if path.suffix == '.md':
+        document = parse_markdown_to_xml(data)
+    elif path.suffix == '.rst':
+        parts = publish_parts(
+            data,
+            writer='xml',
+            settings_overrides=_docutils_settings_overrides(),
+        )
+        document = ET.fromstring(parts.get('whole'))
+    else:
+        raise ValueError(f'Unsupported file format: {path}. Only .rst and .md are supported.')
 
-        elif pth.endswith('.rst'):
-            # Parse RST to XML using docutils
-            parts = publish_parts(
-                data,
-                writer_name='xml',
-                settings_overrides=_docutils_settings_overrides(),
-            )
-            document = ET.fromstring(parts.get('whole'))
-        else:
-            raise ValueError(f'Unsupported file format: {pth}. Only .rst and .md are supported.')
-
-        _story = story_class()
-        _story.source_file = pth
-        processor_registry.process(document, _story)
-        return _story
+    story = story_class()
+    story.source_file = str(path)
+    assert processor_registry is not None
+    processor_registry.process(document, story)
+    return story
 
 
 def extract_year_month(story_list):
@@ -85,15 +84,14 @@ def extract_year_month(story_list):
         _months.append(story.date.month)
         result[story.date.year] = _months
     for key in result.keys():
-        result[key] = sorted(list(set(result.get(key))))
+        result[key] = sorted(set(result[key]))
     return result
 
 
 def pack_story_to_year_month(story_list):
     result = OrderedDict()
     for story in story_list:
-        _year_month = '{0:04d}/{1:02d}'.format(
-            story.date.year, story.date.month)
+        _year_month = f'{story.date.year:04d}/{story.date.month:02d}'
         _stories = result.get(_year_month, [])
         _stories.append(story)
         result[_year_month] = _stories
@@ -110,16 +108,13 @@ def glob_documents(base_path):
     Returns:
         Sorted list of Story objects
     """
-    pool = Pool(config.settings.multiprocess)
-
     # Collect both .rst and .md files
-    rst_files = list(glob('{0}/**/*.rst'.format(base_path), recursive=True))
-    md_files = list(glob('{0}/**/*.md'.format(base_path), recursive=True))
+    rst_files = list(glob(f'{base_path}/**/*.rst', recursive=True))
+    md_files = list(glob(f'{base_path}/**/*.md', recursive=True))
     all_files = rst_files + md_files
 
-    story_list = pool.map(unmarshal_story, all_files)
-    pool.close()
-    pool.join()
+    with Pool(config.settings.multiprocess) as pool:
+        story_list = pool.map(unmarshal_story, all_files)
     story_list.sort()
     return story_list
 
@@ -133,18 +128,17 @@ def _digest_cache_path(story):
 
 
 def _read_digest_cache(cache_path):
-    if not os.path.exists(cache_path):
+    path = Path(cache_path)
+    if not path.exists():
         return None
     try:
-        with codecs.open(cache_path, 'r', 'utf8') as f:
-            return f.read().strip()
+        return path.read_text(encoding='utf8').strip()
     except OSError:
         return None
 
 
 def _write_digest_cache(cache_path, digest):
-    with codecs.open(cache_path, 'w', 'utf8') as f:
-        f.write(digest)
+    Path(cache_path).write_text(digest, encoding='utf8')
 
 
 def write_html(story):
@@ -159,18 +153,20 @@ def write_html(story):
     if cached_digest == digest and os.path.exists(_file):
         return False
 
-    _data = html_minify(rendered)
+    _data = minify_html.minify(
+        rendered,
+        keep_closing_tags=True,
+        keep_html_and_head_opening_tags=True,
+    )
     _current = None
     if os.path.exists(_file):
-        with codecs.open(_file, 'r', 'utf8') as f:
-            _current = f.read()
+        _current = Path(_file).read_text(encoding='utf8')
     if _current == _data:
         if cached_digest != digest:
             _write_digest_cache(cache_path, digest)
         return False
-    with codecs.open(_file, 'w', 'utf8') as f:
-        f.write(_data)
-        logger.info('Write:{0}'.format(_file))
+    Path(_file).write_text(_data, encoding='utf8')
+    logger.info(f'Write:{_file}')
     _write_digest_cache(cache_path, digest)
     return True
 
@@ -188,18 +184,12 @@ def output(story_list):
             written += 1
         if i == 1 or i % 50 == 0 or i == total:
             elapsed = time.monotonic() - start
-            logger.info(
-                'Render progress: %d/%d (written=%d, elapsed=%.1fs)',
-                i, total, written, elapsed
-            )
-    logger.info(
-        'Render done: %d/%d written in %.1fs',
-        written, total, time.monotonic() - start
-    )
+            logger.info('Render progress: %d/%d (written=%d, elapsed=%.1fs)', i, total, written, elapsed)
+    logger.info('Render done: %d/%d written in %.1fs', written, total, time.monotonic() - start)
 
 
 def write_extra(extra):
-    extra_page = unmarshal_story('./extra/{0}.rst'.format(extra))
+    extra_page = unmarshal_story(f'./extra/{extra}.rst')
     extra_page.extra = extra
     extra_page.extra_directory(extra)
     output([extra_page])
@@ -209,10 +199,8 @@ def write_extra(extra):
 def write_top(context):
     env = get_environment(config)
     top = env.get_template('index.html')
-    with codecs.open(
-        os.path.join(
-            config.settings.dir.output, 'index.html'), 'w', 'utf8') as f:
-        f.write(top.render(**context))
+    output_path = Path(config.settings.dir.output, 'index.html')
+    output_path.write_text(top.render(**context), encoding='utf8')
 
 
 def write_blog_top(story_list):
@@ -220,13 +208,16 @@ def write_blog_top(story_list):
     year_month = extract_year_month(story_list)
     env = get_environment(config)
     blog_top = env.get_template('blog_top.html')
-    with codecs.open(
-        os.path.join(
-            config.settings.dir.output, 'blog', 'index.html'),
-            'w', 'utf8') as f:
-        f.write(blog_top.render(config=config,
-                latest_story_list=latest_story_list,
-                story_list=story_list, year_month=year_month))
+    output_path = Path(config.settings.dir.output, 'blog', 'index.html')
+    output_path.write_text(
+        blog_top.render(
+            config=config,
+            latest_story_list=latest_story_list,
+            story_list=story_list,
+            year_month=year_month,
+        ),
+        encoding='utf8',
+    )
 
 
 def write_blog_archive(story_list):
@@ -234,34 +225,29 @@ def write_blog_archive(story_list):
     env = get_environment(config)
     blog_archive = env.get_template('blog_archive.html')
     for _year_month, stories in packed.items():
-        with codecs.open(
-            os.path.join(
-                config.settings.dir.output, 'blog', _year_month,
-                'index.html'),
-                'w', 'utf8') as f:
-            f.write(blog_archive.render(config=config,
-                    year_month=_year_month, story_list=stories))
+        output_path = Path(config.settings.dir.output, 'blog', _year_month, 'index.html')
+        output_path.write_text(
+            blog_archive.render(config=config, year_month=_year_month, story_list=stories),
+            encoding='utf8',
+        )
 
 
 def write_rss20(story_list):
-    now_rfc2822 = formatdate(float(datetime.now(tz=config.settings.timezone).strftime('%s')))
+    now_rfc2822 = formatdate(datetime.now(tz=config.settings.timezone).timestamp())
     cnt = config.settings.latest_list_count * -1 - 1
     latest_story_list = story_list[:cnt:-1]
     env = get_environment(config)
     rss20 = env.get_template('rss20.xml')
-    rss = rss20.render(config=config,
-                       story_list=latest_story_list,
-                       now_rfc2822=now_rfc2822)
+    rss = rss20.render(config=config, story_list=latest_story_list, now_rfc2822=now_rfc2822)
     feed_dir = os.path.join(config.settings.dir.output, 'api', 'feed')
     os.makedirs(feed_dir, exist_ok=True)
-    with codecs.open(os.path.join(feed_dir, 'index.xml'), 'w', 'utf8') as f:
-        f.write(rss)
+    Path(feed_dir, 'index.xml').write_text(rss, encoding='utf8')
 
 
 def __classify_category(story_list):
     res = {}
     for story in story_list:
-        if story.has_additional_meta("category"):
+        if story.has_additional_meta('category'):
             category = story.category
             if category in res:
                 res[category].append(story)
@@ -271,55 +257,41 @@ def __classify_category(story_list):
 
 
 def write_category_rss20(category, story_list):
-    now_rfc2822 = formatdate(float(datetime.now(tz=config.settings.timezone).strftime('%s')))
+    now_rfc2822 = formatdate(datetime.now(tz=config.settings.timezone).timestamp())
     cnt = config.settings.latest_list_count * -1 - 1
     latest_story_list = story_list[:cnt:-1]
     env = get_environment(config)
     rss20 = env.get_template('rss20.xml')
-    rss = rss20.render(config=config,
-                       story_list=latest_story_list,
-                       now_rfc2822=now_rfc2822)
+    rss = rss20.render(config=config, story_list=latest_story_list, now_rfc2822=now_rfc2822)
     feed_dir = os.path.join(config.settings.dir.output, 'api', 'feed', category)
     os.makedirs(feed_dir, exist_ok=True)
-    with codecs.open(os.path.join(feed_dir, 'index.xml'), 'w', 'utf8') as f:
-        f.write(rss)
+    Path(feed_dir, 'index.xml').write_text(rss, encoding='utf8')
 
 
 def write_sitemaps(story_list):
     last_modified_iso_8601 = max(map(lambda x: x.date, story_list)).isoformat()
     env = get_environment(config)
     sitemaps = env.get_template('sitemaps.xml')
-    sitemap = sitemaps.render(config=config,
-                              story_list=story_list,
-                              last_modified=last_modified_iso_8601)
-    sitemap_dir = os.path.join(
-        config.settings.dir.output, 'api', 'google_sitemaps')
+    sitemap = sitemaps.render(config=config, story_list=story_list, last_modified=last_modified_iso_8601)
+    sitemap_dir = os.path.join(config.settings.dir.output, 'api', 'google_sitemaps')
     os.makedirs(sitemap_dir, exist_ok=True)
-    with codecs.open(os.path.join(sitemap_dir, 'index.xml'), 'w', 'utf8') as f:
-        f.write(sitemap)
+    Path(sitemap_dir, 'index.xml').write_text(sitemap, encoding='utf8')
 
 
 def write_all_entry(story_list):
     last_modified_iso_8601 = max(map(lambda x: x.date, story_list)).isoformat()
     env = get_environment(config)
     all_entry = env.get_template('blog_all.html')
-    all_entries = all_entry.render(config=config,
-                                   story_list=story_list,
-                                   last_modified=last_modified_iso_8601)
-    all_entry_dir = os.path.join(
-        config.settings.dir.output, 'blog', 'all')
+    all_entries = all_entry.render(config=config, story_list=story_list, last_modified=last_modified_iso_8601)
+    all_entry_dir = os.path.join(config.settings.dir.output, 'blog', 'all')
     os.makedirs(all_entry_dir, exist_ok=True)
-    with codecs.open(os.path.join(all_entry_dir, 'index.html'), 'w', 'utf8') as f:
-        f.write(all_entries)
+    Path(all_entry_dir, 'index.html').write_text(all_entries, encoding='utf8')
 
 
 def register_directives():
     for directive in config.settings.directives:
         directive_class = get_klass(directive)
-        directives.register_directive(
-            directive_class.directive_tag,
-            directive_class
-        )
+        directives.register_directive(directive_class.directive_tag, directive_class)
         logger.debug(directive_class)
 
 
@@ -331,8 +303,13 @@ def register_processor():
         processor_registry.register(func.__name__, func)
 
 
+def _ensure_prepared():
+    if processor_registry is None:
+        prepare()
+
+
 def print_fire_message():
-    m = '''BIISAN {0}'''.format(biisan.__version__)
+    m = f"""BIISAN {biisan.__version__}"""
     print(m)
 
 
@@ -350,10 +327,11 @@ def main():
         return
     logger.info('Collected %d stories in %.1fs', len(story_list), time.monotonic() - start)
     output(story_list)
-    context = {}
-    context['config'] = config
-    context['story_list'] = story_list
-    context['latest_story_list'] = __latest_stories(story_list)
+    context: dict[str, object] = {
+        'config': config,
+        'story_list': story_list,
+        'latest_story_list': __latest_stories(story_list),
+    }
     for extra in config.settings.extra:
         context[extra] = write_extra(extra)
     write_top(context)

@@ -1,17 +1,16 @@
+import logging
 import os
 from email.utils import formatdate
-import logging
 from hashlib import md5
 
 from glueplate import config
 
 from biisan.utils import get_environment
 
-
 logger = logging.getLogger(__name__)
 
 
-class Container(object):
+class Container:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__body = []
@@ -22,7 +21,7 @@ class Container(object):
     def add_content(self, content):
         # if issubclass(content.__class__, Document):
         #     content.cnt = len(self.__body) + 1
-        if issubclass(self.__class__, Nestable) and (type(self) == type(content)):
+        if isinstance(self, Nestable) and type(self) is type(content):
             content.depth = self.depth + 1
         self.__append_to_body(content)
         self.__body.append(content)
@@ -32,25 +31,20 @@ class Container(object):
         return self.__body
 
 
-class Nestable(object):
+class Nestable:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.depth = kwargs.get('depth', 1)
 
 
-class HTMLize(object):
+class HTMLize:
     env = get_environment(config)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def to_html(self):
-        tmpl = HTMLize.env.get_template(
-            os.path.join(
-                'components',
-                '{0}.html'.format(self.__class__.__name__).lower()
-            )
-        )
+        tmpl = HTMLize.env.get_template(os.path.join('components', f'{self.__class__.__name__}.html'.lower()))
         return tmpl.render(element=self, config=config, hash_func=md5)
 
 
@@ -80,8 +74,7 @@ class Story(Container, HTMLize):
             raise e
 
     def __repr__(self):
-        return '{0}: {1} at {2}, {3} comments'.format(
-            self.slug, self.title, self.__date, len(self.comments))
+        return f'{self.slug}: {self.title} at {self.__date}, {len(self.comments)} comments'
 
     def __getattr__(self, name):
         try:
@@ -106,72 +99,60 @@ class Story(Container, HTMLize):
     @property
     def directory(self):
         if not hasattr(self, '_directory'):
+            date = self.date
             self._directory = os.path.join(
-                '{0}'.format(config.settings.dir.output),
+                f'{config.settings.dir.output}',
                 'blog',
-                '{0:04d}'.format(self.__date.year),
-                '{0:02d}'.format(self.__date.month),
-                '{0:02d}'.format(self.__date.day),
-                self.slug
+                f'{date.year:04d}',
+                f'{date.month:02d}',
+                f'{date.day:02d}',
+                self.slug,
             )
         return self._directory
 
     @property
     def archive_directory(self):
+        date = self.date
         return os.path.join(
-            '{0}'.format(config.settings.dir.output),
+            f'{config.settings.dir.output}',
             'archive',
-            '{0:04d}'.format(self.__date.year),
-            '{0}'.format(self.__date.month)
+            f'{date.year:04d}',
+            f'{date.month}',
         )
 
     @property
     def url(self):
-        return '/blog/{0:04d}/{1:02d}/{2:02d}/{3}/{4}'.format(
-            self.__date.year,
-            self.__date.month,
-            self.__date.day,
-            self.slug,
-            '')
+        date = self.date
+        return f'/blog/{date.year:04d}/{date.month:02d}/{date.day:02d}/{self.slug}/'
 
     @property
     def publishd_date(self):
-        return '{0:04d}-{1:02d}-{2:02d}/'.format(
-            self.__date.year,
-            self.__date.month,
-            self.__date.day)
+        date = self.date
+        return f'{date.year:04d}-{date.month:02d}-{date.day:02d}/'
 
     @property
     def published_datetime(self):
-        return '{0:04d}/{1:02d}/{2:02d} {3:02d}:{4:02d}'.format(
-            self.__date.year,
-            self.__date.month,
-            self.__date.day,
-            self.__date.hour,
-            self.__date.minute)
+        date = self.date
+        return f'{date.year:04d}/{date.month:02d}/{date.day:02d} {date.hour:02d}:{date.minute:02d}'
 
     @property
     def publish_date_rfc2822(self):
-        return formatdate(float(self.__date.strftime('%s')))
+        return formatdate(self.date.timestamp())
 
     @property
     def publish_datetime_iso_8601(self):
-        return self.__date.isoformat()
+        return self.date.isoformat()
 
     def prepare_html(self, story_list, i):
         self.prev_story = previous_story(story_list, i)
         self.next_story = next_story(story_list, i)
 
     def extra_directory(self, directory):
-        self._directory = os.path.join(
-            '{0}'.format(config.settings.dir.output),
-            directory)
+        self._directory = os.path.join(f'{config.settings.dir.output}', directory)
 
 
 def archive_directory(year_month):
-    return os.path.join(
-        '{0}'.format(config.settings.dir.output),
-        'archive', year_month)
+    return os.path.join(f'{config.settings.dir.output}', 'archive', year_month)
 
 
 class Comment(Container):
@@ -190,12 +171,10 @@ class Comment(Container):
 
     @property
     def comemnted_datetime(self):
-        return '{0:04d}/{1:02d}/{2:02d} {3:02d}:{4:02d}'.format(
-            self.create_date.year,
-            self.create_date.month,
-            self.create_date.day,
-            self.create_date.hour,
-            self.create_date.minute)
+        date = self.create_date
+        if date is None:
+            raise ValueError('create_date must not be None.')
+        return f'{date.year:04d}/{date.month:02d}/{date.day:02d} {date.hour:02d}:{date.minute:02d}'
 
 
 def next_story(story_list, i):
@@ -212,7 +191,7 @@ def previous_story(story_list, i):
     return target.title, target.url
 
 
-class Document():
+class Document:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cnt = 0
@@ -231,35 +210,24 @@ class Paragraph(Document, Container, HTMLize):
         # First pass: replace text-based inline elements
         for content in self.contents:
             if isinstance(content, Strong):
-                _formated = _formated.replace(
-                    content.text, '<strong>{0}</strong>'.format(
-                        content.text))
+                _formated = _formated.replace(content.text, f'<strong>{content.text}</strong>')
             elif isinstance(content, Emphasis):
-                _formated = _formated.replace(
-                    content.text, '<i>{0}</i>'.format(
-                        content.text))
+                _formated = _formated.replace(content.text, f'<i>{content.text}</i>')
             elif isinstance(content, Literal):
-                _formated = _formated.replace(
-                    content.text, '<code>{0}</code>'.format(
-                        content.text))
+                _formated = _formated.replace(content.text, f'<code>{content.text}</code>')
             elif isinstance(content, Reference):
                 _name = content.name and content.name or content.text
                 if content.text:  # Only replace if text exists
-                    _formated = _formated.replace(
-                        content.text,
-                        '<a href="{0}">{1}</a>'.format(
-                            content.uri, _name))
+                    _formated = _formated.replace(content.text, f'<a href="{content.uri}">{_name}</a>')
             elif isinstance(content, Raw):
                 if content.format == 'html':
                     # HTML format: output as-is without wrapping
-                    _formated = _formated.replace(
-                        content.text, content.text)
+                    _formated = _formated.replace(content.text, content.text)
                 else:
                     # Other formats: wrap in pre tag
                     _formated = _formated.replace(
-                        content.text,
-                        '<pre class="code {0}">{1}</pre>'.format(
-                            content.format, content.text))
+                        content.text, f'<pre class="code {content.format}">{content.text}</pre>'
+                    )
 
         # Second pass: append non-text elements (like images)
         for content in self.contents:
@@ -267,9 +235,7 @@ class Paragraph(Document, Container, HTMLize):
                 # Image doesn't have text to replace, so we append it
                 _formated += content.to_html()
             elif not isinstance(content, (Strong, Emphasis, Literal, Reference, Raw)):
-                logger.warning(
-                    "Type:{0} in paragraph doesn't treat.".format(
-                        type(content)))
+                logger.warning(f'Paragraph does not handle type: {type(content)}.')
 
         return _formated
 
@@ -433,12 +399,7 @@ class Row(Document, Container, HTMLize):
     def to_html(self):
         if not self.header:
             return super().to_html()
-        tmpl = HTMLize.env.get_template(
-            os.path.join(
-                'components',
-                'header_{0}.html'.format(self.__class__.__name__).lower()
-            )
-        )
+        tmpl = HTMLize.env.get_template(os.path.join('components', f'header_{self.__class__.__name__}.html'.lower()))
         return tmpl.render(element=self, config=config, hash_func=md5)
 
 

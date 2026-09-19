@@ -5,13 +5,26 @@ This module provides functionality to parse Markdown files and convert them
 to docutils-compatible XML structure, allowing both RST and Markdown files
 to be processed through the same pipeline.
 """
+
+import datetime
 import re
 import xml.etree.ElementTree as ET
+from typing import Any
+
 import yaml
-from marko import Markdown
 from marko import block, inline
 from marko.ext.gfm import gfm
-from marko.ext.gfm.elements import Table, TableRow, TableCell
+from marko.ext.gfm.elements import Table
+
+
+def _children_text(node: Any) -> str:
+    """Return the string payload carried by a Marko node."""
+    children = node.children
+    if isinstance(children, str):
+        return children
+    if children and isinstance(children[0].children, str):
+        return children[0].children
+    return ''
 
 
 def extract_yaml_frontmatter(markdown_text):
@@ -40,10 +53,10 @@ def extract_yaml_frontmatter(markdown_text):
             metadata = yaml.safe_load(yaml_content)
             # print(f"[DEBUG] Parsed metadata: {metadata}")
             # Remove front matter from content
-            content = markdown_text[match.end():]
+            content = markdown_text[match.end() :]
             # print(f"[DEBUG] Content after YAML (first 100 chars): {content[:100]}")
             return metadata or {}, content
-        except yaml.YAMLError as e:
+        except yaml.YAMLError:
             # If YAML parsing fails, return original content
             # print(f"[DEBUG] YAML parsing failed: {e}")
             return {}, markdown_text
@@ -94,8 +107,6 @@ def _add_metadata_to_docinfo(metadata, docinfo):
         metadata: Dictionary of metadata from YAML Front Matter
         docinfo: docinfo XML element
     """
-    import datetime
-
     # print(f"[DEBUG] === _add_metadata_to_docinfo START ===")
     # print(f"[DEBUG] Metadata: {metadata}")
     # print(f"[DEBUG] Metadata keys: {list(metadata.keys()) if metadata else 'None'}")
@@ -184,12 +195,12 @@ def _convert_ast_to_xml_nested(node, parent, docinfo):
         literal.set('xml:space', 'preserve')
         if node.lang:
             literal.set('language', node.lang)
-        literal.text = node.children[0].children if node.children else ''
+        literal.text = _children_text(node)
 
     elif isinstance(node, block.CodeBlock):
         literal = ET.SubElement(parent, 'literal_block')
         literal.set('xml:space', 'preserve')
-        literal.text = node.children[0].children if node.children else ''
+        literal.text = _children_text(node)
 
     elif isinstance(node, block.ThematicBreak):
         ET.SubElement(parent, 'transition')
@@ -207,7 +218,12 @@ def _convert_ast_to_xml_nested(node, parent, docinfo):
             _convert_ast_to_xml_nested(child, parent, docinfo)
 
 
-def _convert_ast_to_xml(node, parent, docinfo, current_section_holder=None):
+def _convert_ast_to_xml(
+    node,
+    parent,
+    docinfo,
+    current_section_holder: list[ET.Element | None] | None = None,
+):
     """
     Convert Marko AST nodes to docutils-compatible XML elements.
 
@@ -277,13 +293,13 @@ def _convert_ast_to_xml(node, parent, docinfo, current_section_holder=None):
         literal.set('xml:space', 'preserve')
         if node.lang:
             literal.set('language', node.lang)
-        literal.text = node.children[0].children if node.children else ''
+        literal.text = _children_text(node)
 
     elif isinstance(node, block.CodeBlock):
         code_parent = current_section_holder[0] if current_section_holder[0] is not None else parent
         literal = ET.SubElement(code_parent, 'literal_block')
         literal.set('xml:space', 'preserve')
-        literal.text = node.children[0].children if node.children else ''
+        literal.text = _children_text(node)
 
     elif isinstance(node, block.ThematicBreak):
         break_parent = current_section_holder[0] if current_section_holder[0] is not None else parent
@@ -323,7 +339,7 @@ def _convert_table_to_xml(table_node, parent):
     tgroup.set('cols', str(num_cols))
 
     # Add colspec elements for each column
-    for i in range(num_cols):
+    for _ in range(num_cols):
         colspec = ET.SubElement(tgroup, 'colspec')
         colspec.set('colwidth', '1')  # Equal width columns
 
@@ -388,7 +404,7 @@ def _extract_text_from_inline(children):
         if isinstance(child, inline.RawText):
             text_parts.append(child.children)
         elif isinstance(child, inline.CodeSpan):
-            text_parts.append(child.children)
+            text_parts.append(_children_text(child))
         elif hasattr(child, 'children'):
             if isinstance(child.children, str):
                 text_parts.append(child.children)
@@ -455,7 +471,7 @@ def _process_inline_children(children, parent):
         elif isinstance(child, inline.CodeSpan):
             # Create literal element for inline code
             literal = ET.SubElement(parent, 'literal')
-            literal.text = child.children
+            literal.text = _children_text(child)
             # Don't set tail here - it will be set by next RawText
 
         elif isinstance(child, inline.LineBreak):
@@ -475,10 +491,7 @@ def _process_inline_children(children, parent):
         elif isinstance(child, inline.InlineHTML):
             raw = ET.SubElement(parent, 'raw')
             raw.set('format', 'html')
-            raw.text = child.children
+            raw.text = _children_text(child)
 
         elif hasattr(child, 'children'):
-            _process_inline_children(
-                [child.children] if isinstance(child.children, str) else child.children,
-                parent
-            )
+            _process_inline_children([child.children] if isinstance(child.children, str) else child.children, parent)

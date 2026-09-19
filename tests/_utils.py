@@ -10,7 +10,7 @@ import pytest
 
 @pytest.fixture(scope='function', autouse=True)
 def cleanup():
-    test_generate_dir = (Path('.') / 'tests' / 'biisan_data')
+    test_generate_dir = Path('.') / 'tests' / 'biisan_data'
     if test_generate_dir.exists():
         shutil.rmtree(test_generate_dir)
     yield

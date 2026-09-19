@@ -1,225 +1,159 @@
 # biisan
 
-biisan（ビーサン）は、[reStructuredText](http://docutils.sourceforge.net/rst.html)で文書を記述できるスタティックサイトジェネレーターです。
+biisan（ビーサン）は、reStructuredText または Markdown で書いたブログを静的な HTML に変換するサイトジェネレーターです。文書をモデルオブジェクトへ変換し、差し替え可能な Jinja テンプレートで出力します。
 
-## 特徴 Feature
+[English](README.md)
 
-- reStructuredTextの構造をオブジェクトの構造に変換し、reStructuredTextの[ディレクティブ](http://docutils.sourceforge.net/docs/user/rst/cheatsheet.txt)ごとにjinja2のテンプレートでhtmlに出力します
-- biisanで対応しているディレクティブに関してはデフォルトのテンプレートが付属しますが、設定で探索先を設定すると利用するテンプレートを差し替えられます
-- ディレクティブからオブジェクトへの変換プロセッサーも設定で任意のプロセッサーを差し替えられます
-- 対応していないディレクティブの処理も差し替えと同様の仕組みで対応可能です
-- 新しいディレクティブの定義も容易です
-- reStructuredTextの構造をオブジェクトへ変換する処理はmultiprocessingで並行して行われます
+## 動作環境
 
-## クイックスタート
+- Python 3.11 以降
 
-### インストール
+## 主な機能
 
-pipでインストールできます。同時に依存するライブラリーもインストールされますので、綺麗に消せるようにしておきたい場合には venv を用いて仮想環境を作ってインストールすると良いかもしれません。
+- reStructuredText と GitHub Flavored Markdown の記事を読み込む
+- 差し替え可能な Jinja テンプレートでページを生成する
+- ブログトップ、月別アーカイブ、全記事一覧、RSS、サイトマップを生成する
+- 記事のカテゴリーごとに RSS を生成する
+- 記事へ任意のメタデータを追加し、テンプレートから参照する
+- Jinja の独自フィルターとグローバル関数を登録する
+- 記事を並列に解析し、SHA-256 キャッシュで変更のないページの再出力を省く
 
-```
-$ pip install biisan
-```
+## インストール
 
-### イニシャライズ
+仮想環境を作成し、PyPI からインストールします。
 
-biisanの基本構造と、設定ファイルを生成します。実行したフォルダ直下に `biisan_data` というフォルダができます。
-
-`ブログタイトル`、 `ベースとなるURL`、 `言語コード` を聞かれるので答えます。あとから設定ファイルで変更可能です。
-
-```
-$ python -m biisan.main
-? What's your blog title  ブログタイトル
-? input your blog base url. like https://www.tsuyukimakoto.com  http:localhost
-? input your blog language like ja  ja
-
-        Always set environment variable BIISAN_SETTINGS_MODULE to biisan_local_settings like bellow.
-
-        $ export BIISAN_SETTINGS_MODULE=biisan_local_settings
-
+```console
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install biisan
 ```
 
-最後にbiisanを使うときに必ず必要な環境変数について出力されます。biisanを利用する際には必ず必要な環境変数です。
+## サイトを作る
 
-[glueplate](https://pypi.org/project/glueplate/) という設定フレームワークの設定です。
+サイトのプロジェクトを置きたいディレクトリで初期化コマンドを実行します。
 
-### 最初のエントリー
-
-生成されたフォルダの中身を確認してみましょう。
-
+```console
+python -m biisan.main
 ```
-$ cd biisan_data
-$ tree
-.
-├── data
+
+次の構成が作成されます。
+
+```text
+biisan_data/
+├── data/
 │   ├── biisan_local_settings.py
-│   ├── blog
-│   ├── extra
+│   ├── blog/
+│   ├── extra/
 │   │   └── about.rst
-│   └── templates
-└── out
+│   └── templates/
+└── out/
 ```
 
-`biisan_data`フォルダの中に`data`と`out`という2つのフォルダがあります。
+reStructuredText の記事は `biisan_data/data/blog/` に置きます。
 
-- data
+```rst
+最初の記事
+==========
 
-    - biisan_local_settings.py
-
-        設定ファイル。[大元の設定ファイル](https://github.com/tsuyukimakoto/biisan/blob/master/biisan/biisan_settings.py)の設定に追加したり上書きしたりしています。
-
-    - blog
-
-        この中にreStructuredTextのファイルを置きます。整理しやすいようにフォルダを作ると良いでしょう。blogフォルダの中のフォルダ構成は出力されるURLのpathとは関係ありません。
-
-    - extra
-
-        日付ベースのエントリーとは別のページを作りたい場合にファイルを置きます。aboutは標準で置かれて設定されています。
-        新しく追加した場合には設定ファイル(data/biisan_local_settings.py)にGLUE_PLATE_PLUS_BEFORE_extraという定義を追加します。
-
-        たとえば imusing.rst というファイルを置いた場合には `data/biisan_local_settings.py` に `GLUE_PLATE_PLUS_BEFORE_extra` を次のように定義します。
-
-        ```
-        #省略
-
-        settings = _(
-            # 省略
-            multiprocess = 8,
-            GLUE_PLATE_PLUS_BEFORE_extra = [
-                'imusing',
-            ],
-        )
-        ```
-
-        これはglueplateの仕組みで、[大元の設定ファイル](https://github.com/tsuyukimakoto/biisan/blob/master/biisan/biisan_settings.py)にある `extra` という設定の前に ['imusing',] を追加するという指定です。
-
-        [実際の設定](https://github.com/tsuyukimakoto/tsuyukimakoto.com/blob/master/data/biisan_local_settings.py#L19) も参照してみてください。
-
-    - templates
-
-        上書きしたいテンプレートを置きます。 GLUE_PLATE_PLUS_BEFORE_extra と同様に設定ファイルに `GLUE_PLATE_PLUS_BEFORE_template_dirs` が定義されているため、まずこのフォルダからテンプレートファイルを探し始めます。
-
-- out
-
-    このフォルダにhtmlが静的に出力されます。
-
-### 今度こそ最初のエントリ
-
-`data/blog`の中にmy_first_entry.rstというファイルで以下のように保存してみましょう。ファイル名は拡張子が .rst であればその前はなんでも構いません。
-
-```
-最初のエントリです
-=========================================================
-
-:slug: my_first_biisan_entry
-:date: 2019-05-05 13:00
+:slug: first-entry
+:date: 2026-09-19 13:00
 :author: あなたの名前
+:category: notes
 
-こんにちは！世界！
+こんにちは。
 ```
 
-### ビルドする
+Markdown の記事では YAML front matter にメタデータを書きます。
 
-操作は `data` ディレクトリの中で行います（biisan_data/dataの中）。
+```markdown
+---
+slug: markdown-entry
+date: 2026-09-19 14:00
+author: あなたの名前
+category: notes
+---
 
-```
-$ python -m biisan.generate
-```
+# Markdown の記事
 
-もし、以下のようなエラーが出た場合には、イニシャライズした際に表示された環境変数を設定していないためです。
-
-```
-Traceback (most recent call last):
-（省略）
-KeyError: 'BIISAN_SETTINGS_MODULE'
-```
-
-環境変数を設定していない場合には設定をし直して再度コマンドを実行してみましょう。
-
-```
-$ export BIISAN_SETTINGS_MODULE=biisan_local_settings
-$ python -m biisan.generate
+こんにちは、Markdown。
 ```
 
-もし、以下のようなエラーが出た場合には、コマンドを実行しているフォルダが間違っています。 `biisan_data/data` の中で実行しましょう。
+`data` ディレクトリからサイトを生成します。
 
-```
-Traceback (most recent call last):
-（省略）
-ModuleNotFoundError: No module named 'biisan_local_settings'
-```
-
-うまくいくと次のように出力されますので、ブラウザで開いてみましょう。
-
-```
-$ python -m biisan.generate
-BIISAN 0.3.0
-INFO:__main__:Write:（省略）/biisan_data/out/blog/2019/05/05/my_first_biisan_entry/index.html
-INFO:__main__:Write:（省略）/biisan_data/out/about/index.html
+```console
+cd biisan_data/data
+export BIISAN_SETTINGS_MODULE=biisan_local_settings
+python -m biisan.generate
 ```
 
-エントリーに記載した `date` と `slug` でURLが構成されます。この時点ではdataフォルダとoutフォルダは以下のようになります。
+記事の URL は各記事の `date` と `slug` から決まります。
 
-```
-.
-├── data
-│   ├── __pycache__
-│   │   └── biisan_local_settings.cpython-37.pyc
-│   ├── biisan_local_settings.py
-│   ├── blog
-│   │   └── my_first_entry.rst
-│   ├── extra
-│   │   └── about.rst
-│   └── templates
-└── out
-    ├── about
-    │   └── index.html
-    ├── api
-    │   ├── feed
-    │   │   └── index.xml
-    │   └── google_sitemaps
-    │       └── index.xml
-    ├── blog
-    │   ├── 2019
-    │   │   └── 05
-    │   │       ├── 05
-    │   │       │   └── my_first_biisan_entry
-    │   │       │       └── index.html
-    │   │       └── index.html
-    │   └── index.html
-    └── index.html
-```
+Markdown では見出し、段落、強調、リンク、画像、リスト、引用、コードブロック、表、区切り線、インラインおよびブロック HTML を利用できます。HTML は生成ページへそのまま出力されるため、信頼できる執筆者の入力に限って使用してください。
 
-ファイル名はindex.htmlですが、Webサーバーのディレクトリーインデックスの指定で省略できることを想定しています。
+## 生成されるファイル
 
-例えば `https://www.tsuyukimakoto.com/about/` のように、ファイル名を省略した場合にindex.htmlが返るように設定してください。
+ビルドすると `biisan_data/out/` 以下に次のページが生成されます。
 
-エントリーのパスはエントリーのrstファイルに記述した `slug` と `date` を元に作成されます。
+| パス | 内容 |
+| --- | --- |
+| `/index.html` | サイトトップ |
+| `/blog/index.html` | 新着記事とアーカイブへのリンク |
+| `/blog/all/index.html` | 全記事一覧 |
+| `/blog/YYYY/MM/index.html` | 月別アーカイブ |
+| `/blog/YYYY/MM/DD/slug/index.html` | 記事ページ |
+| `/api/feed/index.xml` | 新着記事の RSS |
+| `/api/feed/category/index.xml` | カテゴリー別 RSS |
+| `/api/google_sitemaps/index.xml` | サイトマップ |
+| `/name/index.html` | `about.rst` などの追加ページ |
 
-```
-:slug: my_first_biisan_entry
-:date: 2019-05-05 13:00
-```
+`category: notes` を指定した記事がある場合は、`/api/feed/notes/index.xml` が生成されます。各 RSS に含める記事数は `latest_list_count` で指定します。
 
-## テンプレート
+記事ページと追加ページには `.biisan.raw.sha256` も作成されます。次回のビルドでは、テンプレートによるレンダリング結果が変わっていなければ、HTML の圧縮と書き込みを省きます。
 
-ディレクティブごとにテンプレートが用意されています。スタイルなどを変更したい場合にはテンプレートをtemplatesフォルダに置きます。
+## カスタマイズ
 
-[デフォルトのテンプレート](https://github.com/tsuyukimakoto/biisan/tree/master/biisan/templates) と [実際のプロジェクトのテンプレート](https://github.com/tsuyukimakoto/tsuyukimakoto.com/tree/master/data/templates) がどうなっているか参照してみてください。
+サイトの設定は `biisan_local_settings.py` で変更します。よく使う設定は次のとおりです。
 
-## デプロイ
+| 設定 | 用途 |
+| --- | --- |
+| `blog.title` | サイトのタイトル |
+| `blog.base_url` | RSS とサイトマップで使う絶対 URL |
+| `blog.language` | RSS の言語コード |
+| `dir.output` | 出力先ディレクトリ |
+| `timezone` | 記事日時へ設定するタイムゾーン |
+| `latest_list_count` | 新着一覧と RSS に含める記事数 |
+| `multiprocess` | 文書解析に使うプロセス数 |
+| `extra` | `data/extra/` に置く追加 `.rst` ページの名前 |
+| `custom_filters` | Jinja フィルター名と呼び出し可能オブジェクトの対応 |
+| `template_functions` | Jinja グローバル名と呼び出し可能オブジェクトの対応 |
 
-outの中身を適切なサーバへ配備しましょう。ディレクトリーインデックスの指定を忘れずに。
+組み込みテンプレートと同じ相対パスでテンプレートを `data/templates/` に置くと、そのテンプレートを優先して使用します。初期化時に生成される設定では、このディレクトリが組み込みテンプレートより先に探索されます。
 
-## 追加のdocinfo
+reStructuredText の追加 docinfo と Markdown front matter の追加項目は、組み込み属性と名前が重複しない限り、テンプレートから story オブジェクトの属性として参照できます。
 
-:slug: などと同様に、任意の（ただし、Storyクラスのアトリビュートと重複しないもの）docinfoを追加できます。
+例えば `category` は記事テンプレートから `element.category` として参照できます。任意項目を参照する前に、項目の有無を確認してください。
 
-例えば、 **:og_image: https\://www.tsuyukimakoto.com/example.png** とした場合、テンプレート上で次のように使われることを想定しています。
-
+```jinja2
 {% if element.has_additional_meta("og_image") %}
-let's output {{ element.og_image }}
+  <meta property="og:image" content="{{ element.og_image }}">
 {% endif %}
+```
 
-docinfoの区切り文字が : (コロン) であるため、:は **\\** でエスケープします。
+## 開発
 
+開発環境とロックファイルの管理には [uv](https://docs.astral.sh/uv/) を使います。依存解決では、公開から7日未満の配布物を候補から除外します。
+
+```console
+uv sync --locked
+uv run pytest
+uv run ruff check src tests
+uv run pyrefly check
+uv build
+uv run twine check dist/*
+```
+
+テストは Python 3.11〜3.14 で実行します。
+
+## ライセンス
+
+MIT
