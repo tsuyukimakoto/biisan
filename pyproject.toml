@@ -54,6 +54,9 @@ dev = [
   "types-pyyaml>=6.0.12",
 ]
 
+[tool.uv]
+exclude-newer = "7 days"
+
 [tool.hatch.version]
 path = "src/biisan/__init__.py"
 
