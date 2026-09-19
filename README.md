@@ -146,7 +146,6 @@ The repository uses [uv](https://docs.astral.sh/uv/). Dependency resolution excl
 ```console
 uv sync --locked
 uv run pytest
-uv run ruff format --check src tests
 uv run ruff check src tests
 uv run pyrefly check
 uv build

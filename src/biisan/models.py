@@ -235,7 +235,7 @@ class Paragraph(Document, Container, HTMLize):
                 # Image doesn't have text to replace, so we append it
                 _formated += content.to_html()
             elif not isinstance(content, (Strong, Emphasis, Literal, Reference, Raw)):
-                logger.warning(f"Type:{type(content)} in paragraph doesn't treat.")
+                logger.warning(f'Paragraph does not handle type: {type(content)}.')
 
         return _formated
 

@@ -21,7 +21,8 @@ class PrismDirective(Directive):
     def run(self):
         css_class = ''
         if 'language' in self.options:
-            css_class = f'language-{self.options["language"]}'
+            language = self.options['language']
+            css_class = f'language-{language}'
         self.assert_has_content()
         text = f'<pre><code class="{css_class}">{self._get_escaped_content()}</code></pre>'
         return [nodes.raw('', text, format='html')]
@@ -40,7 +41,8 @@ class NotesDirective(Directive):
     def run(self):
         date_str = ''
         if 'date' in self.options:
-            date_str = f'({self.options["date"]})'
+            date = self.options['date']
+            date_str = f'({date})'
         self.assert_has_content()
         text = f"""
 <div class="notes">

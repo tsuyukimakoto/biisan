@@ -77,7 +77,7 @@ def process_field_body(elm, registry, container):
     for x in list(elm):
         # print(f"[DEBUG]   child: tag={x.tag}, text={x.text}")
         if 'field_list' == x.tag:
-            logger.warning("Ignore field_list in field_body's child")
+            logger.warning('Ignore field_list in a child of field_body')
         else:
             res.append(x.text)
     # print(f"[DEBUG] process_field_body result: {res}")

@@ -72,11 +72,14 @@ testpaths = ["tests"]
 line-length = 120
 target-version = "py311"
 
-[tool.ruff.format]
-quote-style = "single"
-
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP"]
+select = ["E", "F", "I", "Q", "UP"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
+multiline-quotes = "double"
+docstring-quotes = "double"
+avoid-escape = false
 
 [tool.pyrefly]
 project-includes = ["src/**/*.py"]

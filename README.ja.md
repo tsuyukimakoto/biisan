@@ -146,7 +146,6 @@ reStructuredText の追加 docinfo と Markdown front matter の追加項目は�
 ```console
 uv sync --locked
 uv run pytest
-uv run ruff format --check src tests
 uv run ruff check src tests
 uv run pyrefly check
 uv build

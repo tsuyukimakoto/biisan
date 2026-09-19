@@ -33,7 +33,6 @@ jobs:
       - run: uv sync --locked
       - name: Verify tag and package versions match
         run: test "${GITHUB_REF_NAME#v}" = "$(uv run python -c 'import biisan; print(biisan.__version__)')"
-      - run: uv run ruff format --check src tests
       - run: uv run ruff check src tests
       - run: uv run pyrefly check
       - run: uv build

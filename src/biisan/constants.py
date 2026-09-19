@@ -27,7 +27,7 @@ QUESTIONS = [
     {
         'type': 'input',
         'name': 'blog_title',
-        'message': "What's your blog title",
+        'message': 'What is your blog title',
     },
     {
         'type': 'input',
