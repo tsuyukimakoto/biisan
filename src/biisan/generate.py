@@ -33,11 +33,11 @@ def __latest_stories(story_list):
 
 def _docutils_settings_overrides():
     overrides = {
-        "report_level": config.settings.get("docutils_report_level", 2),
-        "halt_level": config.settings.get("docutils_halt_level", 6),
+        'report_level': config.settings.get('docutils_report_level', 2),
+        'halt_level': config.settings.get('docutils_halt_level', 6),
     }
-    if config.settings.get("docutils_quiet_warnings", False):
-        overrides["warning_stream"] = io.StringIO()
+    if config.settings.get('docutils_quiet_warnings', False):
+        overrides['warning_stream'] = io.StringIO()
     return overrides
 
 
@@ -54,21 +54,21 @@ def unmarshal_story(pth):
     path = Path(pth)
     _ensure_prepared()
     story_class = get_klass(config.settings.story_class)
-    logger.debug(f"Unmarshal : {path}")
-    data = path.read_text(encoding="utf8")
+    logger.debug(f'Unmarshal : {path}')
+    data = path.read_text(encoding='utf8')
 
     # Determine file type and parse accordingly
-    if path.suffix == ".md":
+    if path.suffix == '.md':
         document = parse_markdown_to_xml(data)
-    elif path.suffix == ".rst":
+    elif path.suffix == '.rst':
         parts = publish_parts(
             data,
-            writer="xml",
+            writer='xml',
             settings_overrides=_docutils_settings_overrides(),
         )
-        document = ET.fromstring(parts.get("whole"))
+        document = ET.fromstring(parts.get('whole'))
     else:
-        raise ValueError(f"Unsupported file format: {path}. Only .rst and .md are supported.")
+        raise ValueError(f'Unsupported file format: {path}. Only .rst and .md are supported.')
 
     story = story_class()
     story.source_file = str(path)
@@ -91,7 +91,7 @@ def extract_year_month(story_list):
 def pack_story_to_year_month(story_list):
     result = OrderedDict()
     for story in story_list:
-        _year_month = f"{story.date.year:04d}/{story.date.month:02d}"
+        _year_month = f'{story.date.year:04d}/{story.date.month:02d}'
         _stories = result.get(_year_month, [])
         _stories.append(story)
         result[_year_month] = _stories
@@ -109,8 +109,8 @@ def glob_documents(base_path):
         Sorted list of Story objects
     """
     # Collect both .rst and .md files
-    rst_files = list(glob(f"{base_path}/**/*.rst", recursive=True))
-    md_files = list(glob(f"{base_path}/**/*.md", recursive=True))
+    rst_files = list(glob(f'{base_path}/**/*.rst', recursive=True))
+    md_files = list(glob(f'{base_path}/**/*.md', recursive=True))
     all_files = rst_files + md_files
 
     with Pool(config.settings.multiprocess) as pool:
@@ -124,7 +124,7 @@ glob_rst_documents = glob_documents
 
 
 def _digest_cache_path(story):
-    return os.path.join(story.directory, ".biisan.raw.sha256")
+    return os.path.join(story.directory, '.biisan.raw.sha256')
 
 
 def _read_digest_cache(cache_path):
@@ -132,21 +132,21 @@ def _read_digest_cache(cache_path):
     if not path.exists():
         return None
     try:
-        return path.read_text(encoding="utf8").strip()
+        return path.read_text(encoding='utf8').strip()
     except OSError:
         return None
 
 
 def _write_digest_cache(cache_path, digest):
-    Path(cache_path).write_text(digest, encoding="utf8")
+    Path(cache_path).write_text(digest, encoding='utf8')
 
 
 def write_html(story):
     os.makedirs(story.directory, exist_ok=True)
-    _file = os.path.join(story.directory, "index.html")
+    _file = os.path.join(story.directory, 'index.html')
     cache_path = _digest_cache_path(story)
     rendered = story.to_html()
-    digest = hashlib.sha256(rendered.encode("utf8")).hexdigest()
+    digest = hashlib.sha256(rendered.encode('utf8')).hexdigest()
     cached_digest = _read_digest_cache(cache_path)
 
     # Fast path: if rendered content hasn't changed, skip minification and write.
@@ -160,13 +160,13 @@ def write_html(story):
     )
     _current = None
     if os.path.exists(_file):
-        _current = Path(_file).read_text(encoding="utf8")
+        _current = Path(_file).read_text(encoding='utf8')
     if _current == _data:
         if cached_digest != digest:
             _write_digest_cache(cache_path, digest)
         return False
-    Path(_file).write_text(_data, encoding="utf8")
-    logger.info(f"Write:{_file}")
+    Path(_file).write_text(_data, encoding='utf8')
+    logger.info(f'Write:{_file}')
     _write_digest_cache(cache_path, digest)
     return True
 
@@ -175,7 +175,7 @@ def output(story_list):
     total = len(story_list)
     if total == 0:
         return
-    logger.info("Render start: %d stories", total)
+    logger.info('Render start: %d stories', total)
     start = time.monotonic()
     written = 0
     for i, story in enumerate(story_list, start=1):
@@ -184,12 +184,12 @@ def output(story_list):
             written += 1
         if i == 1 or i % 50 == 0 or i == total:
             elapsed = time.monotonic() - start
-            logger.info("Render progress: %d/%d (written=%d, elapsed=%.1fs)", i, total, written, elapsed)
-    logger.info("Render done: %d/%d written in %.1fs", written, total, time.monotonic() - start)
+            logger.info('Render progress: %d/%d (written=%d, elapsed=%.1fs)', i, total, written, elapsed)
+    logger.info('Render done: %d/%d written in %.1fs', written, total, time.monotonic() - start)
 
 
 def write_extra(extra):
-    extra_page = unmarshal_story(f"./extra/{extra}.rst")
+    extra_page = unmarshal_story(f'./extra/{extra}.rst')
     extra_page.extra = extra
     extra_page.extra_directory(extra)
     output([extra_page])
@@ -198,17 +198,17 @@ def write_extra(extra):
 
 def write_top(context):
     env = get_environment(config)
-    top = env.get_template("index.html")
-    output_path = Path(config.settings.dir.output, "index.html")
-    output_path.write_text(top.render(**context), encoding="utf8")
+    top = env.get_template('index.html')
+    output_path = Path(config.settings.dir.output, 'index.html')
+    output_path.write_text(top.render(**context), encoding='utf8')
 
 
 def write_blog_top(story_list):
     latest_story_list = __latest_stories(story_list)
     year_month = extract_year_month(story_list)
     env = get_environment(config)
-    blog_top = env.get_template("blog_top.html")
-    output_path = Path(config.settings.dir.output, "blog", "index.html")
+    blog_top = env.get_template('blog_top.html')
+    output_path = Path(config.settings.dir.output, 'blog', 'index.html')
     output_path.write_text(
         blog_top.render(
             config=config,
@@ -216,19 +216,19 @@ def write_blog_top(story_list):
             story_list=story_list,
             year_month=year_month,
         ),
-        encoding="utf8",
+        encoding='utf8',
     )
 
 
 def write_blog_archive(story_list):
     packed = pack_story_to_year_month(story_list)
     env = get_environment(config)
-    blog_archive = env.get_template("blog_archive.html")
+    blog_archive = env.get_template('blog_archive.html')
     for _year_month, stories in packed.items():
-        output_path = Path(config.settings.dir.output, "blog", _year_month, "index.html")
+        output_path = Path(config.settings.dir.output, 'blog', _year_month, 'index.html')
         output_path.write_text(
             blog_archive.render(config=config, year_month=_year_month, story_list=stories),
-            encoding="utf8",
+            encoding='utf8',
         )
 
 
@@ -237,17 +237,17 @@ def write_rss20(story_list):
     cnt = config.settings.latest_list_count * -1 - 1
     latest_story_list = story_list[:cnt:-1]
     env = get_environment(config)
-    rss20 = env.get_template("rss20.xml")
+    rss20 = env.get_template('rss20.xml')
     rss = rss20.render(config=config, story_list=latest_story_list, now_rfc2822=now_rfc2822)
-    feed_dir = os.path.join(config.settings.dir.output, "api", "feed")
+    feed_dir = os.path.join(config.settings.dir.output, 'api', 'feed')
     os.makedirs(feed_dir, exist_ok=True)
-    Path(feed_dir, "index.xml").write_text(rss, encoding="utf8")
+    Path(feed_dir, 'index.xml').write_text(rss, encoding='utf8')
 
 
 def __classify_category(story_list):
     res = {}
     for story in story_list:
-        if story.has_additional_meta("category"):
+        if story.has_additional_meta('category'):
             category = story.category
             if category in res:
                 res[category].append(story)
@@ -261,31 +261,31 @@ def write_category_rss20(category, story_list):
     cnt = config.settings.latest_list_count * -1 - 1
     latest_story_list = story_list[:cnt:-1]
     env = get_environment(config)
-    rss20 = env.get_template("rss20.xml")
+    rss20 = env.get_template('rss20.xml')
     rss = rss20.render(config=config, story_list=latest_story_list, now_rfc2822=now_rfc2822)
-    feed_dir = os.path.join(config.settings.dir.output, "api", "feed", category)
+    feed_dir = os.path.join(config.settings.dir.output, 'api', 'feed', category)
     os.makedirs(feed_dir, exist_ok=True)
-    Path(feed_dir, "index.xml").write_text(rss, encoding="utf8")
+    Path(feed_dir, 'index.xml').write_text(rss, encoding='utf8')
 
 
 def write_sitemaps(story_list):
     last_modified_iso_8601 = max(map(lambda x: x.date, story_list)).isoformat()
     env = get_environment(config)
-    sitemaps = env.get_template("sitemaps.xml")
+    sitemaps = env.get_template('sitemaps.xml')
     sitemap = sitemaps.render(config=config, story_list=story_list, last_modified=last_modified_iso_8601)
-    sitemap_dir = os.path.join(config.settings.dir.output, "api", "google_sitemaps")
+    sitemap_dir = os.path.join(config.settings.dir.output, 'api', 'google_sitemaps')
     os.makedirs(sitemap_dir, exist_ok=True)
-    Path(sitemap_dir, "index.xml").write_text(sitemap, encoding="utf8")
+    Path(sitemap_dir, 'index.xml').write_text(sitemap, encoding='utf8')
 
 
 def write_all_entry(story_list):
     last_modified_iso_8601 = max(map(lambda x: x.date, story_list)).isoformat()
     env = get_environment(config)
-    all_entry = env.get_template("blog_all.html")
+    all_entry = env.get_template('blog_all.html')
     all_entries = all_entry.render(config=config, story_list=story_list, last_modified=last_modified_iso_8601)
-    all_entry_dir = os.path.join(config.settings.dir.output, "blog", "all")
+    all_entry_dir = os.path.join(config.settings.dir.output, 'blog', 'all')
     os.makedirs(all_entry_dir, exist_ok=True)
-    Path(all_entry_dir, "index.html").write_text(all_entries, encoding="utf8")
+    Path(all_entry_dir, 'index.html').write_text(all_entries, encoding='utf8')
 
 
 def register_directives():
@@ -319,18 +319,18 @@ def prepare():
 
 
 def main():
-    logger.info("Collecting stories...")
+    logger.info('Collecting stories...')
     start = time.monotonic()
-    story_list = glob_documents("./blog")
+    story_list = glob_documents('./blog')
     if len(story_list) == 0:
-        logger.error("NO ENTRY FOUND.")
+        logger.error('NO ENTRY FOUND.')
         return
-    logger.info("Collected %d stories in %.1fs", len(story_list), time.monotonic() - start)
+    logger.info('Collected %d stories in %.1fs', len(story_list), time.monotonic() - start)
     output(story_list)
     context: dict[str, object] = {
-        "config": config,
-        "story_list": story_list,
-        "latest_story_list": __latest_stories(story_list),
+        'config': config,
+        'story_list': story_list,
+        'latest_story_list': __latest_stories(story_list),
     }
     for extra in config.settings.extra:
         context[extra] = write_extra(extra)
@@ -345,7 +345,7 @@ def main():
     write_all_entry(story_list)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     print_fire_message()
     prepare()
     main()

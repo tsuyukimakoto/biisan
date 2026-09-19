@@ -13,14 +13,14 @@ tags:
 
     metadata, content = extract_yaml_frontmatter(markdown)
 
-    assert metadata["title"] == "Hello"
-    assert str(metadata["published"]) == "2026-09-19"
-    assert metadata["tags"] == ["python"]
-    assert content == "# Heading\n"
+    assert metadata['title'] == 'Hello'
+    assert str(metadata['published']) == '2026-09-19'
+    assert metadata['tags'] == ['python']
+    assert content == '# Heading\n'
 
 
 def test_invalid_yaml_is_left_as_content() -> None:
-    markdown = "---\ntitle: [\n---\n# Heading\n"
+    markdown = '---\ntitle: [\n---\n# Heading\n'
 
     metadata, content = extract_yaml_frontmatter(markdown)
 
@@ -59,17 +59,17 @@ print('hello')
 
     document = parse_markdown_to_xml(markdown)
 
-    assert document.tag == "document"
-    assert document.findtext("./docinfo/field/field_name") == "title"
-    assert document.findtext("./section/title") == "Heading"
-    assert document.findtext(".//strong") == "bold"
-    assert document.findtext(".//emphasis") == "emphasis"
-    assert document.findtext(".//literal") == "code"
-    assert document.find(".//reference").get("refuri") == "https://example.com"
-    assert document.find(".//image").get("alt") == "alt"
-    assert len(document.findall(".//block_quote/paragraph")) == 1
-    assert len(document.findall(".//enumerated_list/list_item")) == 2
-    assert document.find(".//table/tgroup").get("cols") == "2"
-    assert document.find(".//transition") is not None
-    assert document.find(".//literal_block").get("language") == "python"
-    assert document.find(".//raw").get("format") == "html"
+    assert document.tag == 'document'
+    assert document.findtext('./docinfo/field/field_name') == 'title'
+    assert document.findtext('./section/title') == 'Heading'
+    assert document.findtext('.//strong') == 'bold'
+    assert document.findtext('.//emphasis') == 'emphasis'
+    assert document.findtext('.//literal') == 'code'
+    assert document.find('.//reference').get('refuri') == 'https://example.com'
+    assert document.find('.//image').get('alt') == 'alt'
+    assert len(document.findall('.//block_quote/paragraph')) == 1
+    assert len(document.findall('.//enumerated_list/list_item')) == 2
+    assert document.find('.//table/tgroup').get('cols') == '2'
+    assert document.find('.//transition') is not None
+    assert document.find('.//literal_block').get('language') == 'python'
+    assert document.find('.//raw').get('format') == 'html'

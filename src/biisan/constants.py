@@ -25,20 +25,20 @@ ABOUT_TMPL = """About {blog_title}
 
 QUESTIONS = [
     {
-        "type": "input",
-        "name": "blog_title",
-        "message": "What's your blog title",
+        'type': 'input',
+        'name': 'blog_title',
+        'message': "What's your blog title",
     },
     {
-        "type": "input",
-        "name": "base_url",
-        "message": "input your blog base url. like https://www.tsuyukimakoto.com",
+        'type': 'input',
+        'name': 'base_url',
+        'message': 'input your blog base url. like https://www.tsuyukimakoto.com',
     },
     {
-        "type": "input",
-        "name": "language",
-        "message": "input your blog language like ja",
+        'type': 'input',
+        'name': 'language',
+        'message': 'input your blog language like ja',
     },
 ]
 
-BIISAN_DATA_DIR = "biisan_data"
+BIISAN_DATA_DIR = 'biisan_data'

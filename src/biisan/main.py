@@ -15,18 +15,18 @@ from biisan.constants import (
 
 def check_already_init(data_dir):
     if os.path.exists(data_dir):
-        sys.exit(f"biisan data directory, {BIISAN_DATA_DIR} exists already.")
+        sys.exit(f'biisan data directory, {BIISAN_DATA_DIR} exists already.')
 
 
 def initialize_structures(data_dir, answer):
     check_already_init(data_dir)
     os.mkdir(data_dir)
-    os.mkdir(os.path.join(data_dir, "data"))
-    os.mkdir(os.path.join(data_dir, "data", "blog"))
-    os.mkdir(os.path.join(data_dir, "data", "templates"))
-    os.mkdir(os.path.join(data_dir, "data", "extra"))
-    os.mkdir(os.path.join(data_dir, "out"))
-    with open(os.path.join(data_dir, "data", "biisan_local_settings.py"), "w") as f:
+    os.mkdir(os.path.join(data_dir, 'data'))
+    os.mkdir(os.path.join(data_dir, 'data', 'blog'))
+    os.mkdir(os.path.join(data_dir, 'data', 'templates'))
+    os.mkdir(os.path.join(data_dir, 'data', 'extra'))
+    os.mkdir(os.path.join(data_dir, 'out'))
+    with open(os.path.join(data_dir, 'data', 'biisan_local_settings.py'), 'w') as f:
         f.write(
             SETTINGS_TMPL.format(
                 multicore=multiprocessing.cpu_count(),
@@ -34,7 +34,7 @@ def initialize_structures(data_dir, answer):
             ),
         )
     n = datetime.now()
-    with open(os.path.join(data_dir, "data", "extra", "about.rst"), "w") as f:
+    with open(os.path.join(data_dir, 'data', 'extra', 'about.rst'), 'w') as f:
         f.write(
             ABOUT_TMPL.format(
                 year=n.year,
@@ -50,7 +50,13 @@ def initialize_structures(data_dir, answer):
 def init():
     data_dir = os.path.join(os.getcwd(), BIISAN_DATA_DIR)
     check_already_init(data_dir)
-    questions = [inquirer.Text(x["name"], message=x["message"]) for x in QUESTIONS]
+    questions = [  # fmt: skip
+        inquirer.Text(
+            x['name'],
+            message=x['message'],
+        )
+        for x in QUESTIONS
+    ]
     answer = inquirer.prompt(questions)
     initialize_structures(data_dir, answer)
     print("""
@@ -60,5 +66,5 @@ def init():
         """)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     init()

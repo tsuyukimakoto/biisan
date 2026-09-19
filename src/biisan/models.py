@@ -34,7 +34,7 @@ class Container:
 class Nestable:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.depth = kwargs.get("depth", 1)
+        self.depth = kwargs.get('depth', 1)
 
 
 class HTMLize:
@@ -44,21 +44,21 @@ class HTMLize:
         super().__init__(*args, **kwargs)
 
     def to_html(self):
-        tmpl = HTMLize.env.get_template(os.path.join("components", f"{self.__class__.__name__}.html".lower()))
+        tmpl = HTMLize.env.get_template(os.path.join('components', f'{self.__class__.__name__}.html'.lower()))
         return tmpl.render(element=self, config=config, hash_func=md5)
 
 
 class Story(Container, HTMLize):
     def __init__(self):
         super().__init__()
-        self.slug = ""
-        self.title = ""
+        self.slug = ''
+        self.title = ''
         self.__date = None
-        self.author = ""
+        self.author = ''
         self.__body = []
         self.comments = []
         self._timestamp = None
-        self.source_file = ""
+        self.source_file = ''
         self.extra = None
         self.additional_meta = {}
 
@@ -66,19 +66,19 @@ class Story(Container, HTMLize):
         try:
             return self._timestamp <= other._timestamp
         except TypeError as e:
-            logger.error("-" * 20)
+            logger.error('-' * 20)
             logger.error(self.source_file)
             logger.error(self.slug)
             logger.error(self.__body)
-            logger.error("=" * 20)
+            logger.error('=' * 20)
             raise e
 
     def __repr__(self):
-        return f"{self.slug}: {self.title} at {self.__date}, {len(self.comments)} comments"
+        return f'{self.slug}: {self.title} at {self.__date}, {len(self.comments)} comments'
 
     def __getattr__(self, name):
         try:
-            return object.__getattribute__(self, "additional_meta")[name]
+            return object.__getattribute__(self, 'additional_meta')[name]
         except KeyError:
             object.__getattribute__(self, name)
 
@@ -88,7 +88,7 @@ class Story(Container, HTMLize):
     @property
     def date(self):
         if self.__date is None:
-            raise ValueError("date must not be None.")
+            raise ValueError('date must not be None.')
         return self.__date
 
     @date.setter
@@ -98,14 +98,14 @@ class Story(Container, HTMLize):
 
     @property
     def directory(self):
-        if not hasattr(self, "_directory"):
+        if not hasattr(self, '_directory'):
             date = self.date
             self._directory = os.path.join(
-                f"{config.settings.dir.output}",
-                "blog",
-                f"{date.year:04d}",
-                f"{date.month:02d}",
-                f"{date.day:02d}",
+                f'{config.settings.dir.output}',
+                'blog',
+                f'{date.year:04d}',
+                f'{date.month:02d}',
+                f'{date.day:02d}',
                 self.slug,
             )
         return self._directory
@@ -114,26 +114,26 @@ class Story(Container, HTMLize):
     def archive_directory(self):
         date = self.date
         return os.path.join(
-            f"{config.settings.dir.output}",
-            "archive",
-            f"{date.year:04d}",
-            f"{date.month}",
+            f'{config.settings.dir.output}',
+            'archive',
+            f'{date.year:04d}',
+            f'{date.month}',
         )
 
     @property
     def url(self):
         date = self.date
-        return f"/blog/{date.year:04d}/{date.month:02d}/{date.day:02d}/{self.slug}/"
+        return f'/blog/{date.year:04d}/{date.month:02d}/{date.day:02d}/{self.slug}/'
 
     @property
     def publishd_date(self):
         date = self.date
-        return f"{date.year:04d}-{date.month:02d}-{date.day:02d}/"
+        return f'{date.year:04d}-{date.month:02d}-{date.day:02d}/'
 
     @property
     def published_datetime(self):
         date = self.date
-        return f"{date.year:04d}/{date.month:02d}/{date.day:02d} {date.hour:02d}:{date.minute:02d}"
+        return f'{date.year:04d}/{date.month:02d}/{date.day:02d} {date.hour:02d}:{date.minute:02d}'
 
     @property
     def publish_date_rfc2822(self):
@@ -148,18 +148,18 @@ class Story(Container, HTMLize):
         self.next_story = next_story(story_list, i)
 
     def extra_directory(self, directory):
-        self._directory = os.path.join(f"{config.settings.dir.output}", directory)
+        self._directory = os.path.join(f'{config.settings.dir.output}', directory)
 
 
 def archive_directory(year_month):
-    return os.path.join(f"{config.settings.dir.output}", "archive", year_month)
+    return os.path.join(f'{config.settings.dir.output}', 'archive', year_month)
 
 
 class Comment(Container):
     def __init__(self):
         super().__init__()
-        self.commentator = ""
-        self.url = ""
+        self.commentator = ''
+        self.url = ''
         self.create_date = None
 
     # def add_content(self, content):
@@ -173,20 +173,20 @@ class Comment(Container):
     def comemnted_datetime(self):
         date = self.create_date
         if date is None:
-            raise ValueError("create_date must not be None.")
-        return f"{date.year:04d}/{date.month:02d}/{date.day:02d} {date.hour:02d}:{date.minute:02d}"
+            raise ValueError('create_date must not be None.')
+        return f'{date.year:04d}/{date.month:02d}/{date.day:02d} {date.hour:02d}:{date.minute:02d}'
 
 
 def next_story(story_list, i):
     if i >= len(story_list) - 1:
-        return "", ""
+        return '', ''
     target = story_list[i + 1]
     return target.title, target.url
 
 
 def previous_story(story_list, i):
     if i == 0:
-        return "", ""
+        return '', ''
     target = story_list[i - 1]
     return target.title, target.url
 
@@ -200,7 +200,7 @@ class Document:
 class Paragraph(Document, Container, HTMLize):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.text = ""
+        self.text = ''
 
     @property
     def formated(self):
@@ -210,17 +210,17 @@ class Paragraph(Document, Container, HTMLize):
         # First pass: replace text-based inline elements
         for content in self.contents:
             if isinstance(content, Strong):
-                _formated = _formated.replace(content.text, f"<strong>{content.text}</strong>")
+                _formated = _formated.replace(content.text, f'<strong>{content.text}</strong>')
             elif isinstance(content, Emphasis):
-                _formated = _formated.replace(content.text, f"<i>{content.text}</i>")
+                _formated = _formated.replace(content.text, f'<i>{content.text}</i>')
             elif isinstance(content, Literal):
-                _formated = _formated.replace(content.text, f"<code>{content.text}</code>")
+                _formated = _formated.replace(content.text, f'<code>{content.text}</code>')
             elif isinstance(content, Reference):
                 _name = content.name and content.name or content.text
                 if content.text:  # Only replace if text exists
                     _formated = _formated.replace(content.text, f'<a href="{content.uri}">{_name}</a>')
             elif isinstance(content, Raw):
-                if content.format == "html":
+                if content.format == 'html':
                     # HTML format: output as-is without wrapping
                     _formated = _formated.replace(content.text, content.text)
                 else:
@@ -243,19 +243,19 @@ class Paragraph(Document, Container, HTMLize):
 class Strong(Document, HTMLize):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.text = ""
+        self.text = ''
 
 
 class Emphasis(Document, HTMLize):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.text = ""
+        self.text = ''
 
 
 class Section(Document, Container, Nestable, HTMLize):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.title = ""
+        self.title = ''
 
 
 class BulletList(Document, Container, Nestable, HTMLize):
@@ -276,53 +276,53 @@ class ListItem(Document, Container, Nestable, HTMLize):
 class Title(Document):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.text = ""
+        self.text = ''
 
     def __repr__(self):
-        return self.text or ""
+        return self.text or ''
 
 
 class Target(Document, HTMLize):
     def __init__(self):
         super().__init__()
-        self.ids = ""
-        self.names = ""
-        self.uri = ""
+        self.ids = ''
+        self.names = ''
+        self.uri = ''
 
 
 class Reference(Document, HTMLize):
     def __init__(self):
         super().__init__()
-        self.name = ""
-        self.uri = ""
-        self.text = ""
+        self.name = ''
+        self.uri = ''
+        self.text = ''
 
 
 class Literal(Document, HTMLize):
     def __init__(self):
         super().__init__()
-        self.text = ""
+        self.text = ''
 
 
 class Raw(Document, HTMLize):
     def __init__(self):
         super().__init__()
-        self.format = ""
-        self.text = ""
+        self.format = ''
+        self.text = ''
 
 
 class Image(Document, HTMLize):
     def __init__(self):
         super().__init__()
-        self.alt = ""
-        self.uri = ""
+        self.alt = ''
+        self.uri = ''
         self._width = None
         self._height = None
 
     @property
     def width(self):
         if not self._width:
-            return ""
+            return ''
         return self._width
 
     @width.setter
@@ -332,7 +332,7 @@ class Image(Document, HTMLize):
     @property
     def height(self):
         if not self._height:
-            return ""
+            return ''
         return self._height
 
     @height.setter
@@ -348,7 +348,7 @@ class BlockQuote(Document, Container, Nestable, HTMLize):
 class LiteralBlock(Document, Container, Nestable, HTMLize):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.text = kwargs.get("text", "")
+        self.text = kwargs.get('text', '')
 
 
 class Figure(Document, Container, HTMLize):
@@ -359,7 +359,7 @@ class Figure(Document, Container, HTMLize):
 class Caption(Document, HTMLize):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.text = ""
+        self.text = ''
 
 
 class Table(Document, Container, HTMLize):
@@ -386,7 +386,7 @@ class Tgroup(Document, Container, HTMLize):
 class ColSpec(Document, HTMLize):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.colname = ""
+        self.colname = ''
         self.width = None
         self.scale = 100
 
@@ -399,7 +399,7 @@ class Row(Document, Container, HTMLize):
     def to_html(self):
         if not self.header:
             return super().to_html()
-        tmpl = HTMLize.env.get_template(os.path.join("components", f"header_{self.__class__.__name__}.html".lower()))
+        tmpl = HTMLize.env.get_template(os.path.join('components', f'header_{self.__class__.__name__}.html'.lower()))
         return tmpl.render(element=self, config=config, hash_func=md5)
 
 
@@ -438,7 +438,7 @@ class DefinitionList(Document, Container, Nestable, HTMLize):
 class Term(Document):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.text = kwargs.get("text", "")
+        self.text = kwargs.get('text', '')
 
 
 class Definition(Document, Container):

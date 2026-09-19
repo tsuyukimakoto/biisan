@@ -14,42 +14,42 @@ class PrismDirective(Directive):
       :language: bash
     """
 
-    directive_tag = "prism"
+    directive_tag = 'prism'
     has_content = True
-    option_spec = {"language": directives.unchanged}
+    option_spec = {'language': directives.unchanged}
 
     def run(self):
-        css_class = ""
-        if "language" in self.options:
-            css_class = f"language-{self.options['language']}"
+        css_class = ''
+        if 'language' in self.options:
+            css_class = f'language-{self.options["language"]}'
         self.assert_has_content()
         text = f'<pre><code class="{css_class}">{self._get_escaped_content()}</code></pre>'
-        return [nodes.raw("", text, format="html")]
+        return [nodes.raw('', text, format='html')]
 
     def _get_escaped_content(self):
-        return "\n".join(map(escape, self.content))
+        return '\n'.join(map(escape, self.content))
 
 
 class NotesDirective(Directive):
     """ """
 
-    directive_tag = "notes"
+    directive_tag = 'notes'
     has_content = True
-    option_spec = {"date": directives.unchanged}
+    option_spec = {'date': directives.unchanged}
 
     def run(self):
-        date_str = ""
-        if "date" in self.options:
-            date_str = f"({self.options['date']})"
+        date_str = ''
+        if 'date' in self.options:
+            date_str = f'({self.options["date"]})'
         self.assert_has_content()
         text = f"""
 <div class="notes">
   <blockquote class="last"><i class="icon-info"></i>{self._get_escaped_content()} {date_str}</blockquote>
 </div>"""
-        return [nodes.raw("", text, format="html")]
+        return [nodes.raw('', text, format='html')]
 
     def _get_escaped_content(self):
-        return "\n".join(map(escape, self.content))
+        return '\n'.join(map(escape, self.content))
 
 
 class AffDirective(Directive):
@@ -60,24 +60,24 @@ class AffDirective(Directive):
       :aftag: tag
     """
 
-    directive_tag = "aff"
+    directive_tag = 'aff'
     has_content = True
     option_spec = {
-        "asin": directives.unchanged,
-        "title": directives.unchanged,
-        "image_url": directives.unchanged,
+        'asin': directives.unchanged,
+        'title': directives.unchanged,
+        'image_url': directives.unchanged,
     }
 
     def run(self):
-        _asin = str(self.options["asin"])
-        _title = str(self.options["title"])
+        _asin = str(self.options['asin'])
+        _title = str(self.options['title'])
         self.assert_has_content()
-        _image_url = self.options.get("image_url", None)
+        _image_url = self.options.get('image_url', None)
         if _image_url:
             _image_url = f'<img src="{_image_url}">'
         else:
             _image_url = '<img src="http://images-jp.amazon.com/images/P/{asin}.09.SZZZZZZZ.jpg">'.format(
-                asin=self.options["asin"],
+                asin=self.options['asin'],
             )
         text = """
 <div class="biisan-aff">
@@ -105,9 +105,9 @@ class AffDirective(Directive):
             image_url=_image_url,
             tld=config.settings.directive.aff.tld,
             tag=config.settings.directive.aff.tag,
-            contents="<br />".join(self.content),
+            contents='<br />'.join(self.content),
         )
-        return [nodes.raw("", text, format="html")]
+        return [nodes.raw('', text, format='html')]
 
 
 class AppleAffButtonDirective(Directive):
@@ -117,14 +117,14 @@ class AppleAffButtonDirective(Directive):
       :shop: appstore / macappstore / itunes / music
     """
 
-    directive_tag = "appleaff"
+    directive_tag = 'appleaff'
     has_content = False
-    option_spec = {"at": directives.unchanged, "url": directives.unchanged, "shop": directives.unchanged}
+    option_spec = {'at': directives.unchanged, 'url': directives.unchanged, 'shop': directives.unchanged}
     shop_type_button = {
-        "appstore": "https://linkmaker.itunes.apple.com/images/badges/ja-jp/badge_appstore-lrg.svg",
-        "macappstore": "https://linkmaker.itunes.apple.com/images/badges/ja-jp/badge_macappstore-lrg.svg",
-        "itunes": "https://linkmaker.itunes.apple.com/images/badges/ja-jp/badge_itunes-lrg.svg",
-        "music": "https://linkmaker.itunes.apple.com/images/badges/ja-jp/badge_music-lrg.svg",
+        'appstore': 'https://linkmaker.itunes.apple.com/images/badges/ja-jp/badge_appstore-lrg.svg',
+        'macappstore': 'https://linkmaker.itunes.apple.com/images/badges/ja-jp/badge_macappstore-lrg.svg',
+        'itunes': 'https://linkmaker.itunes.apple.com/images/badges/ja-jp/badge_itunes-lrg.svg',
+        'music': 'https://linkmaker.itunes.apple.com/images/badges/ja-jp/badge_music-lrg.svg',
     }
 
     def get_shop(self, shop_type):
@@ -132,11 +132,11 @@ class AppleAffButtonDirective(Directive):
         return AppleAffButtonDirective.shop_type_button[shop_type]
 
     def run(self):
-        _url = str(self.options["url"])
-        _shop = str(self.options["shop"])
+        _url = str(self.options['url'])
+        _shop = str(self.options['shop'])
         _shop_button = self.get_shop(_shop)
-        _affurl = "?" in _url and "{0}&at={1}" or "{0}?at={1}"
+        _affurl = '?' in _url and '{0}&at={1}' or '{0}?at={1}'
         _affurl = _affurl.format(_url, config.settings.directive.appleaff.at)
         text = f"""<a class="biisan-apple-aff" href="{_affurl}"><img
   src="{_shop_button}" /></a>"""
-        return [nodes.raw("", text, format="html")]
+        return [nodes.raw('', text, format='html')]
